@@ -166,10 +166,16 @@ export function Moments() {
     enroll: { head: "This is your once-a-year chance to set up an HSA", body: `If you pick an HSA-qualifying high-deductible plan, ${money(1500)} a year saves about ${money(1500 * (tax + 0.0765))} in taxes and grows tax-free for medical costs. Compare total costs (premiums + deductible) before switching.`, action: { label: `Add a ${money(1500)}/yr HSA to my plan`, patch: { hsaAnnual: Math.max(1500, a.hsaAnnual ?? 0) } }, lesson: "#/learn/hsa" },
     bill: { head: "Pay it from savings, not a credit card", body: p.savings >= efGoal ? `Your ${money(p.savings)} cushion covers 3 months of essentials. That's exactly what it's for. Refill it afterwards with an automatic transfer.` : `Your cushion is ${money(p.savings)}; a 3-month goal is ${money(efGoal)}. If you must use a card, a $3,000 bill at 22% APR paid over 2 years costs about ${money(3000 * 0.22 * 1.05)} in interest. Keep the cushion in a high-yield account so it grows while it waits.`, action: { label: "Keep my cushion in high-yield savings (4%)", patch: { cashRate: 0.04 } }, lesson: "#/learn/bank" },
     college: { head: kid ? `${kid.name}'s 4 years could cost about ${compact(kidCost!.totalCost)}` : "Plan for college without wrecking retirement", body: kid ? `File the FAFSA as soon as it opens. It unlocks Pell Grants, state grants and college aid. Compare net price after aid, and consider community college first. Keep saving for retirement too: students can borrow for college, but nobody lends you money for retirement.` : "File the FAFSA every year, compare net price after aid, and keep retirement savings going.", lesson: "#/learn/college" },
-    crash: { head: "Don't sell. Stay the course.", body: `Selling after a drop locks in the loss. Historically, some of the best days came right after the worst. Keep money you'll need in the next 3 years in savings, and long-term money in diversified index funds you can leave alone.`, action: { label: "Use a balanced index-fund mix", patch: { returnRate: 0.06 } }, lesson: "#/learn/invest" },
+    crash: { head: "Don't sell. Stay the course.", body: `Say the market drops 25% and ${isDaveProfile(p) ? "Dave's" : "your"} ${money(p.retirement)} retirement account falls to ${money(p.retirement * 0.75)}. Selling turns that paper loss into a real one, and you usually miss the recovery. Money you'll need in the next 3 years belongs in savings; long-term money stays in diversified index funds.`, lesson: "#/learn/invest" },
     retire: { head: proj.depletedAge ? `Today, savings run out at age ${proj.depletedAge}` : "Your money lasts past 90", body: `Working 2 more years (to ${a.retireAge + 2}) means 2 more years of saving and 2 fewer years to fund. With your plan, money would last until ${later.depletedAge ? `age ${later.depletedAge}` : "past 90"}. Also check your real Social Security estimate at ssa.gov: waiting to claim raises your monthly check.`, action: { label: `Try retiring at ${a.retireAge + 2}`, patch: { retireAge: Math.min(75, a.retireAge + 2) } }, lesson: "#/learn/accounts" },
   };
   const c = sel ? content[sel] : null;
+  // Market drop: what Dave's invested money looks like at retirement if he stays vs. panic-sells.
+  // Illustration: a 25% drop, then the market recovers over 3 years (+12%/yr); selling locks in the loss and earns ~3% in cash.
+  const yrsLeft = Math.max(3, a.retireAge - p.age);
+  const afterDrop = p.retirement * 0.75;
+  const stay = afterDrop * Math.pow(1.12, 3) * Math.pow(1 + a.returnRate, yrsLeft - 3);
+  const sell = afterDrop * Math.pow(1.03, 3) * Math.pow(1 + a.returnRate, yrsLeft - 3);
 
   return (
     <Card className="mt-5">
@@ -188,6 +194,21 @@ export function Moments() {
           <motion.div key={sel} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-4 rounded-2xl bg-sky-soft p-5">
             <div className="font-display text-xl font-semibold text-navy">{c.head}</div>
             <p className="mt-1 text-[15px] text-slate-700">{c.body}</p>
+            {sel === "crash" && (
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl bg-white p-4 ring-2 ring-emerald-400">
+                  <div className="text-[13px] font-bold uppercase tracking-wider text-emerald-700">🧘 Stay invested</div>
+                  <div className="num mt-1 font-display text-3xl font-semibold text-navy">{compact(stay)}</div>
+                  <div className="text-[13px] text-slate-500">at {a.retireAge}, after the market recovers</div>
+                </div>
+                <div className="rounded-2xl bg-white p-4 ring-1 ring-orange-200">
+                  <div className="text-[13px] font-bold uppercase tracking-wider text-orange-700">🏃 Sell and wait in cash</div>
+                  <div className="num mt-1 font-display text-3xl font-semibold text-navy">{compact(sell)}</div>
+                  <div className="text-[13px] text-slate-500">at {a.retireAge}: about <b className="text-orange-700">{compact(stay - sell)} less</b></div>
+                </div>
+                <p className="text-[12px] text-slate-500 sm:col-span-2">Illustration: a 25% drop, then 3 recovery years (+12% a year) vs. 3 years in cash (+3% a year), then the same {Math.round(a.returnRate * 1000) / 10}% average growth. Real markets don't follow a script, and past recoveries don't guarantee future ones.</p>
+              </div>
+            )}
             <div className="mt-2"><Verified /></div>
             <div className="mt-3 flex flex-wrap gap-2">
               {c.action && (applied === sel
