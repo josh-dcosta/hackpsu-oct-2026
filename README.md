@@ -42,7 +42,7 @@ npm test                     # formula sanity checks
 ## Deploy on Railway
 1. Railway → **New Project → Deploy from GitHub repo** → pick this repo.
 2. **Variables** tab → add `ANTHROPIC_API_KEY` (never commit it).
-3. **Settings → Networking → Generate Domain**. `railway.json` already sets the build command, start command and `/api/health` health check.
+3. **Settings → Networking → Generate Domain**. `railway.json` already sets the build step (Railway installs packages itself), start command and `/api/health` health check.
 
 ## Responsible use
 Educational estimates with fictional money. Not financial, tax, legal or investment advice. Ripple never asks for passwords, account numbers or Social Security numbers.
