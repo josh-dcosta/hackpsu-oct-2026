@@ -1,76 +1,45 @@
 import { CheckCircle2, Circle, Download, RotateCcw, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
-import { useStore, BADGES } from "../lib/store";
+import { useStore } from "../lib/store";
 import { MODULES, moduleHref } from "../data/modules";
 import { RULES } from "../lib/rules";
 import { downloadPlan } from "../lib/pdf";
-import { Button, Card, Stat, cx } from "../components/ui";
-
-const MILESTONES = [
-  { xp: 100, name: "Money Curious", emoji: "🌱" },
-  { xp: 300, name: "Smart Saver", emoji: "🌿" },
-  { xp: 600, name: "Future Builder", emoji: "🌳" },
-  { xp: 1000, name: "Next Step Master", emoji: "🌊" },
-];
+import { Button, Card, Stat } from "../components/ui";
 
 export default function Progress() {
   const st = useStore();
-  const { xp, badges, done, quiz, resetAll, profile } = st;
-  const level = Math.floor(xp / 200) + 1;
+  const { done, quiz, resetAll, profile, stepsDone } = st;
   const correct = Object.values(quiz).flatMap((q) => Object.values(q)).filter(Boolean).length;
   const answered = Object.values(quiz).flatMap((q) => Object.values(q)).length;
+  const stepsChecked = Object.values(stepsDone || {}).filter(Boolean).length;
+  const pctDone = Math.round((done.length / MODULES.length) * 100);
   return (
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-4xl font-semibold">Your progress</h1>
-          <p className="mt-1 text-lg text-slate-500">You earn XP for learning and experimenting, never for taking more risk.</p>
+          <p className="mt-1 text-lg text-slate-500">Lessons you've completed and the real-world steps you've taken.</p>
         </div>
-        <Button onClick={() => downloadPlan({ profile, assumptions: st.assumptions, story: st.story, done, xp, badges, stepsDone: st.stepsDone })}><Download size={18} /> Download my plan (PDF)</Button>
+        <Button onClick={() => downloadPlan({ profile, assumptions: st.assumptions, story: st.story, done, xp: 0, badges: [], stepsDone })}><Download size={18} /> Download my plan (PDF)</Button>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Level" value={level} tone="navy" big />
-        <Stat label="XP" value={xp} tone="green" big />
-        <Stat label="Lessons" value={`${done.length}/10`} tone="sky" big />
-        <Stat label="Quiz answers right" value={`${correct}/${answered}`} big />
-      </div>
-
-      <Card className="mt-5">
-        <div className="font-semibold">Unlockable milestones</div>
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {MILESTONES.map((m) => {
-            const on = xp >= m.xp;
-            return (
-              <div key={m.name} className={cx("rounded-2xl p-4 text-center ring-1", on ? "bg-emerald-50 ring-emerald-300" : "bg-slate-50 ring-slate-200 opacity-70")}>
-                <div className={cx("text-3xl", !on && "grayscale")}>{m.emoji}</div>
-                <div className="mt-1 font-semibold">{m.name}</div>
-                <div className="text-[13px] text-slate-500">{on ? "Unlocked" : `${m.xp - xp} XP to go`}</div>
-              </div>
-            );
-          })}
+      <Card className="mt-6">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <div className="text-[13px] font-semibold text-slate-500">Lessons completed</div>
+            <div className="num font-display text-5xl font-semibold">{done.length}<span className="text-2xl text-slate-400"> / {MODULES.length}</span></div>
+          </div>
+          <div className="num text-lg font-bold text-emerald-600">{pctDone}%</div>
+        </div>
+        <div className="mt-3 h-4 overflow-hidden rounded-full bg-slate-100"><motion.div className="h-4 rounded-full bg-emerald-500" initial={{ width: 0 }} animate={{ width: `${pctDone}%` }} /></div>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <Stat label="Next steps checked off" value={stepsChecked} tone="green" />
+          <Stat label="Quiz answers right" value={`${correct}/${answered}`} tone="sky" />
         </div>
       </Card>
 
       <Card className="mt-5">
-        <div className="font-semibold">Badges · {badges.length}/{BADGES.length}</div>
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {BADGES.map((b, i) => {
-            const on = badges.includes(b.id);
-            return (
-              <motion.div key={b.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.03 }}
-                className={cx("rounded-2xl p-4 text-center ring-1", on ? "bg-white ring-emerald-300 shadow-card" : "bg-slate-50 ring-slate-200")}>
-                <div className={cx("mx-auto grid h-14 w-14 place-items-center rounded-full text-3xl", on ? "bg-emerald-50" : "bg-slate-100 grayscale opacity-50")}>{b.emoji}</div>
-                <div className="mt-2 text-[14px] font-semibold leading-tight">{b.name}</div>
-                <div className="mt-1 text-[12px] text-slate-500">{b.desc}</div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </Card>
-
-      <Card className="mt-5">
-        <div className="font-semibold">Your learning roadmap</div>
+        <div className="font-semibold">Your lessons</div>
         <div className="mt-3 divide-y divide-slate-100">
           {MODULES.map((m) => (
             <a key={m.id} href={moduleHref(m.id)} className="flex items-center gap-3 py-3 hover:bg-slate-50 rounded-xl px-2">

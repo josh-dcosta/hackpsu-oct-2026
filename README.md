@@ -1,4 +1,4 @@
-# 👣 Next Step
+# 📈 Next Step
 **See tomorrow before you spend today.**
 
 Every money choice you make sends ripples into your future. Next Step shows you where they land, *before* you make them.
@@ -19,7 +19,7 @@ We show it through **Dave**, a Pennsylvania school custodian with two teens head
 - **Just-in-time help:** life-moment buttons meet people when the decision is actually in front of them.
 - **Small, concrete steps:** each action has an exact amount, a deadline ("this month", "next open enrollment") and a reminder.
 - **Automation & defaults:** every step suggests a set-it-and-forget-it version (auto-transfers, auto-escalation, payroll HSA).
-- **Commitment & progress:** checking off steps, progress bars and badges reward doing, never risk-taking.
+- **Commitment & progress:** checking off real-world steps and completing lessons, shown as simple progress bars.
 
 ## What's inside
 Four simple sections: **Home · Learn · Ask Next Step · Progress**. Practical, safe money basics, no stock trading.
@@ -34,7 +34,7 @@ Four simple sections: **Home · Learn · Ask Next Step · Progress**. Practical,
 - **Ask Next Step (AI coach)**: grounded in the computed numbers on screen (`src/lib/calc.ts`); a built-in explainer answers if the AI is offline.
 - **My next steps**: a checklist built from your plan, with amounts, how-to, automation tips, calendar reminders (.ics) and official verify-it links. Included in the PDF.
 - **How we calculate this**: every assumption and source shown on Home; AI answers say they use only the page's calculated numbers.
-- **Progress**: XP, badges, and **Download my plan (PDF)**.
+- **Progress**: lessons completed, next steps checked off, quiz results, and **Download my plan (PDF)**.
 
 ## 3-minute demo script
 1. Open the site → **Explore Dave's demo** → Home: *"Not quite. Savings run out at age 73."* Bills go from $3,600 to $7,012 a month at 67 (4% inflation). Point to ✓ *Calculated by Next Step*.

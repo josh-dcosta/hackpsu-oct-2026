@@ -2,7 +2,8 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Lock, Sparkles } from "lucide-react";
 import { useStore, SAMPLE_PROFILES, loadMine, clearMine } from "../lib/store";
-import { Button, RippleMark, Slider, cx } from "../components/ui";
+import { Button, Slider, cx } from "../components/ui";
+import { Logo } from "../components/Brand";
 import { money } from "../lib/format";
 import type { Profile } from "../lib/calc";
 import { DAVE, DAVE_PROFILE, DAVE_ASSUMPTIONS, CUSTOM_PROFILE, CUSTOM_ASSUMPTIONS } from "../data/dave";
@@ -74,7 +75,7 @@ export default function Welcome() {
   const steps = [
     // 0 — the Why
     <div key="intro" className="text-center">
-      <div className="mx-auto w-fit"><RippleMark size={72} /></div>
+      <div className="mx-auto w-fit"><Logo size={72} /></div>
       <h1 className="mt-6 font-display text-4xl sm:text-6xl font-semibold leading-[1.05] tracking-tight">See tomorrow<br />before you spend today.</h1>
       <p className="mx-auto mt-5 max-w-lg text-lg sm:text-xl text-slate-600">Every money choice you make sends ripples into your future. Next Step shows you where they land, <span className="text-emerald-600 font-semibold">before</span> you make them.</p>
       <div className="mx-auto mt-9 grid max-w-3xl gap-4 text-left sm:grid-cols-2">
@@ -204,7 +205,7 @@ export default function Welcome() {
       </div>
     </Q>,
     <div key="build" className="text-center">
-      <motion.div className="mx-auto w-fit" animate={{ scale: [1, 1.08, 1] }} transition={{ repeat: Infinity, duration: 1.6 }}><RippleMark size={80} /></motion.div>
+      <motion.div className="mx-auto w-fit" animate={{ scale: [1, 1.08, 1] }} transition={{ repeat: Infinity, duration: 1.6 }}><Logo size={80} /></motion.div>
       <h1 className="mt-6 font-display text-4xl font-semibold">Your future is ready{p.name ? `, ${p.name}` : ""}.</h1>
       <p className="mx-auto mt-3 max-w-md text-lg text-slate-600">We built a personal, pretend projection from your answers. Everything is an educational estimate you can change.</p>
       <Button onClick={() => finish(p)} className="mt-8 text-lg px-8 py-4">Show me my future <ArrowRight size={20} /></Button>
@@ -216,7 +217,7 @@ export default function Welcome() {
       <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-5 py-8">
         {step > 0 && step <= total && (
           <div className="mb-8 flex items-center gap-3" aria-label={`Step ${step} of ${total}`}>
-            <RippleMark size={32} />
+            <Logo size={32} />
             <div className="h-2 flex-1 rounded-full bg-slate-200"><motion.div className="h-2 rounded-full bg-emerald-500" animate={{ width: `${(step / total) * 100}%` }} /></div>
             <span className="text-sm font-semibold text-slate-500 num">{step}/{total}</span>
           </div>

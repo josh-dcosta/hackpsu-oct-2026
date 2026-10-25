@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { Send, Loader2, Trash2 } from "lucide-react";
 import { useStore } from "../lib/store";
 import { askRipple } from "../lib/ripple";
-import { RichText, RippleMark, cx } from "./ui";
+import { RichText, cx } from "./ui";
+import { CoachIcon } from "./Brand";
 
 const STARTERS = [
   "How will Emma's and Jake's college costs affect our savings?",
@@ -39,7 +40,7 @@ export function Chat({ compact }: { compact?: boolean }) {
         {chat.length === 0 && (
           <div className="pt-2">
             <div className="flex items-center gap-3">
-              <RippleMark size={44} />
+              <CoachIcon size={44} />
               <div>
                 <div className="font-display text-xl font-semibold">Hi{profile.name ? `, ${profile.name}` : ""}! I'm Next Step.</div>
                 <div className="text-[15px] text-slate-500">Ask me anything about money, or about the simulation you're looking at.</div>
@@ -54,7 +55,7 @@ export function Chat({ compact }: { compact?: boolean }) {
         )}
         {chat.map((m, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className={cx("flex gap-2", m.role === "user" ? "justify-end" : "justify-start")}>
-            {m.role === "assistant" && <RippleMark size={30} />}
+            {m.role === "assistant" && <CoachIcon size={30} />}
             <div className={cx("max-w-[85%] rounded-3xl px-4 py-3 text-[15px] leading-relaxed", m.role === "user" ? "bg-navy text-white rounded-br-lg" : "bg-white ring-1 ring-slate-200 text-slate-700 rounded-bl-lg")}>
               {m.role === "assistant" ? <RichText text={m.text} /> : m.text}
               {m.source === "built-in" && <div className="mt-2 text-[11px] text-slate-400">Built-in explainer (AI offline)</div>}
@@ -62,7 +63,7 @@ export function Chat({ compact }: { compact?: boolean }) {
             </div>
           </motion.div>
         ))}
-        {loading && <div className="flex items-center gap-2 text-slate-500"><RippleMark size={30} /><Loader2 size={18} className="animate-spin" /> Thinking…</div>}
+        {loading && <div className="flex items-center gap-2 text-slate-500"><CoachIcon size={30} /><Loader2 size={18} className="animate-spin" /> Thinking…</div>}
         <div ref={endRef} />
       </div>
       <form onSubmit={(e) => { e.preventDefault(); send(q); }} className="mt-3 flex gap-2">

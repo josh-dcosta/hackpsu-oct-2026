@@ -35,8 +35,13 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
 
   // Header band
   doc.setFillColor(...NAVY); doc.rect(0, 0, W, 120, "F");
-  doc.setFillColor(...MINT); doc.circle(M + 14, 52, 6, "F");
-  doc.setDrawColor(...MINT); doc.setLineWidth(2); doc.circle(M + 14, 52, 13, "S");
+  // Logo: three rising steps
+  doc.setFillColor(16, 185, 129);
+  doc.roundedRect(M, 58, 8, 8, 1.5, 1.5, "F");
+  doc.roundedRect(M + 10, 51, 8, 15, 1.5, 1.5, "F");
+  doc.roundedRect(M + 20, 44, 8, 22, 1.5, 1.5, "F");
+  doc.setDrawColor(248, 250, 252); doc.setLineWidth(1.8);
+  doc.lines([[8, -6], [6, 0], [8, -8]], M + 2, 50); doc.lines([[5, 0], [0, 5]], M + 19, 36);
   doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(24); doc.text("Next Step", M + 38, 60);
   doc.setFont("helvetica", "normal"); doc.setFontSize(11); doc.setTextColor(203, 213, 225);
   doc.text("See tomorrow before you spend today.", M + 38, 78);
@@ -87,7 +92,7 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
   });
 
   h2("5. What I've learned");
-  para(`Lessons completed: ${o.done.length} of ${MODULES.length} · ${o.xp} XP · ${o.badges.length} badges`);
+  para(`Lessons completed: ${o.done.length} of ${MODULES.length}`);
   [
     "Inflation compounds. Plan for future prices, not today's.",
     "Keep an emergency fund in an FDIC-insured high-yield account so surprises don't become debt.",

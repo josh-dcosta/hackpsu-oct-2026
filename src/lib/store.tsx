@@ -102,42 +102,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const set: Ctx["set"] = useCallback((patch) => setS((prev) => ({ ...prev, ...(typeof patch === "function" ? patch(prev) : patch) })), []);
 
-  const badge = useCallback((id: string) => {
-    setS((prev) => {
-      if (prev.badges.includes(id)) return prev;
-      const b = BADGES.find((x) => x.id === id);
-      if (b) setTimeout(() => toast(`Badge unlocked: ${b.name}`, b.emoji), 50);
-      const badges = [...prev.badges, id];
-      return { ...prev, badges, xp: prev.xp + 25 };
-    });
-  }, [toast]);
-
-  const award = useCallback((xp: number, reason: string, once?: string) => {
-    if (once) {
-      if (onceRef.current.has(once)) return;
-      onceRef.current.add(once);
-      localStorage.setItem(KEY + "-once", JSON.stringify([...onceRef.current]));
-    }
-    setS((prev) => ({ ...prev, xp: prev.xp + xp }));
-    if (xp >= 20) toast(`+${xp} XP · ${reason}`, "✨"); // small rewards add XP quietly
-  }, [toast]);
+  // Progress is tracked simply as lessons completed. (XP and badges were removed; these stay as no-ops for callers.)
+  const badge = useCallback((_id: string) => {}, []);
+  const award = useCallback((_xp: number, _reason: string, _once?: string) => {}, []);
 
   const touch = useCallback((id: string) => {
     setS((prev) => (prev.touched.includes(id) ? prev : { ...prev, touched: [...prev.touched, id] }));
-    award(15, "Experimented with a simulation", "touch-" + id);
-  }, [award]);
+  }, []);
 
-  const finishModule = useCallback((id: string, badgeId?: string) => {
+  const finishModule = useCallback((id: string, _badgeId?: string) => {
     setS((prev) => {
       if (prev.done.includes(id)) return prev;
-      const done = [...prev.done, id];
-      if (done.length >= 5) setTimeout(() => badge("scholar"), 300);
-      if (done.length >= 10) setTimeout(() => badge("architect"), 600);
-      return { ...prev, done };
+      setTimeout(() => toast("Lesson complete", "✅"), 50);
+      return { ...prev, done: [...prev.done, id] };
     });
-    award(40, "Lesson complete", "done-" + id);
-    if (badgeId) setTimeout(() => badge(badgeId), 200);
-  }, [award, badge]);
+  }, [toast]);
 
   const saveSim = useCallback((id: string, v: unknown) => setS((prev) => ({ ...prev, sims: { ...prev.sims, [id]: v } })), []);
 

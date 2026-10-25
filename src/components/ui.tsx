@@ -4,6 +4,7 @@ import { Sparkles, Check, X, Lightbulb, RotateCcw, Info, Loader2 } from "lucide-
 import { useStore } from "../lib/store";
 import { askRipple, type RippleContext } from "../lib/ripple";
 import { money } from "../lib/format";
+import { CoachIcon } from "./Brand";
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(" ");
 
@@ -192,7 +193,7 @@ export function AskRipple({ ctx, prompts, title = "Ask Next Step about your numb
   return (
     <Card className="bg-gradient-to-br from-white to-emerald-50/60">
       <div className="flex items-center gap-3">
-        <RippleMark />
+        <CoachIcon />
         <div>
           <div className="font-semibold">{title}</div>
           <div className="text-[13px] text-slate-500">Next Step uses the results above. It never makes up its own math.</div>
