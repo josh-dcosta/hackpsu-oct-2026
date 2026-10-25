@@ -1,0 +1,60 @@
+import { useEffect, useState, type ComponentType } from "react";
+import { motion } from "framer-motion";
+import { Layout } from "./components/Layout";
+import { useStore } from "./lib/store";
+import Welcome from "./pages/Welcome";
+import Dashboard from "./pages/Dashboard";
+import Future from "./pages/Future";
+import Learn, { Sims } from "./pages/Learn";
+import Bank from "./pages/Bank";
+import Coach from "./pages/Coach";
+import Progress from "./pages/Progress";
+import ModuleFrame from "./pages/ModuleFrame";
+import Inflation from "./modules/Inflation";
+import LifeStages from "./modules/LifeStages";
+import Saving from "./modules/Saving";
+import K401 from "./modules/K401";
+import Accounts from "./modules/Accounts";
+import HSA from "./modules/HSA";
+import College from "./modules/College";
+import Invest from "./modules/Invest";
+import Debt from "./modules/Debt";
+
+const MODS: Record<string, ComponentType> = { inflation: Inflation, life: LifeStages, saving: Saving, k401: K401, accounts: Accounts, hsa: HSA, college: College, invest: Invest, debt: Debt };
+
+function useRoute() {
+  const get = () => (window.location.hash.replace(/^#/, "") || "/").split("?")[0];
+  const [r, setR] = useState(get);
+  useEffect(() => {
+    const on = () => { setR(get()); window.scrollTo({ top: 0 }); };
+    window.addEventListener("hashchange", on);
+    return () => window.removeEventListener("hashchange", on);
+  }, []);
+  return r;
+}
+
+export default function App() {
+  const route = useRoute();
+  const { profile } = useStore();
+  if (route === "/welcome" || !profile.onboarded) return <Welcome />;
+
+  let page;
+  if (route === "/") page = <Dashboard />;
+  else if (route === "/future") page = <Future />;
+  else if (route === "/learn") page = <Learn />;
+  else if (route === "/sims") page = <Sims />;
+  else if (route === "/bank") page = <Bank />;
+  else if (route === "/coach") page = <Coach />;
+  else if (route === "/progress") page = <Progress />;
+  else if (route.startsWith("/learn/")) {
+    const id = route.split("/")[2];
+    const M = MODS[id];
+    page = M ? <ModuleFrame id={id}><M /></ModuleFrame> : <Dashboard />;
+  } else page = <Dashboard />;
+
+  return (
+    <Layout route={route}>
+      <motion.div key={route} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>{page}</motion.div>
+    </Layout>
+  );
+}
