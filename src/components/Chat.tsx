@@ -58,6 +58,7 @@ export function Chat({ compact }: { compact?: boolean }) {
             <div className={cx("max-w-[85%] rounded-3xl px-4 py-3 text-[15px] leading-relaxed", m.role === "user" ? "bg-navy text-white rounded-br-lg" : "bg-white ring-1 ring-slate-200 text-slate-700 rounded-bl-lg")}>
               {m.role === "assistant" ? <RichText text={m.text} /> : m.text}
               {m.source === "built-in" && <div className="mt-2 text-[11px] text-slate-400">Built-in explainer (AI offline)</div>}
+              {m.role === "assistant" && <div className="mt-2 text-[11px] font-semibold text-emerald-700">✓ Based on Next Step's calculated numbers · educational, not advice</div>}
             </div>
           </motion.div>
         ))}

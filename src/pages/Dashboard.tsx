@@ -7,6 +7,7 @@ import { projectLife, simulate529 } from "../lib/calc";
 import { money, compact, axisMoney, pct } from "../lib/format";
 import { AskRipple, Card, EstimateTag, ResetButton, Segmented, Slider, Stat, tooltipStyle } from "../components/ui";
 import { MODULES, moduleHref, nextLessonFor } from "../data/modules";
+import { Moments, NextSteps, HowWeCalculate, Verified } from "../components/Action";
 import { DAVE, DAVE_ASSUMPTIONS, CUSTOM_ASSUMPTIONS, isDaveProfile } from "../data/dave";
 import { UserRound, Pencil } from "lucide-react";
 
@@ -48,7 +49,7 @@ function PlanBuilder() {
   const mix = MIXES.reduce((best, m) => (Math.abs(m.r - a.returnRate) < Math.abs(best.r - a.returnRate) ? m : best), MIXES[1]);
   const lastAge = (r: typeof now) => r.depletedAge ?? 90;
   return (
-    <Card className="mt-5">
+    <Card className="mt-5 scroll-mt-20" id="plan">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">Build {isDave ? "Dave's" : "your"} plan</div>
@@ -83,6 +84,7 @@ function PlanBuilder() {
             <div><div className="text-[13px] text-slate-300">Taxes saved this year</div><div className="num text-2xl font-bold">{money(now.taxSavedNow)} <span className="text-base"><Delta v={now.taxSavedNow - base.taxSavedNow} fmt={money} /></span></div></div>
             <div><div className="text-[13px] text-slate-300">Saving each month now</div><div className="num text-2xl font-bold">{money(now.savingToday)} <span className="text-base"><Delta v={now.savingToday - base.savingToday} fmt={money} /></span></div></div>
             <div><div className="text-[13px] text-slate-300">Savings at {a.retireAge}</div><div className="num text-2xl font-bold">{compact(now.atRetire.nominal)} <span className="text-base"><Delta v={now.atRetire.nominal - base.atRetire.nominal} fmt={compact} /></span></div></div>
+            <Verified dark source="IRS 2026 limits" />
             <div><div className="text-[13px] text-slate-300">Money lasts until</div><div className="num text-2xl font-bold">{now.depletedAge ? `Age ${now.depletedAge}` : "Past 90"} <span className="text-base"><Delta v={lastAge(now) - lastAge(base)} fmt={(n) => `${n} yr${n === 1 ? "" : "s"}`} /></span></div></div>
           </div>
         </div>
@@ -149,7 +151,8 @@ export default function Dashboard() {
           {ok ? `Saving at today's pace, ${his} savings plus pension and Social Security cover the bills every year.` :
             `That's ${lastsYears} ${lastsYears === 1 ? "year" : "years"} into retirement. After that, pension and Social Security alone leave about ${money(shortAt?.shortfallMonthly ?? 0)} a month of bills unpaid.`}
         </p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+        <div className="mt-2"><Verified dark source="fixed formulas, not AI guesses" /></div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <div className="rounded-2xl bg-white/[.07] p-4 ring-1 ring-white/10">
             <div className="text-[13px] font-semibold uppercase tracking-wider text-emerald-300">💰 Saving</div>
             <div className="mt-1 flex items-baseline gap-2 flex-wrap"><span className="num text-2xl font-bold">{money(proj.savingToday)}/mo</span><span className="text-slate-300">today</span><ArrowRight size={16} className="text-slate-400" /><span className="num text-2xl font-bold">{compact(savedAtRetire)}</span><span className="text-slate-300">saved by {a.retireAge}</span></div>
@@ -161,7 +164,9 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
+      <Moments />
       <PlanBuilder />
+      <NextSteps />
 
       {/* Chart 1: bills vs money coming in, each year of retirement */}
       <Card className="mt-5">
@@ -190,8 +195,9 @@ export default function Dashboard() {
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
           <Stat label={`Bills at ${a.retireAge}`} value={`${money(billsAtRetire)}/mo`} tone="coral" sub={`were ${money(p.expenses)}/mo today`} />
           <Stat label="Pension + Social Security" value={`${money(incomeAtRetire)}/mo`} tone="navy" sub="rises with prices" />
-          <Stat label="Gap paid from savings" value={`${money(Math.max(0, billsAtRetire - incomeAtRetire))}/mo`} tone="green" sub={runsOut ? `until age ${runsOut}` : "covered through 90"} />
+          <Stat label="Paid from savings" value={`${money(Math.max(0, billsAtRetire - incomeAtRetire))}/mo`} tone="green" sub={runsOut ? `until age ${runsOut}` : "covered through 90"} />
         </div>
+        <HowWeCalculate />
       </Card>
 
       {/* Chart 2: savings build up, then get spent */}

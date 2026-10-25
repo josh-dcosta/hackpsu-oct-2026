@@ -26,7 +26,7 @@ export default function Progress() {
           <h1 className="font-display text-4xl font-semibold">Your progress</h1>
           <p className="mt-1 text-lg text-slate-500">You earn XP for learning and experimenting, never for taking more risk.</p>
         </div>
-        <Button onClick={() => downloadPlan({ profile, assumptions: st.assumptions, story: st.story, done, xp, badges })}><Download size={18} /> Download my plan (PDF)</Button>
+        <Button onClick={() => downloadPlan({ profile, assumptions: st.assumptions, story: st.story, done, xp, badges, stepsDone: st.stepsDone })}><Download size={18} /> Download my plan (PDF)</Button>
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">

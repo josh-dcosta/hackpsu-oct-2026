@@ -37,13 +37,14 @@ type State = {
   chat: ChatMsg[];
   story: { choices: Choices; step: number; finished: boolean };
   sims: Record<string, unknown>; // saved simulator settings per module
+  stepsDone: Record<string, boolean>; // next-steps checklist
 };
 
 const DEFAULT: State = {
   profile: { ...DAVE_PROFILE },
   assumptions: { ...DAVE_ASSUMPTIONS },
   xp: 0, badges: [], done: [], touched: [], quiz: {}, simple: true, bigText: false, asked: 0, chat: [],
-  story: { choices: {}, step: 0, finished: false }, sims: {},
+  story: { choices: {}, step: 0, finished: false }, sims: {}, stepsDone: {},
 };
 
 const KEY = "nextstep-dave-v1";
@@ -101,7 +102,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(KEY + "-once", JSON.stringify([...onceRef.current]));
     }
     setS((prev) => ({ ...prev, xp: prev.xp + xp }));
-    toast(`+${xp} XP · ${reason}`, "✨");
+    if (xp >= 20) toast(`+${xp} XP · ${reason}`, "✨"); // small rewards add XP quietly
   }, [toast]);
 
   const touch = useCallback((id: string) => {

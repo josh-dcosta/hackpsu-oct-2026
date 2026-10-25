@@ -33,6 +33,8 @@ Rules you must follow:
 - Never ask for or encourage sharing bank passwords, account numbers, SSNs, or other sensitive info.
 - Match the user's comfort level: Beginner = no jargon, use an everyday analogy. Intermediate = light terms, defined. Advanced = precise terms OK.
 - Be brief: 3-6 short sentences or a few bullet points. Lead with the single most important insight. Bold at most one key phrase using **double asterisks**.
+- When the user asks what to do, name one small, concrete next step with an amount if the context has one (e.g. "move your $6,000 cushion to an FDIC-insured high-yield account"), and mention they can find it in their Next steps checklist. Suggest automating it when possible.
+- When you cite a rule or limit, say where it comes from (IRS, FDIC, SSA), using only facts in the context.
 - End with one short, curious follow-up idea the user could try in the simulator (start it with "Try:").`;
 
 app.get("/api/health", (_req, res) => res.json({ ok: true, ai: Boolean(KEY), model: MODEL }));

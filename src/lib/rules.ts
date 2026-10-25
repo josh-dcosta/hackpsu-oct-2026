@@ -24,6 +24,7 @@ export const RULES = {
   },
   fdic: { insuredPerDepositorPerBankPerCategory: 250_000 },
   sources: [
+    { label: "IRS — 401(k) limit increases to $24,500 for 2026, IRA limit to $7,500", url: "https://www.irs.gov/newsroom/401k-limit-increases-to-24500-for-2026-ira-limit-increases-to-7500" },
     { label: "IRS — IRA contribution limits", url: "https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-ira-contribution-limits" },
     { label: "IRS — Amount of Roth IRA contributions you can make", url: "https://www.irs.gov/retirement-plans/amount-of-roth-ira-contributions-that-you-can-make-for-2026" },
     { label: "IRS — Retirement topics: contribution limits", url: "https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-401k-and-profit-sharing-plan-contribution-limits" },

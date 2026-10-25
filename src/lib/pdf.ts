@@ -1,6 +1,8 @@
 import { jsPDF } from "jspdf";
 import { projectLife, type Assumptions, type Profile } from "./calc";
-import { simulateStory, altChoices, describeChoices, type Choices } from "./story";
+import type { Choices } from "./story";
+import { buildSteps } from "./steps";
+import { DAVE_ASSUMPTIONS, CUSTOM_ASSUMPTIONS } from "../data/dave";
 import { RULES } from "./rules";
 import { money } from "./format";
 import { MODULES } from "../data/modules";
@@ -9,7 +11,7 @@ const NAVY: [number, number, number] = [15, 23, 42];
 const MINT: [number, number, number] = [16, 185, 129];
 const SLATE: [number, number, number] = [100, 116, 139];
 
-export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; story: { choices: Choices; finished: boolean }; done: string[]; xp: number; badges: string[] }) {
+export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; story: { choices: Choices; finished: boolean }; done: string[]; xp: number; badges: string[]; stepsDone?: Record<string, boolean> }) {
   const doc = new jsPDF({ unit: "pt", format: "letter" });
   const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 48;
   let y = 0;
@@ -38,7 +40,7 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
   doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(24); doc.text("Next Step", M + 38, 60);
   doc.setFont("helvetica", "normal"); doc.setFontSize(11); doc.setTextColor(203, 213, 225);
   doc.text("See tomorrow before you spend today.", M + 38, 78);
-  doc.text(`My Financial Future Plan${o.profile.name ? ` · ${o.profile.name}` : ""} · ${new Date().toLocaleDateString()}`, M + 38, 96);
+  doc.text(`My Next Steps Plan${o.profile.name ? ` · ${o.profile.name}` : ""} · ${new Date().toLocaleDateString()}`, M + 38, 96);
   y = 150;
 
   const p = o.profile, a = o.assumptions;
@@ -48,52 +50,52 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
   row([p.ageRange, money(p.income), money(p.expenses), money(p.savings), money(p.retirement)], [90, 100, 110, 90, 90]);
   if (p.goals.length) para("My goals: " + p.goals.join(", ") + ".");
 
-  h2("2. My projected future (hypothetical)");
-  para(`Assumptions: ${a.scenario} scenario, ${(proj.returnRate * 100).toFixed(1)}% average investment return, ${(proj.inflation * 100).toFixed(1)}% inflation, ${Math.round(a.contribPct * 100)}% 401(k) contribution + ${Math.round(a.matchPct * 100)}% employer match, retire at ${a.retireAge}.`, 9.5, SLATE);
-  // mini bar chart
-  const ms = proj.milestones; const maxV = Math.max(...ms.map((m) => m.nominal), 1); const cH = 120;
-  ensure(cH + 50); const bw = (W - 2 * M) / Math.max(ms.length, 1);
-  ms.forEach((m, i) => {
-    const x = M + i * bw + bw * 0.18, w = bw * 0.3;
-    const hN = (m.nominal / maxV) * cH, hR = (m.real / maxV) * cH;
-    doc.setFillColor(...MINT); doc.rect(x, y + cH - hN, w, hN, "F");
-    doc.setFillColor(...NAVY); doc.rect(x + w + 3, y + cH - hR, w, hR, "F");
-    doc.setFontSize(9); doc.setTextColor(...NAVY); doc.text(`Age ${m.age}`, x + w, y + cH + 14, { align: "center" });
+  // 2. The answer
+  h2("2. Will I have enough after retirement?");
+  const first = proj.firstRetire;
+  const bills = first?.expensesMonthly ?? p.expenses, income = first?.incomeMonthly ?? 0;
+  para(proj.depletedAge ? `Not quite. Saving at today's pace, savings run out at age ${proj.depletedAge}.` : "Yes. Saving at today's pace, the money lasts past age 90.", 12, NAVY);
+  row(["", "Today", `At ${a.retireAge}`], [220, 130, 130], true, NAVY);
+  row(["Monthly bills (" + (proj.inflation * 100).toFixed(1) + "% inflation)", money(p.expenses), money(bills)], [220, 130, 130]);
+  row(["Saving each month", money(proj.savingToday), "n/a"], [220, 130, 130], false, [248, 250, 252]);
+  row(["Total savings", money(p.savings + p.retirement), money(proj.atRetire.nominal)], [220, 130, 130]);
+  row(["Pension + Social Security / month", "n/a", money(income)], [220, 130, 130], false, [248, 250, 252]);
+  row(["Paid from savings / month", "n/a", money(Math.max(0, bills - income))], [220, 130, 130]);
+
+  // 3. The plan
+  h2("3. My plan");
+  const tax = a.taxRate ?? 0.12;
+  [
+    `Savings account: ${(a.cashRate ?? 0) >= 0.03 ? "high-yield (~4%), FDIC-insured" : "regular (~0.5%)"}`,
+    `Retirement savings: ${Math.round(a.contribPct * 100)}% of pay, ${a.accountType === "roth" ? "Roth (tax-free later)" : "Traditional (tax break now)"}`,
+    `HSA: ${(a.hsaAnnual ?? 0) > 0 ? money(a.hsaAnnual ?? 0) + " a year" : "not yet"}`,
+    `Long-term investments: low-cost index funds, ${a.returnRate >= 0.065 ? "growth" : a.returnRate <= 0.05 ? "safer" : "balanced"} mix (assumes ${(a.returnRate * 100).toFixed(1)}% average growth)`,
+    `Taxes saved this year from the plan: about ${money(proj.taxSavedNow)} (at a ${Math.round(tax * 100)}% federal bracket)`,
+  ].forEach((t) => para("•  " + t));
+
+  // 4. Next steps
+  h2("4. My next steps");
+  const start = p.scenario === "custom" || (p.scenario === undefined && p.name !== "Dave") ? CUSTOM_ASSUMPTIONS : DAVE_ASSUMPTIONS;
+  const steps = buildSteps(p, a, start);
+  steps.forEach((st, i) => {
+    const done = o.stepsDone?.[st.id];
+    para(`${done ? "[x]" : "[  ]"}  ${i + 1}. ${st.title}${st.inPlan ? "" : "  (worth considering)"}  · ${st.when}`, 11, NAVY);
+    para(st.why, 9.5);
+    st.how.forEach((h) => para("      - " + h, 9.5, SLATE));
+    if (st.automate) para("      Automate it: " + st.automate, 9.5, SLATE);
+    if (st.source) para("      Verify: " + st.source.url, 8.5, SLATE);
   });
-  y += cH + 30;
-  doc.setFontSize(8.5); doc.setFillColor(...MINT); doc.rect(M, y - 7, 8, 8, "F"); doc.setTextColor(...SLATE); doc.text("Future dollars", M + 12, y);
-  doc.setFillColor(...NAVY); doc.rect(M + 90, y - 7, 8, 8, "F"); doc.text("Today's buying power", M + 102, y); y += 18;
-  row(["Age", "Future dollars", "Today's buying power", "Monthly costs then"], [70, 130, 150, 150], true, NAVY);
-  ms.forEach((m, i) => row([String(m.age), money(m.nominal), money(m.real), money(m.expensesMonthly)], [70, 130, 150, 150], false, i % 2 ? undefined : [248, 250, 252]));
-  para(proj.depletedAge ? `Under these assumptions savings could run short around age ${proj.depletedAge}.` : "Under these assumptions savings last past age 90.", 10.5);
 
-  if (o.story.finished) {
-    const mine = simulateStory(o.story.choices), alt = simulateStory(altChoices(o.story.choices));
-    h2("3. Choose Your Financial Future: two paths");
-    para("Dave, 50, head custodian at a PA high school (household income $64,000, kids Emma 17 and Jake 15). Path A is my choices. Path B is the road not taken.", 9.5, SLATE);
-    row(["", "In 10 years", "In 20 years", "In 30 years", `At retirement`], [120, 95, 95, 95, 110], true, NAVY);
-    row(["Path A (mine)", money(mine.y10.netWorth), money(mine.y20.netWorth), money(mine.y30.netWorth), money(mine.retireRow.netWorth)], [120, 95, 95, 95, 110]);
-    row(["Path B", money(alt.y10.netWorth), money(alt.y20.netWorth), money(alt.y30.netWorth), money(alt.retireRow.netWorth)], [120, 95, 95, 95, 110], false, [248, 250, 252]);
-    y += 4;
-    const a1 = describeChoices(mine.choices), b1 = describeChoices(alt.choices);
-    row(["Decision", "Path A", "Path B"], [210, 140, 140], true, NAVY);
-    a1.forEach((d, i) => row([d.decision.slice(0, 34), d.choice, b1[i].choice], [210, 140, 140], false, i % 2 ? undefined : [248, 250, 252]));
-  }
-
-  h2(o.story.finished ? "4. What I've learned" : "3. What I've learned");
+  h2("5. What I've learned");
   para(`Lessons completed: ${o.done.length} of ${MODULES.length} · ${o.xp} XP · ${o.badges.length} badges`);
-  const takeaways = [
+  [
     "Inflation compounds. Plan for future prices, not today's.",
-    "Grab the full employer match. It's part of your pay.",
-    "Start early. Time does most of the heavy lifting through compound growth.",
-    "Keep an emergency fund so surprises don't become high-interest debt.",
-    "Diversify and think in decades. Markets drop, and staying the course has historically mattered.",
+    "Keep an emergency fund in an FDIC-insured high-yield account so surprises don't become debt.",
+    "Start early and automate. Time and compounding do most of the heavy lifting.",
     "Roth vs. Traditional depends on your tax rate now vs. later. No account is best for everyone.",
-  ];
-  takeaways.forEach((t) => para("•  " + t));
-
-  h2("Next steps to explore");
-  ["Check your real Social Security estimate at ssa.gov/myaccount.", "Look up your employer's 401(k) match and vesting rules.", "Consider talking with a fee-only, fiduciary financial professional before major decisions."].forEach((t) => para("•  " + t));
+    "Invest long-term money in low-cost, diversified index funds, and don't sell in a downturn.",
+  ].forEach((t) => para("•  " + t));
+  para("All numbers are calculated by Next Step's fixed formulas, not guessed by AI. Consider a fee-only, fiduciary professional before major decisions.", 9.5, SLATE);
   para(`Contribution limits reference IRS figures for ${RULES.year} (verified ${RULES.verifiedOn}). Sources: ${RULES.sources.map((s) => s.url).join(" · ")}`, 8, SLATE);
   footer();
   doc.save(`NextStep-Plan${o.profile.name ? "-" + o.profile.name.replace(/\W+/g, "") : ""}.pdf`);

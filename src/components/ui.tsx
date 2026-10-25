@@ -222,6 +222,7 @@ export function AskRipple({ ctx, prompts, title = "Ask Next Step about your numb
             {loading ? <div className="mt-3 flex items-center gap-2 text-slate-500"><Loader2 className="animate-spin" size={18} /> Next Step is thinking…</div>
               : <div className="mt-2 text-[15px] leading-relaxed text-slate-700"><RichText text={answer.text} /></div>}
             {!loading && answer.source === "built-in" && <div className="mt-2 text-[12px] text-slate-400">Answered with Next Step's built-in explainer (AI is offline right now).</div>}
+            {!loading && <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-slate-100 pt-2 text-[12px] font-semibold text-emerald-700"><span>✓ Uses only the numbers calculated on this page</span><a href="https://www.irs.gov/newsroom/401k-limit-increases-to-24500-for-2026-ira-limit-increases-to-7500" target="_blank" rel="noreferrer" className="text-slate-500 hover:underline">Tax limits: IRS 2026</a><span className="text-slate-400">Educational, not advice</span></div>}
           </motion.div>
         )}
       </AnimatePresence>
