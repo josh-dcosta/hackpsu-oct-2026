@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
+import { Bar, CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ArrowRight, BookOpen, GraduationCap, CheckCircle2, AlertTriangle, ChevronDown } from "lucide-react";
 import { useStore } from "../lib/store";
 import { projectLife, simulate529 } from "../lib/calc";
-import { money, compact, pct } from "../lib/format";
+import { money, compact, pct, axisMoney } from "../lib/format";
 import { AskRipple, Card, EstimateTag, ResetButton, Segmented, Slider, Stat, tooltipStyle } from "../components/ui";
 import { MODULES, moduleHref, nextLessonFor } from "../data/modules";
 import { Moments, NextSteps, HowWeCalculate, Verified } from "../components/Action";
@@ -128,6 +129,10 @@ export default function Dashboard() {
   const runsOut = proj.depletedAge;
   const shortAt = runsOut ? proj.flows.find((f) => f.age === runsOut + 1) : null;
   const ok = !runsOut;
+  const retireFlows = proj.flows.filter((f) => f.retired).map((f) => ({
+    age: f.age, "Monthly bills": Math.round(f.expensesMonthly), "Pension + Social Security": Math.round(f.incomeMonthly),
+    Savings: Math.round(f.fromSavingsMonthly), "Not covered": Math.round(f.shortfallMonthly),
+  }));
   const years = Math.max(1, 90 - a.retireAge);
   const coveredYears = runsOut ? Math.max(0, runsOut - a.retireAge) : years;
 
@@ -178,7 +183,22 @@ export default function Dashboard() {
           <div className="rounded-2xl bg-white/[.07] p-4 ring-1 ring-white/10">
             <div className="text-[13px] font-semibold uppercase tracking-wider text-orange-300">🧾 Monthly bills</div>
             <div className="mt-1 flex flex-wrap items-baseline gap-2"><span className="num text-2xl font-bold">{money(p.expenses)}</span><span className="text-slate-300">today</span><ArrowRight size={16} className="text-slate-400" /><span className="num text-2xl font-bold">{money(billsAtRetire)}</span><span className="text-slate-300">at {a.retireAge}</span></div>
-            <div className="mt-1 text-[13px] text-slate-400">Prices rise about {pct(proj.inflation)} a year</div>
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-[13px]">
+                <label htmlFor="hero-inflation" className="text-slate-300">Prices rise each year (inflation)</label>
+                <span className="num rounded-lg bg-white/10 px-2 py-0.5 font-bold text-white">{(a.inflation * 100).toFixed(1).replace(/\.0$/, "")}%</span>
+              </div>
+              <input id="hero-inflation" type="range" className="rs" min={0} max={8} step={0.5} value={a.inflation * 100}
+                style={{ ["--p" as string]: `${(a.inflation * 100 / 8) * 100}%` }}
+                onChange={(e) => setA({ inflation: Number(e.target.value) / 100 })} aria-valuetext={`${a.inflation * 100}% a year`} />
+              <div className="-mt-1 flex flex-wrap gap-1.5">
+                {[2, 3, 4, 5, 6].map((v) => (
+                  <button key={v} onClick={() => setA({ inflation: v / 100 })} aria-pressed={Math.abs(a.inflation * 100 - v) < 0.01}
+                    className={"rounded-lg px-2.5 py-1 text-[12px] font-semibold " + (Math.abs(a.inflation * 100 - v) < 0.01 ? "bg-orange-300 text-navy" : "bg-white/10 text-slate-200 hover:bg-white/20")}>{v}%</button>
+                ))}
+                <span className="self-center text-[11px] text-slate-400">U.S. long-run average ≈ 3%</span>
+              </div>
+            </div>
           </div>
         </div>
         <div className="mt-3"><Verified dark source="fixed formulas, not AI guesses" /></div>
@@ -196,7 +216,25 @@ export default function Dashboard() {
           <span className="flex items-center gap-2"><i className="h-3.5 w-3.5 rounded bg-emerald-500" /> Savings</span>
           <span className="flex items-center gap-2"><i className="h-3.5 w-3.5 rounded bg-coral" /> Not covered</span>
         </div>
-        <div className="mt-5 space-y-5">
+        <p className="mt-2 text-[14px] text-slate-500">Each bar is one year of retirement. The orange line is what the monthly bills cost that year, rising with inflation.</p>
+        <div className="mt-3 h-72 sm:h-80">
+          <ResponsiveContainer>
+            <ComposedChart data={retireFlows} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
+              <CartesianGrid stroke="#EEF2F7" vertical={false} />
+              <XAxis dataKey="age" tick={{ fontSize: 12, fill: "#64748B" }} tickLine={false} axisLine={false} />
+              <YAxis tickFormatter={axisMoney} tick={{ fontSize: 12, fill: "#64748B" }} tickLine={false} axisLine={false} width={56} />
+              <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Age ${l} · per month`} formatter={(v, n) => [money(Number(v)), n]} />
+              <Bar dataKey="Pension + Social Security" stackId="a" fill="#0F172A" animationDuration={600} />
+              <Bar dataKey="Savings" stackId="a" fill="#10B981" animationDuration={600} />
+              <Bar dataKey="Not covered" stackId="a" fill="#F97361" radius={[6, 6, 0, 0]} animationDuration={600} />
+              <Line dataKey="Monthly bills" stroke="#F59E0B" strokeWidth={3} dot={false} type="monotone" animationDuration={600} />
+              {runsOut && <ReferenceLine x={runsOut} stroke="#F97361" strokeDasharray="4 4" label={{ value: "Savings run out", position: "insideTopLeft", fill: "#C2410C", fontSize: 12 }} />}
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="mt-2 flex flex-wrap gap-4 text-[13px] text-slate-600"><span className="flex items-center gap-2"><i className="h-0.5 w-5 bg-amber" /> Monthly bills</span></div>
+        <div className="mt-6 text-[13px] font-bold uppercase tracking-wider text-slate-500">Up close</div>
+        <div className="mt-3 space-y-5">
           <MoneyBar label={`At ${a.retireAge}, when ${isDave ? "Dave retires" : "you retire"}`} bills={billsAtRetire} income={incomeAtRetire} savings={first?.fromSavingsMonthly ?? 0} gap={first?.shortfallMonthly ?? 0} />
           {shortAt && <MoneyBar label={`At ${shortAt.age}, after savings run out`} bills={shortAt.expensesMonthly} income={shortAt.incomeMonthly} savings={shortAt.fromSavingsMonthly} gap={shortAt.shortfallMonthly} />}
         </div>
@@ -207,7 +245,6 @@ export default function Dashboard() {
         {showAssume && (
           <div className="mt-3 grid gap-x-8 sm:grid-cols-2">
             <Slider label="Retirement age" value={a.retireAge} min={Math.max(55, p.age + 1)} max={75} onChange={(v) => setA({ retireAge: v })} format={(v) => "Age " + v} />
-            <Slider label="Prices rise each year (inflation)" value={Math.round(a.inflation * 1000) / 10} min={0} max={8} step={0.5} onChange={(v) => setA({ inflation: v / 100 })} format={(v) => v + "%"} />
             <Slider label="Pension + Social Security (rough % of pay)" value={Math.round(a.ssReplacement * 100)} min={0} max={80} onChange={(v) => setA({ ssReplacement: v / 100 })} format={(v) => v + "%"} help="Social Security alone is often 35–40%. Check yours at ssa.gov." />
             <Slider label="Monthly bills today" value={p.expenses} min={500} max={15000} step={100} onChange={(v) => set((s) => ({ profile: { ...s.profile, expenses: v } }))} format={money} />
             <div className="sm:col-span-2 flex justify-end"><ResetButton onClick={() => set({ assumptions: isDave ? { ...DAVE_ASSUMPTIONS } : { ...CUSTOM_ASSUMPTIONS } })} /></div>

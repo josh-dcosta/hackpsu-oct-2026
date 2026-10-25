@@ -37,7 +37,7 @@ Four simple sections: **Home · Learn · Ask Next Step · Progress**. Practical,
 - **Progress**: lessons completed, next steps checked off, quiz results, and **Download my plan (PDF)**.
 
 ## 3-minute demo script
-1. Open the site → **Explore Dave's demo** → Home: *"Not quite. Savings run out at age 73."* Bills go from $3,600 to $7,012 a month at 67 (4% inflation). Point to ✓ *Calculated by Next Step*.
+1. Open the site → **Explore Dave's demo** → Home: *"Not quite. Savings run out at age 73."* Bills go from $3,600 to $7,012 a month at 67 (4% inflation). Tap **3%** on the Monthly bills card: savings now last to 79. Point to ✓ *Calculated by Next Step*.
 2. **The moments that matter → Open enrollment** → *Add a $1,500/yr HSA* → the plan shows taxes saved and money lasting longer.
 3. **I got a raise** → *Raise my retirement savings* → see the impact.
 4. **Dave's next steps**: open a step → exact amount, how-to, *Automate it*, **Add a reminder**, **Verify** link. Check one off.
