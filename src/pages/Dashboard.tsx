@@ -134,7 +134,7 @@ export default function Dashboard() {
           <span>Viewing <b>{isDave ? "Dave's scenario" : `${p.name ? p.name + "'s" : "your"} own numbers`}</b></span>
         </div>
         <div className="flex flex-wrap gap-2">
-          <a href="#/welcome" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> {isDave ? "Use my own numbers" : "Edit my numbers"}</a>
+          <a href={isDave ? "#/welcome" : "#/welcome?edit"} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> {isDave ? "Use my own numbers" : "Edit my numbers"}</a>
           {!isDave && <a href="#/welcome" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"><UserRound size={14} /> Try Dave's scenario</a>}
         </div>
       </div>
@@ -256,7 +256,7 @@ export default function Dashboard() {
             {isDave && <li>PSERS pension + Social Security later</li>}
             <li>{(p.kids || []).length ? (p.kids || []).map((k) => `${k.name}, ${k.age}`).join(" · ") : "No children"}</li>
           </ul>
-          <a href="#/welcome" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700"><PlayCircle size={16} /> {isDave ? "Walk through Dave's answers" : "Edit my answers"}</a>
+          <a href={isDave ? "#/welcome" : "#/welcome?edit"} className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700"><PlayCircle size={16} /> {isDave ? "Switch scenario" : "Edit my answers"}</a>
         </Card>
         {kids.length > 0 && (
           <Card className="lg:col-span-2">

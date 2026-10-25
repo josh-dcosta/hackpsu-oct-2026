@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Lock, Sparkles } from "lucide-react";
-import { useStore, SAMPLE_PROFILES } from "../lib/store";
+import { useStore, SAMPLE_PROFILES, loadMine, clearMine } from "../lib/store";
 import { Button, RippleMark, Slider, cx } from "../components/ui";
 import { money } from "../lib/format";
 import type { Profile } from "../lib/calc";
 import { DAVE, DAVE_PROFILE, DAVE_ASSUMPTIONS, CUSTOM_PROFILE, CUSTOM_ASSUMPTIONS } from "../data/dave";
-import { UserRound } from "lucide-react";
+import { UserRound, PlayCircle, Pencil } from "lucide-react";
 
 const GOALS = ["Build an emergency fund", "Pay off debt", "Buy a home", "Start investing", "Save for a child's education", "Retire comfortably", "Understand my money better", "Handle healthcare costs"];
 const LEVELS: { id: Profile["level"]; emoji: string; text: string }[] = [
@@ -39,9 +39,12 @@ function Q({ title, sub, children, canSkip = true, onBack: back, onNext: next }:
 }
 
 export default function Welcome() {
-  const { profile, set, award, badge } = useStore();
-  const [step, setStep] = useState(0);
-  const [p, setP] = useState<Profile>(profile.onboarded ? { ...profile } : { ...DAVE_PROFILE });
+  const { profile, set, award, badge, setEntered } = useStore();
+  const mine = loadMine();
+  // "#/welcome?edit" jumps straight to editing your own numbers
+  const editing = window.location.hash.includes("edit");
+  const [step, setStep] = useState(editing ? 1 : 0);
+  const [p, setP] = useState<Profile>(editing && mine ? { ...mine.profile } : profile.onboarded ? { ...profile } : { ...DAVE_PROFILE });
   const total = 9;
   const next = () => setStep((s) => Math.min(total + 1, s + 1));
   const back = () => setStep((s) => Math.max(0, s - 1));
@@ -50,13 +53,22 @@ export default function Welcome() {
   const finish = (final: Profile) => {
     // switching scenario: fresh assumptions & simulators for that scenario
     const custom = final.scenario === "custom";
-    set({ profile: { ...final, onboarded: true }, assumptions: custom ? { ...CUSTOM_ASSUMPTIONS } : { ...DAVE_ASSUMPTIONS }, sims: {} });
+    // Editing your own numbers keeps your plan choices; the demo always starts fresh
+    const keep = custom && mine;
+    set({ profile: { ...final, onboarded: true }, assumptions: keep ? mine.assumptions : custom ? { ...CUSTOM_ASSUMPTIONS } : { ...DAVE_ASSUMPTIONS }, sims: keep ? mine.sims : {}, stepsDone: keep ? mine.stepsDone : {} });
+    setEntered(true);
     setTimeout(() => { award(50, "Welcome to Next Step", "onboard"); badge("welcome"); }, 400);
     window.location.hash = "#/";
   };
   const demo = () => finish({ ...DAVE_PROFILE, onboarded: true });
   const walkDave = () => { setP({ ...DAVE_PROFILE }); next(); };
-  const ownNumbers = () => { setP({ ...CUSTOM_PROFILE }); next(); };
+  const ownNumbers = () => { setP(mine ? { ...mine.profile } : { ...CUSTOM_PROFILE }); next(); };
+  const freshNumbers = () => { clearMine(); setP({ ...CUSTOM_PROFILE }); next(); };
+  const continueMine = () => {
+    if (!mine) return;
+    set({ profile: { ...mine.profile, onboarded: true }, assumptions: mine.assumptions, sims: mine.sims, stepsDone: mine.stepsDone });
+    setEntered(true); window.location.hash = "#/";
+  };
   const custom = p.scenario === "custom";
 
   const steps = [
@@ -65,17 +77,38 @@ export default function Welcome() {
       <div className="mx-auto w-fit"><RippleMark size={72} /></div>
       <h1 className="mt-6 font-display text-4xl sm:text-6xl font-semibold leading-[1.05] tracking-tight">See tomorrow<br />before you spend today.</h1>
       <p className="mx-auto mt-5 max-w-lg text-lg sm:text-xl text-slate-600">Every money choice you make sends ripples into your future. Next Step shows you where they land, <span className="text-emerald-600 font-semibold">before</span> you make them.</p>
-      <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-        <Button onClick={demo} className="w-full sm:w-auto text-lg px-8 py-4"><Sparkles size={18} /> Start as Dave</Button>
-        <Button variant="ghost" onClick={walkDave} className="w-full sm:w-auto text-lg px-6 py-4">Walk through Dave's answers <ArrowRight size={20} /></Button>
-      </div>
-      <button onClick={ownNumbers} className="mx-auto mt-4 flex items-center gap-2 rounded-2xl bg-navy px-6 py-3.5 text-lg font-semibold text-white hover:bg-navy-800"><UserRound size={19} /> Use my own numbers</button>
-      <div className="mx-auto mt-8 max-w-lg rounded-3xl bg-white p-5 text-left shadow-card ring-1 ring-slate-200">
-        <div className="flex items-center gap-3">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-2xl">🧹</span>
-          <div><div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">Demo scenario</div><div className="font-display text-xl font-semibold">Meet Dave, 50</div></div>
+      <div className="mx-auto mt-9 grid max-w-3xl gap-4 text-left sm:grid-cols-2">
+        {/* Demo */}
+        <div className="flex flex-col rounded-3xl bg-white p-6 shadow-card ring-1 ring-slate-200">
+          <div className="flex items-center gap-3">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-2xl">🧹</span>
+            <div><div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">See how it works</div><div className="font-display text-xl font-semibold">Dave's demo scenario</div></div>
+          </div>
+          <p className="mt-3 flex-1 text-[15px] text-slate-600">Dave, 50, is a head custodian at a Pennsylvania public high school, earning about ${DAVE.hourly}/hour. With Linda's part-time job they bring in <b>$64,000</b> a year, have <b>$6,000</b> saved, and two kids, <b>Emma (17)</b> and <b>Jake (15)</b>, heading to college soon.</p>
+          <Button onClick={demo} className="mt-4 w-full text-lg"><Sparkles size={18} /> Explore Dave's demo</Button>
+          <button onClick={walkDave} className="mt-2 flex items-center justify-center gap-1.5 rounded-xl py-2 text-sm font-semibold text-slate-500 hover:text-navy"><PlayCircle size={15} /> Walk through Dave's answers first</button>
         </div>
-        <p className="mt-3 text-[15px] text-slate-600">{DAVE.role}, earning about ${DAVE.hourly}/hour. With his wife Linda's part-time cafeteria job, the family brings in <b>$64,000</b> a year. They have <b>$6,000</b> saved, and both kids are in high school: <b>Emma (17)</b> and <b>Jake (15)</b>. College is coming fast.</p>
+        {/* Own */}
+        <div className="flex flex-col rounded-3xl bg-navy p-6 text-white shadow-card">
+          <div className="flex items-center gap-3">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-2xl">🙋</span>
+            <div><div className="text-[12px] font-bold uppercase tracking-wider text-emerald-300">{mine ? "Welcome back" : "Make it yours"}</div><div className="font-display text-xl font-semibold">{mine ? `${mine.profile.name || "Your"}${mine.profile.name ? "'s" : ""} numbers` : "Use my own numbers"}</div></div>
+          </div>
+          <p className="mt-3 flex-1 text-[15px] text-slate-300">{mine
+            ? `Pick up where you left off: ${money(mine.profile.income)} a year${mine.profile.kids?.length ? `, ${mine.profile.kids.length} ${mine.profile.kids.length === 1 ? "child" : "children"}` : ""}, and your plan and next steps saved on this device.`
+            : "Answer a few quick questions (about 2 minutes) and see your own retirement answer, plan and next steps. Rough guesses are fine."}</p>
+          {mine ? (
+            <>
+              <button onClick={continueMine} className="mt-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 text-[17px] font-semibold text-white hover:bg-emerald-600 whitespace-nowrap"><UserRound size={18} /> Continue with my numbers</button>
+              <div className="mt-2 flex justify-center gap-4">
+                <button onClick={ownNumbers} className="flex items-center gap-1.5 rounded-xl py-2 text-sm font-semibold text-slate-300 hover:text-white"><Pencil size={14} /> Edit my answers</button>
+                <button onClick={freshNumbers} className="rounded-xl py-2 text-sm font-semibold text-slate-400 hover:text-white">Start fresh</button>
+              </div>
+            </>
+          ) : (
+            <button onClick={ownNumbers} className="mt-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-lg font-semibold text-white hover:bg-emerald-600"><UserRound size={19} /> Enter my numbers <ArrowRight size={18} /></button>
+          )}
+        </div>
       </div>
       <p className="mt-5 flex items-center justify-center gap-2 text-[14px] text-slate-500"><Lock size={14} /> No bank logins. No account numbers. Rough guesses are perfect.</p>
     </div>,

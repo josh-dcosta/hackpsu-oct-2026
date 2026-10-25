@@ -34,8 +34,9 @@ function useRoute() {
 
 export default function App() {
   const route = useRoute();
-  const { profile } = useStore();
-  if (route === "/welcome" || !profile.onboarded) return <Welcome />;
+  const { profile, entered } = useStore();
+  // Every visit starts on the Welcome page: pick the demo or your own numbers
+  if (!entered || route === "/welcome" || !profile.onboarded) return <Welcome />;
 
   let page;
   if (route === "/") page = <Dashboard />;

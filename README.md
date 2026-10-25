@@ -24,6 +24,7 @@ We show it through **Dave**, a Pennsylvania school custodian with two teens head
 ## What's inside
 Four simple sections: **Home · Learn · Ask Next Step · Progress**. Practical, safe money basics, no stock trading.
 
+- **Every visit opens on the welcome page** ("See tomorrow before you spend today") with two choices: **Dave's demo scenario** or **your own numbers**. Your own numbers are saved on your device ("Welcome back, Bob"), and trying the demo never erases them.
 - **Two ways in**: **Start as Dave** (a worked example: PA school custodian, family of four) or **Use my own numbers** (e.g. Bob, a plumber earning $85k with three kids). Switch anytime from the top of Home.
 - **Life moments:** *I got a raise · Open enrollment · Surprise bill · Kid heading to college · The market dropped · Retiring soon*, each with guidance using your numbers and a one-tap plan change.
 - **Home answers one question:** *Will I have enough money to pay the bills after I retire?* It shows saving per month today, bills today vs. at retirement (with inflation), each retirement year's bills vs. pension + Social Security + savings, and the age savings run out.
@@ -36,7 +37,7 @@ Four simple sections: **Home · Learn · Ask Next Step · Progress**. Practical,
 - **Progress**: XP, badges, and **Download my plan (PDF)**.
 
 ## 3-minute demo script
-1. **Start as Dave** → Home: *"Not quite. Savings run out at age 73."* Bills go from $3,600 to $7,012 a month at 67 (4% inflation). Point to ✓ *Calculated by Next Step*.
+1. Open the site → **Explore Dave's demo** → Home: *"Not quite. Savings run out at age 73."* Bills go from $3,600 to $7,012 a month at 67 (4% inflation). Point to ✓ *Calculated by Next Step*.
 2. **The moments that matter → Open enrollment** → *Add a $1,500/yr HSA* → the plan shows taxes saved and money lasting longer.
 3. **I got a raise** → *Raise my retirement savings* → see the impact.
 4. **Dave's next steps**: open a step → exact amount, how-to, *Automate it*, **Add a reminder**, **Verify** link. Check one off.

@@ -54,7 +54,17 @@ function load(): State {
 }
 
 export type Toast = { id: number; text: string; emoji?: string };
+// The user's own scenario is saved separately so trying the demo never erases it.
+export type Mine = { profile: Profile; assumptions: Assumptions; sims: Record<string, unknown>; stepsDone: Record<string, boolean> };
+const MINE_KEY = "nextstep-mine-v1";
+export function loadMine(): Mine | null {
+  try { const raw = localStorage.getItem(MINE_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
+}
+export function clearMine() { try { localStorage.removeItem(MINE_KEY); } catch { /* ignore */ } }
+
 type Ctx = State & {
+  entered: boolean; // picked demo or own numbers during this visit (not saved, so every visit starts on Welcome)
+  setEntered: (v: boolean) => void;
   set: (patch: Partial<State> | ((s: State) => Partial<State>)) => void;
   award: (xp: number, reason: string, once?: string) => void;
   badge: (id: string) => void;
@@ -74,7 +84,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [context, setContext] = useState<Record<string, unknown>>({});
   const onceRef = useRef<Set<string>>(new Set(JSON.parse(localStorage.getItem(KEY + "-once") || "[]")));
 
-  useEffect(() => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* ignore */ } }, [s]);
+  const [entered, setEntered] = useState(false);
+  useEffect(() => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(s));
+      if (s.profile.scenario === "custom" && s.profile.onboarded)
+        localStorage.setItem(MINE_KEY, JSON.stringify({ profile: s.profile, assumptions: s.assumptions, sims: s.sims, stepsDone: s.stepsDone }));
+    } catch { /* ignore */ }
+  }, [s]);
   useEffect(() => { document.documentElement.classList.toggle("big-text", s.bigText); }, [s.bigText]);
 
   const toast = useCallback((text: string, emoji?: string) => {
@@ -125,12 +142,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const saveSim = useCallback((id: string, v: unknown) => setS((prev) => ({ ...prev, sims: { ...prev.sims, [id]: v } })), []);
 
   const resetAll = useCallback(() => {
-    localStorage.removeItem(KEY); localStorage.removeItem(KEY + "-once"); onceRef.current = new Set();
+    localStorage.removeItem(KEY); localStorage.removeItem(KEY + "-once"); clearMine(); onceRef.current = new Set();
     setS(DEFAULT); window.location.hash = "#/welcome";
   }, []);
 
-  const value = useMemo<Ctx>(() => ({ ...s, set, award, badge, touch, finishModule, resetAll, toasts, context, setContext, saveSim }),
-    [s, set, award, badge, touch, finishModule, resetAll, toasts, context, saveSim]);
+  const value = useMemo<Ctx>(() => ({ ...s, entered, setEntered, set, award, badge, touch, finishModule, resetAll, toasts, context, setContext, saveSim }),
+    [s, entered, set, award, badge, touch, finishModule, resetAll, toasts, context, saveSim]);
   return <C.Provider value={value}>{children}</C.Provider>;
 }
 
