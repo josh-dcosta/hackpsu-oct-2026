@@ -13,7 +13,7 @@ export default function Learn() {
   return (
     <div>
       <h1 className="font-display text-4xl font-semibold">Learn by doing</h1>
-      <p className="mt-2 max-w-2xl text-lg text-slate-500">Ten short lessons. Each has a plain-English idea, a simulator you can play with, Ripple's explanation, and a 3-question check. Your roadmap is ordered for ages {profile.ageRange}.</p>
+      <p className="mt-2 max-w-2xl text-lg text-slate-500">Ten short lessons. Each has a plain-English idea, a simulator you can play with, Next Step's explanation, and a 3-question check. Your roadmap is ordered for ages {profile.ageRange}.</p>
       {nextUp && (
         <a href={moduleHref(nextUp.id)} className="mt-6 flex items-center gap-4 rounded-3xl hero-dark p-5 text-white">
           <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white/10 text-3xl">{nextUp.emoji}</span>
@@ -64,7 +64,7 @@ export function Sims() {
           </a>
         ))}
       </div>
-      <Card className="mt-6 flex items-start gap-3 bg-sky-soft/60"><Lock size={18} className="mt-1 shrink-0 text-sky-700" /><p className="text-[15px] text-sky-900">Ripple never asks for bank logins, account numbers, or your Social Security number, and you should never share them with any chatbot.</p></Card>
+      <Card className="mt-6 flex items-start gap-3 bg-sky-soft/60"><Lock size={18} className="mt-1 shrink-0 text-sky-700" /><p className="text-[15px] text-sky-900">Next Step never asks for bank logins, account numbers, or your Social Security number, and you should never share them with any chatbot.</p></Card>
     </div>
   );
 }

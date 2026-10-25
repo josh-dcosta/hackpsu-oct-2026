@@ -68,7 +68,7 @@ export default function Saving() {
         </Card>
       </Section>
 
-      <Section n={3} kicker="Ripple explains" title="Which one wins?">
+      <Section n={3} kicker="Next Step explains" title="Which one wins?">
         <AskRipple ctx={{ page: "lesson", module: "Savings vs Investing", inputs: s, results: { totalContributed: Math.round(last.contributed), zeroPctAccount: Math.round(last.cash), highYieldSavings: Math.round(last.hysa), investing: Math.round(last.invest), investingIfLowerReturns: Math.round(last.investLow), zeroPctTodaysDollars: Math.round(last.cashReal), hysaTodaysDollars: Math.round(last.hysaReal), investingTodaysDollars: Math.round(last.investReal) }, insights }}
           prompts={["Why not invest my emergency fund?", "Why does the 0% line fall in today's dollars?", "When is saving better than investing?"]} />
       </Section>

@@ -56,7 +56,7 @@ export default function College() {
           <div className="mt-2"><EstimateTag>Investment returns are not guaranteed. Financial aid and scholarships aren't included.</EstimateTag></div>
         </Card>
       </Section>
-      <Section n={3} kicker="Ripple explains" title="Why starting early helps">
+      <Section n={3} kicker="Next Step explains" title="Why starting early helps">
         <AskRipple ctx={{ page: "lesson", module: "College Savings Simulator", inputs: s, results: { yearsUntilCollege: r.years, fourYearCostTodayPrices: Math.round(r.todayCost), projectedFourYearCost: Math.round(r.totalCost), projectedSaved: Math.round(r.saved), coveragePct: Math.round(r.coverage * 100), monthlyNeededStartingNow: Math.round(r.neededNow), monthlyNeededIfWait5Years: Math.round(r.neededIfWait5) }, insights }}
           prompts={["Why is waiting 5 years so expensive?", "What can 529 money be used for?", "Should I save for college or retirement first?"]} />
       </Section>

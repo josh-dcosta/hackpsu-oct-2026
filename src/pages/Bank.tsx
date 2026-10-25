@@ -105,7 +105,7 @@ export default function Bank() {
       <div className="mt-6 overflow-hidden rounded-[2rem] bg-white shadow-card ring-1 ring-slate-200">
         <div className="hero-dark p-5 sm:p-6 text-white">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-[13px] text-slate-300"><ShieldCheck size={15} className="text-emerald-400" /> Ripple Bank (fictional) · {monthLabel(s.month)}</div>
+            <div className="flex items-center gap-2 text-[13px] text-slate-300"><ShieldCheck size={15} className="text-emerald-400" /> Next Step Bank (fictional) · {monthLabel(s.month)}</div>
             <ResetButton dark onClick={reset} />
           </div>
           <div className="mt-2 text-[13px] text-slate-300">Total balance</div>
@@ -239,7 +239,7 @@ export default function Bank() {
         </div>
       </Section>
 
-      <Section kicker="Ripple explains" title="What just happened to my money?">
+      <Section kicker="Next Step explains" title="What just happened to my money?">
         <AskRipple ctx={{ page: "virtual bank", module: "Virtual Bank", inputs: { apy: s.apy + "%", monthsElapsed: s.month }, results: { checking: Math.round(s.checking * 100) / 100, savings: Math.round(s.savings * 100) / 100, interestEarned: Math.round(s.interest * 100) / 100, savingsInTodaysDollarsAt3pctInflation: Math.round(realSavings) }, insights }}
           prompts={["How does compound interest work here?", "What's the difference between APY and APR?", "Is my money safe in a bank?"]} />
       </Section>

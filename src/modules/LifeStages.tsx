@@ -74,7 +74,7 @@ export default function LifeStages() {
         </Card>
       </Section>
 
-      <Section n={3} kicker="Ripple explains" title="Lifestyle vs. inflation">
+      <Section n={3} kicker="Next Step explains" title="Lifestyle vs. inflation">
         <AskRipple ctx={{ page: "lesson", module: "Life Expense Simulator", inputs: s, results: { stages: rows.map((r) => ({ age: r.age, totalMonthly: r.total, retired: !!r.retired })) }, insights }}
           prompts={["Which costs grow the most, and why?", "Why might retirement cost less in some ways?", "How do I plan for healthcare costs?"]} />
       </Section>

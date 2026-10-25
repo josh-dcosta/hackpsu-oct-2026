@@ -140,7 +140,7 @@ export default function Invest() {
           <div className="mt-3"><EstimateTag>Hypothetical simulation with fictional stocks. Past patterns don't guarantee future results.</EstimateTag></div>
         </Card>
       </Section>
-      <Section n={3} kicker="Ripple explains" title="Risk and reward">
+      <Section n={3} kicker="Next Step explains" title="Risk and reward">
         <AskRipple ctx={{ page: "lesson", module: "Virtual Portfolio Simulator", inputs: { allocationPct: Object.fromEntries(Object.entries(alloc).map(([k, v]) => [k, Math.round((v / total) * 100)])), market: MARKETS[s.market].label, startingAmount: s.amount }, results: { yourMixFinal: Math.round(r.mine.final), yourWorstDropPct: Math.round(r.mine.maxDD * 100), riskLevel: r.risk, oneStock: Math.round(r.comps.single.final), fewStocks: Math.round(r.comps.several.final), indexFund: Math.round(r.comps.index.final), sixtyForty: Math.round(r.comps.mix.final) }, insights }}
           prompts={["Why is one stock so risky?", "Why hold bonds at all?", "What is dollar-cost averaging?"]} />
       </Section>

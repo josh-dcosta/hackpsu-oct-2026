@@ -143,7 +143,7 @@ export default function Debt() {
         <div className="mt-3"><EstimateTag>Simplified: fixed rates, no new charges, minimums estimated.</EstimateTag></div>
       </Section>
 
-      <Section n={3} kicker="Ripple explains" title="Make a plan">
+      <Section n={3} kicker="Next Step explains" title="Make a plan">
         <AskRipple ctx={{ page: "lesson", module: "Debt & Emergency Fund", inputs: s, results: { singleDebtMonths: one.never ? "never" : one.months, singleDebtInterest: one.never ? "infinite" : Math.round(one.totalInterest), withExtra100Months: more.months, withExtra100Interest: Math.round(more.totalInterest), avalanche: { months: av.months, interest: Math.round(av.totalInterest), order: av.order }, snowball: { months: sn.months, interest: Math.round(sn.totalInterest), order: sn.order }, creditUtilizationPct: Math.round(util * 100), emergencyFundGoal: ef.target, monthsToGoal: ef.months }, insights }}
           prompts={["Avalanche or snowball, which fits me?", "Why is the minimum payment a trap?", "Should I save or pay off debt first?"]} />
       </Section>

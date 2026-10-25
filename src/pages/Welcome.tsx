@@ -47,7 +47,7 @@ export default function Welcome() {
 
   const finish = (final: Profile) => {
     set({ profile: { ...final, onboarded: true } });
-    setTimeout(() => { award(50, "Welcome to Ripple", "onboard"); badge("welcome"); }, 400);
+    setTimeout(() => { award(50, "Welcome to Next Step", "onboard"); badge("welcome"); }, 400);
     window.location.hash = "#/";
   };
   const demo = () => finish({ ...p, ...SAMPLE_PROFILES["25–35"], name: "Alex", goals: ["Retire comfortably", "Build an emergency fund", "Start investing"], level: "Beginner", onboarded: true });
@@ -57,7 +57,7 @@ export default function Welcome() {
     <div key="intro" className="text-center">
       <div className="mx-auto w-fit"><RippleMark size={72} /></div>
       <h1 className="mt-6 font-display text-4xl sm:text-6xl font-semibold leading-[1.05] tracking-tight">See tomorrow<br />before you spend today.</h1>
-      <p className="mx-auto mt-5 max-w-lg text-lg sm:text-xl text-slate-600">Every money choice you make sends ripples into your future. Ripple shows you where they land, <span className="text-emerald-600 font-semibold">before</span> you make them.</p>
+      <p className="mx-auto mt-5 max-w-lg text-lg sm:text-xl text-slate-600">Every money choice you make sends ripples into your future. Next Step shows you where they land, <span className="text-emerald-600 font-semibold">before</span> you make them.</p>
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         <Button onClick={next} className="w-full sm:w-auto text-lg px-8 py-4">Let's begin <ArrowRight size={20} /></Button>
         <Button variant="ghost" onClick={demo} className="w-full sm:w-auto text-lg px-6 py-4"><Sparkles size={18} /> Try a demo profile</Button>
@@ -113,7 +113,7 @@ export default function Welcome() {
         })}
       </div>
     </Q>,
-    <Q onBack={back} onNext={next} key="lvl" title="How comfortable are you with money topics?" sub="Ripple will explain things at your level. You can change this anytime." canSkip={false}>
+    <Q onBack={back} onNext={next} key="lvl" title="How comfortable are you with money topics?" sub="Next Step will explain things at your level. You can change this anytime." canSkip={false}>
       <div className="grid gap-3">
         {LEVELS.map((l) => (
           <button key={l.id} onClick={() => patch({ level: l.id })}

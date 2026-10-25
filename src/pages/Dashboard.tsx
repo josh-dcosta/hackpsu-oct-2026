@@ -142,7 +142,7 @@ export default function Dashboard() {
           <AskRipple
             ctx={{ page: "dashboard", module: "dashboard", inputs: { age: p.age, income: p.income, monthlyExpenses: p.expenses, savings: p.savings, retirementSaved: p.retirement, ...a }, results: { atRetirementNominal: Math.round(ret.nominal), atRetirementTodaysDollars: Math.round(ret.real), futureMonthlySpendingAtRetirement: Math.round(futureMonthly), moneyRunsShortAtAge: proj.depletedAge, milestones: proj.milestones.map((m) => ({ age: m.age, nominal: Math.round(m.nominal), todaysDollars: Math.round(m.real) })) }, insights }}
             prompts={["Explain my timeline simply", "Why are the two lines different?", "What would change my future the most?"]}
-            title="Ripple's insights for you" />
+            title="Next Step's insights for you" />
         </div>
         <div className="space-y-5 lg:col-span-2">
           <Card>

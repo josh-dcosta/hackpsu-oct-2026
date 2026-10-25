@@ -100,7 +100,7 @@ export default function Accounts() {
         <p className="mt-2 text-[12px] text-slate-500">Rules summarized from IRS guidance for {RULES.year}. Details have exceptions. Check irs.gov or a tax professional.</p>
       </Section>
 
-      <Section n={3} kicker="Ripple explains" title="Understanding the tradeoff">
+      <Section n={3} kicker="Next Step explains" title="Understanding the tradeoff">
         <AskRipple ctx={{ page: "lesson", module: "Retirement Account Comparison Lab", inputs: { ...s, taxNow: s.now + "%", taxLater: s.later + "%" }, results: Object.fromEntries(list.map((a) => [a.name, { afterTax: Math.round(a.afterTax), taxesAtWithdrawal: Math.round(a.taxes), investedPerYear: Math.round(a.invested) }])), insights }}
           prompts={["Why are Roth and Traditional equal when tax rates match?", "How would I guess my future tax rate?", "Why might someone use both?"]} />
       </Section>

@@ -110,7 +110,7 @@ export default function K401() {
         </div>
       </Section>
 
-      <Section n={3} kicker="Ripple explains" title="Why do small changes matter so much?">
+      <Section n={3} kicker="Next Step explains" title="Why do small changes matter so much?">
         <AskRipple ctx={{ page: "lesson", module: "401(k) Growth Simulator", inputs: { ...s, contribPct: s.contrib + "%", match: `${s.matchRate}% up to ${s.matchCap}% of pay` }, results: { projected: Math.round(r.final), todaysDollars: Math.round(r.finalReal), yourContributions: Math.round(r.totalEmployee), employerMatch: Math.round(r.totalEmployer), growth: Math.round(r.totalGrowth), at5pct: Math.round(r5.final), at10pct: Math.round(r10.final), at5pctEmployer: Math.round(r5.totalEmployer), at10pctEmployer: Math.round(r10.totalEmployer), startNow: Math.round(early.final), startIn10Years: late ? Math.round(late.final) : null, missedMatchThisYear: Math.round(missing) }, insights }}
           prompts={["Why does going from 5% to 10% make such a big difference?", "What is an employer match, really?", "Why does starting early matter?"]} />
       </Section>

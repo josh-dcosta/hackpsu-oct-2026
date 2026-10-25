@@ -61,7 +61,7 @@ export default function HSA() {
           <div className="mt-2"><EstimateTag>Federal taxes only. Assumes all withdrawals are for qualified medical expenses.</EstimateTag></div>
         </Card>
       </Section>
-      <Section n={3} kicker="Ripple explains" title="Where does the advantage come from?">
+      <Section n={3} kicker="Next Step explains" title="Where does the advantage come from?">
         <AskRipple ctx={{ page: "lesson", module: "HSA Triple Tax Simulator", inputs: s, results: { taxSavedPerYear: Math.round(r.taxSavedPerYear), totalTaxSaved: Math.round(r.totalTaxSaved), hsaBalance: Math.round(r.hsaFinal), regularSavingsBalance: Math.round(r.savingsFinal) }, insights }}
           prompts={["Explain the triple tax advantage simply", "Who is eligible for an HSA?", "What counts as a qualified expense?"]} />
       </Section>

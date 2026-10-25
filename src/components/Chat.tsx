@@ -29,7 +29,7 @@ export function Chat({ compact }: { compact?: boolean }) {
     const r = await askRipple(text, ctx, profile, history);
     set((s) => ({ chat: [...s.chat, { role: "assistant", text: r.text, source: r.source }], asked: s.asked + 1 }));
     setLoading(false);
-    award(10, "Asked Ripple a question", "chat-" + text.slice(0, 40));
+    award(10, "Asked Next Step a question", "chat-" + text.slice(0, 40));
     if (asked + 1 >= 3) badge("curious");
   };
 
@@ -41,7 +41,7 @@ export function Chat({ compact }: { compact?: boolean }) {
             <div className="flex items-center gap-3">
               <RippleMark size={44} />
               <div>
-                <div className="font-display text-xl font-semibold">Hi{profile.name ? `, ${profile.name}` : ""}! I'm Ripple.</div>
+                <div className="font-display text-xl font-semibold">Hi{profile.name ? `, ${profile.name}` : ""}! I'm Next Step.</div>
                 <div className="text-[15px] text-slate-500">Ask me anything about money, or about the simulation you're looking at.</div>
               </div>
             </div>
@@ -65,8 +65,8 @@ export function Chat({ compact }: { compact?: boolean }) {
         <div ref={endRef} />
       </div>
       <form onSubmit={(e) => { e.preventDefault(); send(q); }} className="mt-3 flex gap-2">
-        <label htmlFor="chat-input" className="sr-only">Message Ripple</label>
-        <input id="chat-input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ask Ripple a question…" className="min-h-[52px] flex-1 rounded-2xl bg-white px-4 text-[16px] ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" />
+        <label htmlFor="chat-input" className="sr-only">Message Next Step</label>
+        <input id="chat-input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ask Next Step a question…" className="min-h-[52px] flex-1 rounded-2xl bg-white px-4 text-[16px] ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" />
         <button type="submit" disabled={!q.trim() || loading} aria-label="Send" className="grid h-[52px] w-[52px] place-items-center rounded-2xl bg-emerald-500 text-white disabled:opacity-40"><Send size={20} /></button>
         {chat.length > 0 && <button type="button" onClick={() => set({ chat: [] })} aria-label="Clear conversation" className="grid h-[52px] w-[52px] place-items-center rounded-2xl ring-1 ring-slate-200 text-slate-500 hover:bg-slate-100"><Trash2 size={18} /></button>}
       </form>

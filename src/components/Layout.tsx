@@ -11,7 +11,7 @@ export const NAV = [
   { href: "#/learn", label: "Learn", short: "Learn", icon: BookOpen },
   { href: "#/sims", label: "Simulations", short: "Sims", icon: SlidersHorizontal },
   { href: "#/bank", label: "Virtual Bank", short: "Bank", icon: Landmark },
-  { href: "#/coach", label: "Ask Ripple", short: "Ripple", icon: MessageCircle },
+  { href: "#/coach", label: "Ask Next Step", short: "Next Step", icon: MessageCircle },
   { href: "#/progress", label: "Progress", short: "Progress", icon: Trophy },
 ];
 const MOBILE = ["#/", "#/future", "#/learn", "#/bank", "#/coach"];
@@ -29,7 +29,7 @@ export function Layout({ route, children }: { route: string; children: ReactNode
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-navy px-4 py-6 text-white lg:flex">
         <a href="#/" className="flex items-center gap-3 px-2">
           <RippleMark size={40} />
-          <div><div className="font-display text-2xl font-semibold leading-none">Ripple</div><div className="mt-1 text-[11px] text-slate-400">See tomorrow before you spend today</div></div>
+          <div><div className="font-display text-2xl font-semibold leading-none">Next Step</div><div className="mt-1 text-[11px] text-slate-400">See tomorrow before you spend today</div></div>
         </a>
         <nav className="mt-8 space-y-1" aria-label="Main">
           {NAV.map((n) => (
@@ -49,7 +49,7 @@ export function Layout({ route, children }: { route: string; children: ReactNode
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-slate-200/60 bg-paper/80 backdrop-blur lg:ml-64">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-          <a href="#/" className="flex items-center gap-2 lg:hidden"><RippleMark size={34} /><span className="font-display text-xl font-semibold">Ripple</span></a>
+          <a href="#/" className="flex items-center gap-2 lg:hidden"><RippleMark size={34} /><span className="font-display text-xl font-semibold">Next Step</span></a>
           <div className="hidden text-[15px] text-slate-500 lg:block">{profile.onboarded ? `Ages ${profile.ageRange} · ${profile.level}` : "Welcome"}</div>
           <div className="flex items-center gap-2">
             <button onClick={() => set({ simple: !simple })} aria-pressed={simple}
@@ -69,16 +69,16 @@ export function Layout({ route, children }: { route: string; children: ReactNode
 
       {/* Floating coach */}
       {route !== "/coach" && (
-        <button onClick={() => setCoach(true)} className="fixed bottom-24 right-4 z-30 flex items-center gap-2 rounded-full bg-navy p-1.5 text-white shadow-xl shadow-navy/30 hover:scale-[1.02] transition lg:bottom-6 lg:right-6 lg:py-2 lg:pl-2 lg:pr-5" aria-label="Ask Ripple">
-          <RippleMark size={44} /><span className="hidden font-semibold lg:inline">Ask Ripple</span>
+        <button onClick={() => setCoach(true)} className="fixed bottom-24 right-4 z-30 flex items-center gap-2 rounded-full bg-navy p-1.5 text-white shadow-xl shadow-navy/30 hover:scale-[1.02] transition lg:bottom-6 lg:right-6 lg:py-2 lg:pl-2 lg:pr-5" aria-label="Ask Next Step">
+          <RippleMark size={44} /><span className="hidden font-semibold lg:inline">Ask Next Step</span>
         </button>
       )}
       <AnimatePresence>
         {coach && (
           <motion.div className="fixed inset-0 z-50 flex justify-end bg-navy/40" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setCoach(false)}>
-            <motion.div role="dialog" aria-label="Ask Ripple" className="flex h-full w-full max-w-md flex-col bg-paper p-4 sm:p-5" initial={{ x: 40 }} animate={{ x: 0 }} exit={{ x: 40 }} onClick={(e) => e.stopPropagation()}>
+            <motion.div role="dialog" aria-label="Ask Next Step" className="flex h-full w-full max-w-md flex-col bg-paper p-4 sm:p-5" initial={{ x: 40 }} animate={{ x: 0 }} exit={{ x: 40 }} onClick={(e) => e.stopPropagation()}>
               <div className="mb-3 flex items-center justify-between">
-                <div className="font-display text-xl font-semibold">Ask Ripple</div>
+                <div className="font-display text-xl font-semibold">Ask Next Step</div>
                 <button onClick={() => setCoach(false)} aria-label="Close" className="grid h-10 w-10 place-items-center rounded-xl hover:bg-slate-100"><X /></button>
               </div>
               <div className="min-h-0 flex-1"><Chat compact /></div>

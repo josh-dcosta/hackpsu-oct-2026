@@ -105,7 +105,7 @@ export default function Inflation() {
         </Card>
       </Section>
 
-      <Section n={3} kicker="Ripple explains" title="What does this mean for you?">
+      <Section n={3} kicker="Next Step explains" title="What does this mean for you?">
         <AskRipple ctx={{ page: "lesson", module: "Inflation Time Machine", inputs: { item: item?.label ?? "custom item", priceToday: s.price, inflationRate: s.rate + "%", years: s.years }, results: { futurePrice: Math.round(fut), hundredDollarsWorthInTodaysDollars: Math.round(pp), yearsToDouble: isFinite(doubling) ? Math.round(doubling) : null }, insights }}
           prompts={["Why does inflation compound?", "How can I protect my savings from inflation?", "Is some inflation normal?"]} />
       </Section>

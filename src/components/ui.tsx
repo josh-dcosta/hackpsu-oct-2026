@@ -138,8 +138,8 @@ export function RichText({ text }: { text: string }) {
   );
 }
 
-/** "Ripple explains" card: grounded in the current simulation's numbers. */
-export function AskRipple({ ctx, prompts, title = "Ask Ripple about your numbers" }: { ctx: RippleContext; prompts: string[]; title?: string }) {
+/** "Next Step explains" card: grounded in the current simulation's numbers. */
+export function AskRipple({ ctx, prompts, title = "Ask Next Step about your numbers" }: { ctx: RippleContext; prompts: string[]; title?: string }) {
   const { profile, award, badge, asked, set, setContext } = useStore();
   const [answer, setAnswer] = useState<{ q: string; text: string; source: string } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -152,7 +152,7 @@ export function AskRipple({ ctx, prompts, title = "Ask Ripple about your numbers
     setLoading(true); setAnswer({ q, text: "", source: "" });
     const r = await askRipple(q, ctx, profile);
     setAnswer({ q, text: r.text, source: r.source }); setLoading(false); setCustom("");
-    award(10, "Asked Ripple a question", "ask-" + q.slice(0, 40));
+    award(10, "Asked Next Step a question", "ask-" + q.slice(0, 40));
     set((s) => ({ asked: s.asked + 1 }));
     if (asked + 1 >= 3) badge("curious");
   };
@@ -162,7 +162,7 @@ export function AskRipple({ ctx, prompts, title = "Ask Ripple about your numbers
         <RippleMark />
         <div>
           <div className="font-semibold">{title}</div>
-          <div className="text-[13px] text-slate-500">Ripple uses the results above. It never makes up its own math.</div>
+          <div className="text-[13px] text-slate-500">Next Step uses the results above. It never makes up its own math.</div>
         </div>
       </div>
       {ctx.insights && ctx.insights.length > 0 && (
@@ -186,9 +186,9 @@ export function AskRipple({ ctx, prompts, title = "Ask Ripple about your numbers
         {answer && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200" aria-live="polite">
             <div className="text-[13px] font-semibold text-slate-500">You asked: {answer.q}</div>
-            {loading ? <div className="mt-3 flex items-center gap-2 text-slate-500"><Loader2 className="animate-spin" size={18} /> Ripple is thinking…</div>
+            {loading ? <div className="mt-3 flex items-center gap-2 text-slate-500"><Loader2 className="animate-spin" size={18} /> Next Step is thinking…</div>
               : <div className="mt-2 text-[15px] leading-relaxed text-slate-700"><RichText text={answer.text} /></div>}
-            {!loading && answer.source === "built-in" && <div className="mt-2 text-[12px] text-slate-400">Answered with Ripple's built-in explainer (AI is offline right now).</div>}
+            {!loading && answer.source === "built-in" && <div className="mt-2 text-[12px] text-slate-400">Answered with Next Step's built-in explainer (AI is offline right now).</div>}
           </motion.div>
         )}
       </AnimatePresence>

@@ -16,7 +16,7 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
   const ensure = (h: number) => { if (y + h > H - 60) { footer(); doc.addPage(); y = 56; } };
   const footer = () => {
     doc.setFontSize(8); doc.setTextColor(...SLATE);
-    doc.text("Ripple · Educational estimates with hypothetical numbers. Not financial, tax, or investment advice.", M, H - 28);
+    doc.text("Next Step · Educational estimates with hypothetical numbers. Not financial, tax, or investment advice.", M, H - 28);
     doc.text(`Page ${doc.getNumberOfPages()}`, W - M, H - 28, { align: "right" });
   };
   const h2 = (t: string) => { ensure(40); y += 14; doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.setTextColor(...NAVY); doc.text(t, M, y); y += 6; doc.setDrawColor(...MINT); doc.setLineWidth(2); doc.line(M, y, M + 36, y); y += 16; };
@@ -35,7 +35,7 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
   doc.setFillColor(...NAVY); doc.rect(0, 0, W, 120, "F");
   doc.setFillColor(...MINT); doc.circle(M + 14, 52, 6, "F");
   doc.setDrawColor(...MINT); doc.setLineWidth(2); doc.circle(M + 14, 52, 13, "S");
-  doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(24); doc.text("Ripple", M + 38, 60);
+  doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(24); doc.text("Next Step", M + 38, 60);
   doc.setFont("helvetica", "normal"); doc.setFontSize(11); doc.setTextColor(203, 213, 225);
   doc.text("See tomorrow before you spend today.", M + 38, 78);
   doc.text(`My Financial Future Plan${o.profile.name ? ` · ${o.profile.name}` : ""} · ${new Date().toLocaleDateString()}`, M + 38, 96);
@@ -96,5 +96,5 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
   ["Check your real Social Security estimate at ssa.gov/myaccount.", "Look up your employer's 401(k) match and vesting rules.", "Consider talking with a fee-only, fiduciary financial professional before major decisions."].forEach((t) => para("•  " + t));
   para(`Contribution limits reference IRS figures for ${RULES.year} (verified ${RULES.verifiedOn}). Sources: ${RULES.sources.map((s) => s.url).join(" · ")}`, 8, SLATE);
   footer();
-  doc.save(`Ripple-Plan${o.profile.name ? "-" + o.profile.name.replace(/\W+/g, "") : ""}.pdf`);
+  doc.save(`NextStep-Plan${o.profile.name ? "-" + o.profile.name.replace(/\W+/g, "") : ""}.pdf`);
 }

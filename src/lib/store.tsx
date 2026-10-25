@@ -10,13 +10,13 @@ export const SAMPLE_PROFILES: Record<string, Omit<Profile, "goals" | "level" | "
 };
 
 export const BADGES = [
-  { id: "welcome", name: "Fresh Start", emoji: "🌅", desc: "Finished setting up Ripple" },
+  { id: "welcome", name: "Fresh Start", emoji: "🌅", desc: "Finished setting up Next Step" },
   { id: "inflation", name: "Inflation Explorer", emoji: "🔭", desc: "Completed the Inflation Time Machine" },
   { id: "compound", name: "Compound Interest Champion", emoji: "🏆", desc: "Watched interest compound in the Virtual Bank or savings lesson" },
   { id: "retirement", name: "Retirement Planner", emoji: "🧭", desc: "Completed the 401(k) lesson" },
   { id: "diversify", name: "Diversification Detective", emoji: "🕵️", desc: "Completed the investing lesson" },
   { id: "debt", name: "Debt Destroyer", emoji: "🔨", desc: "Completed the debt & emergency fund lesson" },
-  { id: "curious", name: "Curious Mind", emoji: "💡", desc: "Asked Ripple 3 questions" },
+  { id: "curious", name: "Curious Mind", emoji: "💡", desc: "Asked Next Step 3 questions" },
   { id: "architect", name: "Financial Future Architect", emoji: "🏛️", desc: "Finished Choose Your Financial Future" },
   { id: "scholar", name: "Money Scholar", emoji: "🎓", desc: "Completed 5 lessons" },
 ] as const;

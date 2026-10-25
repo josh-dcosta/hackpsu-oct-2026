@@ -1,4 +1,4 @@
-// Client for the Ripple AI coach. Calls our server (which holds the key).
+// Client for the Next Step AI coach. Calls our server (which holds the key).
 // If AI is unavailable, falls back to a built-in explainer that uses the same calculated numbers.
 import type { Profile } from "./calc";
 
@@ -23,7 +23,7 @@ export function builtInAnswer(q: string, ctx: RippleContext, profile?: Profile) 
   const concept = GLOSSARY.find(([re]) => re.test(q))?.[1];
   if (ctx.insights?.length) lines.push(ctx.insights.slice(0, 3).join(" "));
   if (concept) lines.push(concept);
-  if (!lines.length) lines.push("Good question! Ripple can explain any lesson or simulation in plain English. Open one of the simulators, move a slider, and ask me why the numbers changed. I'll walk you through it using your own results.");
+  if (!lines.length) lines.push("Good question! Next Step can explain any lesson or simulation in plain English. Open one of the simulators, move a slider, and ask me why the numbers changed. I'll walk you through it using your own results.");
   lines.push("These are educational estimates, not advice. Real results will differ.");
   lines.push(profile?.level === "Advanced" ? "Try: switch the scenario to pessimistic and see how sensitive the result is." : "Try: move one slider a little and watch what changes.");
   return lines.join("\n\n");

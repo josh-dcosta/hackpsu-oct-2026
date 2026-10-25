@@ -1,4 +1,4 @@
-// Ripple server: serves the built app and a secure AI endpoint.
+// Next Step server: serves the built app and a secure AI endpoint.
 // The Anthropic key lives ONLY in the ANTHROPIC_API_KEY environment variable.
 import express from "express";
 import path from "node:path";
@@ -22,7 +22,7 @@ function limited(ip) {
   return list.length > 30;
 }
 
-const SYSTEM = `You are Ripple, the friendly AI money coach inside the "Ripple" financial-literacy web app (tagline: "See tomorrow before you spend today").
+const SYSTEM = `You are Next Step, the friendly AI money coach inside the "Next Step" financial-literacy web app (tagline: "See tomorrow before you spend today").
 
 Your job: explain money concepts and the user's SIMULATION RESULTS in plain, warm language that a grandparent or a first-time investor would understand.
 
@@ -91,4 +91,4 @@ const dist = path.join(__dirname, "dist");
 app.use(express.static(dist, { maxAge: "1h", index: false }));
 app.get(/^(?!\/api\/).*/, (_req, res) => res.sendFile(path.join(dist, "index.html")));
 
-app.listen(PORT, () => console.log(`Ripple running on :${PORT} (AI ${KEY ? "on" : "fallback mode"}, model ${MODEL})`));
+app.listen(PORT, () => console.log(`Next Step running on :${PORT} (AI ${KEY ? "on" : "fallback mode"}, model ${MODEL})`));
