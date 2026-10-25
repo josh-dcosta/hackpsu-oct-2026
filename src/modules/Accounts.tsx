@@ -43,7 +43,7 @@ export default function Accounts() {
         </Card>
       </Section>
 
-      <Section n={2} kicker="Try it" title="Retirement Account Lab">
+      <Section n={2} practice kicker="Real-world simulation · ready for you" title="Retirement Account Lab">
         <Card>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap gap-2">
@@ -104,14 +104,7 @@ export default function Accounts() {
         <AskRipple ctx={{ page: "lesson", module: "Retirement Account Comparison Lab", inputs: { ...s, taxNow: s.now + "%", taxLater: s.later + "%" }, results: Object.fromEntries(list.map((a) => [a.name, { afterTax: Math.round(a.afterTax), taxesAtWithdrawal: Math.round(a.taxes), investedPerYear: Math.round(a.invested) }])), insights }}
           prompts={["Why are Roth and Traditional equal when tax rates match?", "How would I guess my future tax rate?", "Why might someone use both?"]} />
       </Section>
-      <Section n={4} kicker="Real life" title="Who tends to pick what">
-        <Examples items={[
-          { emoji: "🎓", title: "Early career", text: "Lower income now often means a lower tax rate now, which is one reason Roth is popular with young savers." },
-          { emoji: "💼", title: "Peak earning years", text: "High current tax rates can make Traditional's upfront deduction more appealing." },
-          { emoji: "🧺", title: "A bit of both", text: "Having both types gives flexibility to manage taxes in retirement." },
-        ]} />
-      </Section>
-      <Section n={5} kicker="Quick check" title="Test yourself">
+      <Section n={4} kicker="Quick check" title="Test yourself">
         <Quiz id="accounts" onComplete={finish} questions={[
           { q: "Which account gives tax-free qualified withdrawals?", options: ["Traditional IRA", "Roth IRA", "Both"], answer: 1, why: "Roth: taxed going in, tax-free coming out (when rules are met)." },
           { q: "If your tax rate is the same now and in retirement, which wins?", options: ["Roth", "Traditional", "They're equal"], answer: 2, why: "Same rate means the same after-tax result. The order of multiplication doesn't matter." },

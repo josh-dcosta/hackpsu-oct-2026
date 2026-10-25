@@ -29,7 +29,7 @@ export default function LifeStages() {
         </Card>
       </Section>
 
-      <Section n={2} kicker="Try it" title="Life Expense Simulator">
+      <Section n={2} practice kicker="Real-world simulation · ready for you" title="Life Expense Simulator">
         <Card>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Segmented label="Dollars" value={s.real ? "real" : "nominal"} onChange={(v) => set({ real: v === "real" })} options={[{ value: "nominal", label: "Future dollars" }, { value: "real", label: "Today's dollars" }]} />
@@ -79,14 +79,7 @@ export default function LifeStages() {
           prompts={["Which costs grow the most, and why?", "Why might retirement cost less in some ways?", "How do I plan for healthcare costs?"]} />
       </Section>
 
-      <Section n={4} kicker="Real life" title="Common turning points">
-        <Examples items={[
-          { emoji: "👶", title: "Childcare", text: "Full-time childcare for one child can cost as much as rent in many U.S. cities." },
-          { emoji: "🏠", title: "Paying off a home", text: "Once a mortgage is gone, housing often drops to taxes, insurance and repairs." },
-          { emoji: "🩺", title: "Healthcare", text: "Medicare starts at 65, but premiums, copays and dental still add up." },
-        ]} />
-      </Section>
-      <Section n={5} kicker="Quick check" title="Test yourself">
+      <Section n={4} kicker="Quick check" title="Test yourself">
         <Quiz id="life" onComplete={finish} questions={[
           { q: "Why show expenses in 'today's dollars'?", options: ["To hide inflation", "To see lifestyle changes without inflation's effect", "Because it's always lower"], answer: 1, why: "Removing inflation shows how your actual lifestyle costs change." },
           { q: "Which cost often DROPS in retirement?", options: ["Healthcare", "Commuting and work costs", "Everything"], answer: 1, why: "No daily commute or work wardrobe. Healthcare often rises." },

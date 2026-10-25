@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ArrowRight, Gamepad2, TrendingUp, Wallet, PiggyBank, ShoppingCart } from "lucide-react";
+import { ArrowRight, BookOpen, TrendingUp, Wallet, PiggyBank, ShoppingCart } from "lucide-react";
 import { useStore } from "../lib/store";
 import { projectLife, futureCost } from "../lib/calc";
 import { money, compact, axisMoney, pct } from "../lib/format";
@@ -22,6 +22,7 @@ export default function Dashboard() {
   const ret = proj.atRetire;
   const yrsToRetire = Math.max(0, a.retireAge - p.age);
   const futureMonthly = futureCost(p.expenses, proj.inflation, yrsToRetire);
+  const nextLesson = MODULES.find((m) => m.stages.includes(p.ageRange) && !done.includes(m.id)) || MODULES.find((m) => !done.includes(m.id)) || MODULES[0];
   const recs = MODULES.filter((m) => m.stages.includes(p.ageRange) && !done.includes(m.id)).slice(0, 3);
   const chart = proj.rows.filter((r) => r.age <= 90);
   const selected = sel !== null ? proj.milestones.find((m) => m.age === sel) : null;
@@ -90,11 +91,12 @@ export default function Dashboard() {
       )}
 
       {/* Big CTA */}
-      <a href="#/future" className="group mt-5 flex items-center gap-4 rounded-3xl bg-emerald-500 p-5 text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-600">
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white/20"><Gamepad2 size={28} /></span>
+      <a href={moduleHref(nextLesson.id)} className="group mt-5 flex items-center gap-4 rounded-3xl bg-emerald-500 p-5 text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-600">
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white/20 text-3xl">{nextLesson.emoji}</span>
         <span className="flex-1">
-          <span className="block font-display text-xl sm:text-2xl font-semibold">Play: Choose Your Financial Future</span>
-          <span className="text-emerald-50">Make 10 life decisions and watch 30 years unfold.</span>
+          <span className="block text-[13px] font-bold uppercase tracking-wider text-emerald-100">{done.length ? "Continue learning" : "Start learning"} <BookOpen size={13} className="inline" /></span>
+          <span className="block font-display text-xl sm:text-2xl font-semibold">{nextLesson.title}</span>
+          <span className="text-emerald-50">Learn the idea, then try it on a real-world simulation ready for you.</span>
         </span>
         <ArrowRight className="transition group-hover:translate-x-1" />
       </a>

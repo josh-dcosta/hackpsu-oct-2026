@@ -1,20 +1,17 @@
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Home, Compass, BookOpen, SlidersHorizontal, Landmark, MessageCircle, Trophy, Type, X } from "lucide-react";
+import { Home, BookOpen, MessageCircle, Trophy, Type, X } from "lucide-react";
 import { useStore } from "../lib/store";
 import { Chat } from "./Chat";
 import { RippleMark, cx } from "./ui";
 
 export const NAV = [
   { href: "#/", label: "Dashboard", short: "Home", icon: Home },
-  { href: "#/future", label: "My Financial Future", short: "Future", icon: Compass },
   { href: "#/learn", label: "Learn", short: "Learn", icon: BookOpen },
-  { href: "#/sims", label: "Simulations", short: "Sims", icon: SlidersHorizontal },
-  { href: "#/bank", label: "Virtual Bank", short: "Bank", icon: Landmark },
   { href: "#/coach", label: "Ask Next Step", short: "Next Step", icon: MessageCircle },
   { href: "#/progress", label: "Progress", short: "Progress", icon: Trophy },
 ];
-const MOBILE = ["#/", "#/future", "#/learn", "#/bank", "#/coach"];
+const MOBILE = ["#/", "#/learn", "#/coach", "#/progress"];
 
 export function Layout({ route, children }: { route: string; children: ReactNode }) {
   const { xp, bigText, simple, set, toasts, profile } = useStore();
@@ -89,7 +86,7 @@ export function Layout({ route, children }: { route: string; children: ReactNode
 
       {/* Mobile bottom tabs */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur safe-bottom lg:hidden" aria-label="Main">
-        <div className="mx-auto grid max-w-md grid-cols-5">
+        <div className="mx-auto grid max-w-md grid-cols-4">
           {NAV.filter((n) => MOBILE.includes(n.href)).map((n) => (
             <a key={n.href} href={n.href} aria-current={active(n.href) ? "page" : undefined}
               className={cx("flex flex-col items-center gap-1 pt-2.5 pb-1 text-[11px] font-semibold", active(n.href) ? "text-emerald-600" : "text-slate-500")}>

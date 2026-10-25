@@ -80,10 +80,6 @@ export default function Progress() {
               <span className="text-[13px] text-slate-500">{quiz[m.id] ? `${Object.values(quiz[m.id]).filter(Boolean).length}/3 quiz` : `${m.minutes} min`}</span>
             </a>
           ))}
-          <a href="#/future" className="flex items-center gap-3 py-3 hover:bg-slate-50 rounded-xl px-2">
-            {st.story.finished ? <CheckCircle2 className="text-emerald-500" /> : <Circle className="text-slate-300" />}
-            <span className="text-xl">🎮</span><span className="flex-1 font-semibold">Choose Your Financial Future</span>
-          </a>
         </div>
       </Card>
 

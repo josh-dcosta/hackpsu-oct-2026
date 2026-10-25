@@ -22,7 +22,7 @@ export default function College() {
           <p className="mt-3 text-[15px] text-slate-600">Many states offer a state tax deduction for contributions. Non-qualified withdrawals owe income tax plus a 10% penalty on the earnings. Unused money can be moved to another family member, and under newer rules some can roll into the beneficiary's Roth IRA (lifetime cap and conditions apply).</p>
         </Card>
       </Section>
-      <Section n={2} kicker="Try it" title="College Savings Simulator">
+      <Section n={2} practice kicker="Real-world simulation · ready for you" title="College Savings Simulator">
         <Card>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex gap-2">
@@ -70,14 +70,7 @@ export default function College() {
         <AskRipple ctx={{ page: "lesson", module: "College Savings Simulator", inputs: s, results: { yearsUntilCollege: r.years, fourYearCostTodayPrices: Math.round(r.todayCost), projectedFourYearCost: Math.round(r.totalCost), projectedSaved: Math.round(r.saved), coveragePct: Math.round(r.coverage * 100), monthlyNeededStartingNow: Math.round(r.neededNow), monthlyNeededIfWait5Years: Math.round(r.neededIfWait5) }, insights }}
           prompts={["What can Dave do with only 1–3 years left?", "How do FAFSA and the PA State Grant help?", "Should Dave save for college or retirement first?"]} />
       </Section>
-      <Section n={4} kicker="Real life" title="Ideas families use">
-        <Examples items={[
-          { emoji: "🎂", title: "Birthday gifts", text: "Many 529 plans let grandparents and friends contribute directly as a gift." },
-          { emoji: "🎯", title: "Aim for a share", text: "Some families target saving 1/3 and plan to cover the rest with income, aid and loans." },
-          { emoji: "🧓", title: "Retirement first", text: "Students can borrow for college. Nobody lends you money for retirement." },
-        ]} />
-      </Section>
-      <Section n={5} kicker="Quick check" title="Test yourself">
+      <Section n={4} kicker="Quick check" title="Test yourself">
         <Quiz id="college" onComplete={finish} questions={[
           { q: "529 withdrawals are tax-free when used for…", options: ["Anything", "Qualified education expenses", "Only K–12"], answer: 1, why: "Qualified expenses like tuition, fees, books, and room & board for enrolled students." },
           { q: "Why does starting at birth need less per month than starting at age 8?", options: ["Lower fees", "More years of compound growth", "Colleges give discounts"], answer: 1, why: "More time means growth does more of the work." },

@@ -85,7 +85,7 @@ export function ResetButton({ onClick, dark }: { onClick: () => void; dark?: boo
   return <button onClick={onClick} className={cx("inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold", dark ? "text-slate-200 hover:bg-white/10" : "text-slate-500 hover:bg-slate-100 hover:text-navy")}><RotateCcw size={15} /> Reset</button>;
 }
 
-export function Section({ n, title, children, kicker }: { n?: number; title: string; kicker?: string; children: ReactNode }) {
+export function Section({ n, title, children, kicker, practice }: { n?: number; title: string; kicker?: string; children: ReactNode; practice?: boolean }) {
   return (
     <section className="mt-8 first:mt-0">
       <div className="mb-3 flex items-center gap-3">
@@ -95,6 +95,12 @@ export function Section({ n, title, children, kicker }: { n?: number; title: str
           <h2 className="font-display text-2xl font-semibold text-navy">{title}</h2>
         </div>
       </div>
+      {practice && (
+        <div className="mb-3 flex items-start gap-3 rounded-2xl bg-sky-soft px-4 py-3 text-[15px] text-sky-900">
+          <span className="text-xl">🧹</span>
+          <span><b>Preloaded with Dave's real numbers</b> (PA school custodian, family of four). Move any slider to make it fit your life. Tap <b>Reset</b> anytime to go back to Dave.</span>
+        </div>
+      )}
       {children}
     </section>
   );

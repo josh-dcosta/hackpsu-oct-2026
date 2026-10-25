@@ -1,8 +1,8 @@
-import { ArrowRight, CheckCircle2, Clock, Lock } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useStore } from "../lib/store";
 import { MODULES, moduleHref } from "../data/modules";
-import { Card, cx } from "../components/ui";
+import { cx } from "../components/ui";
 
 export default function Learn() {
   const { profile, done } = useStore();
@@ -13,7 +13,7 @@ export default function Learn() {
   return (
     <div>
       <h1 className="font-display text-4xl font-semibold">Learn by doing</h1>
-      <p className="mt-2 max-w-2xl text-lg text-slate-500">Ten short lessons. Each has a plain-English idea, a simulator you can play with, Next Step's explanation, and a 3-question check. Your roadmap is ordered for ages {profile.ageRange}.</p>
+      <p className="mt-2 max-w-2xl text-lg text-slate-500">Ten short lessons. Each one teaches a key idea, then gives you a real-world simulation already loaded with Dave's numbers. Tweak it to fit your own life, ask Next Step anything, and finish with a 3-question check.</p>
       {nextUp && (
         <a href={moduleHref(nextUp.id)} className="mt-6 flex items-center gap-4 rounded-3xl hero-dark p-5 text-white">
           <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white/10 text-3xl">{nextUp.emoji}</span>
@@ -44,27 +44,3 @@ export default function Learn() {
   );
 }
 
-export function Sims() {
-  const { touched } = useStore();
-  return (
-    <div>
-      <h1 className="font-display text-4xl font-semibold">Simulations</h1>
-      <p className="mt-2 max-w-2xl text-lg text-slate-500">Jump straight into any simulator. Everything uses pretend money, saves automatically, and can be reset.</p>
-      <a href="#/future" className="mt-6 block rounded-3xl bg-emerald-500 p-6 text-white shadow-lg shadow-emerald-500/25 hover:bg-emerald-600">
-        <div className="text-[13px] font-bold uppercase tracking-wider text-emerald-100">The big one</div>
-        <div className="font-display text-2xl font-semibold">🎮 Choose Your Financial Future</div>
-        <p className="text-emerald-50">Ten life decisions. Thirty years. Two possible futures.</p>
-      </a>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {MODULES.map((m) => (
-          <a key={m.id} href={moduleHref(m.id)} className="flex items-center gap-4 rounded-3xl bg-white p-4 shadow-card ring-1 ring-slate-200 hover:ring-emerald-400">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-2xl" style={{ background: m.color + "1f" }}>{m.emoji}</span>
-            <span className="flex-1"><span className="block font-semibold leading-tight">{m.sim}</span><span className="text-[13px] text-slate-500">{touched.includes(m.id) ? "✓ Explored" : "Not tried yet"}</span></span>
-            <ArrowRight size={18} className="text-slate-400" />
-          </a>
-        ))}
-      </div>
-      <Card className="mt-6 flex items-start gap-3 bg-sky-soft/60"><Lock size={18} className="mt-1 shrink-0 text-sky-700" /><p className="text-[15px] text-sky-900">Next Step never asks for bank logins, account numbers, or your Social Security number, and you should never share them with any chatbot.</p></Card>
-    </div>
-  );
-}

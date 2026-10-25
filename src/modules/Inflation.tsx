@@ -46,7 +46,7 @@ export default function Inflation() {
         </Card>
       </Section>
 
-      <Section n={2} kicker="Try it" title="The Inflation Time Machine">
+      <Section n={2} practice kicker="Real-world simulation · ready for you" title="The Inflation Time Machine">
         <Card>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap gap-2">
@@ -110,15 +110,8 @@ export default function Inflation() {
           prompts={["Why does inflation compound?", "How can I protect my savings from inflation?", "Is some inflation normal?"]} />
       </Section>
 
-      <Section n={4} kicker="Real life" title="Where you'll feel it">
-        <Examples items={[
-          { emoji: "🧓", title: "Retirement", text: "If you retire at 65 and live to 90, prices could roughly double during retirement at 3% inflation." },
-          { emoji: "🏦", title: "Cash under the mattress", text: "$10,000 in a 0% account loses about $300 of buying power in the first year at 3% inflation." },
-          { emoji: "💼", title: "Raises", text: "A 3% raise during 3% inflation means your buying power stays the same. It only keeps pace." },
-        ]} />
-      </Section>
 
-      <Section n={5} kicker="Quick check" title="Test yourself">
+      <Section n={4} kicker="Quick check" title="Test yourself">
         <Quiz id="inflation" onComplete={finish} questions={[
           { q: "If inflation is 3% a year, what happens to $100 sitting in a drawer?", options: ["It grows", "It buys less each year", "Nothing changes"], answer: 1, why: "The bill still says $100, but rising prices mean it buys less." },
           { q: "At about 3% inflation, roughly how long until prices double?", options: ["About 10 years", "About 24 years", "About 50 years"], answer: 1, why: "Compounding at 3% doubles prices in about 24 years (72 ÷ 3)." },

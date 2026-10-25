@@ -94,101 +94,6 @@ export default function Bank() {
 
   return (
     <div>
-      <div className="flex items-start gap-4">
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-indigo-100 text-3xl">🏦</span>
-        <div>
-          <div className="text-[13px] font-semibold text-slate-500">Lesson D · Pretend money only</div>
-          <h1 className="font-display text-3xl sm:text-4xl font-semibold">Virtual Bank</h1>
-          <p className="mt-1 text-lg text-slate-500">Dave's $6,000 cushion, in pretend money: $2,000 in checking and $4,000 in savings. Move it around, then fast-forward time.</p>
-        </div>
-      </div>
-
-      {/* Bank app */}
-      <div className="mt-6 overflow-hidden rounded-[2rem] bg-white shadow-card ring-1 ring-slate-200">
-        <div className="hero-dark p-5 sm:p-6 text-white">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-[13px] text-slate-300"><ShieldCheck size={15} className="text-emerald-400" /> Next Step Bank (fictional) · {monthLabel(s.month)}</div>
-            <ResetButton dark onClick={reset} />
-          </div>
-          <div className="mt-2 text-[13px] text-slate-300">Total balance</div>
-          <div className="font-display text-4xl sm:text-5xl font-semibold"><Count value={s.checking + s.savings} /></div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl bg-white/[.07] p-4 ring-1 ring-white/10">
-              <div className="flex items-center gap-2 text-[13px] text-slate-300"><Wallet size={16} /> Checking · 0.01% APY</div>
-              <div className="mt-1 text-2xl font-bold"><Count value={s.checking} /></div>
-              <div className="text-[12px] text-slate-400">For everyday spending & bills</div>
-            </div>
-            <div className="rounded-2xl bg-emerald-500/15 p-4 ring-1 ring-emerald-400/30">
-              <div className="flex items-center gap-2 text-[13px] text-emerald-200"><PiggyBank size={16} /> Savings · {s.apy}% APY</div>
-              <div className="mt-1 text-2xl font-bold"><Count value={s.savings} /></div>
-              <div className="text-[12px] text-emerald-200/80">Interest earned so far: {money(s.interest, { cents: true })}</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-2">
-          <div>
-            <Segmented label="Action" value={action} onChange={setAction} options={[{ value: "deposit", label: "Deposit" }, { value: "withdraw", label: "Withdraw" }, { value: "transfer", label: "Transfer" }]} />
-            <div className="mt-4 space-y-3">
-              <NumberField label="Amount" value={amt} onChange={setAmt} step={50} id="bank-amt" />
-              <div className="flex flex-wrap gap-2">{[50, 200, 500, 1000].map((v) => <button key={v} onClick={() => setAmt(v)} className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold hover:bg-slate-200">{money(v)}</button>)}</div>
-              {action !== "transfer" ? (
-                <Segmented label="Account" value={acct} onChange={setAcct} options={[{ value: "Checking", label: "Checking" }, { value: "Savings", label: "Savings" }]} />
-              ) : (
-                <Segmented label="Direction" value={dir} onChange={setDir} options={[{ value: "c2s", label: "Checking → Savings" }, { value: "s2c", label: "Savings → Checking" }]} />
-              )}
-              <Button onClick={doAction} className="w-full">
-                {action === "deposit" ? <ArrowDownLeft size={18} /> : action === "withdraw" ? <ArrowUpRight size={18} /> : <ArrowLeftRight size={18} />}
-                {action === "deposit" ? `Deposit ${money(amt)}` : action === "withdraw" ? `Withdraw ${money(amt)}` : `Transfer ${money(amt)}`}
-              </Button>
-              <AnimatePresence>{msg && <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="status" className={cx("rounded-xl px-3 py-2 text-sm font-semibold", msg.ok ? "bg-emerald-50 text-emerald-700" : "bg-orange-50 text-orange-700")}>{msg.text}</motion.div>}</AnimatePresence>
-            </div>
-          </div>
-          <div>
-            <div className="font-semibold">⏩ Time machine</div>
-            <Slider label="Savings interest rate (APY)" value={s.apy} min={0} max={6} step={0.25} onChange={(v) => set({ apy: v })} format={(v) => v + "%"} />
-            <div className="mt-2 grid grid-cols-3 gap-2">
-              {[[1, "+1 month"], [12, "+1 year"], [60, "+5 years"]].map(([n, l]) => (
-                <Button key={l} variant="dark" onClick={() => advance(n as number)} className="px-2"><FastForward size={16} />{l}</Button>
-              ))}
-            </div>
-            <div className="mt-3 h-36">
-              <ResponsiveContainer>
-                <AreaChart data={s.hist} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="m" hide /><YAxis hide domain={["dataMin - 50", "dataMax + 50"]} />
-                  <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => monthLabel(Number(l))} formatter={(v) => [money(Number(v), { cents: true }), "Savings"]} />
-                  <Area dataKey="savings" stroke="#10B981" strokeWidth={2.5} fill="#10B981" fillOpacity={0.15} animationDuration={500} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Stat label="Time passed" value={`${Math.floor(s.month / 12)}y ${s.month % 12}m`} />
-              <Stat label="Savings in today's $" value={money(realSavings)} tone="sky" sub="at 3% inflation" />
-            </div>
-          </div>
-        </div>
-
-        <div className="border-t border-slate-100 p-5 sm:p-6">
-          <div className="font-semibold">Transaction history</div>
-          {tx.length === 0 ? <p className="mt-2 text-slate-500">No transactions yet. Try a deposit or fast-forward time.</p> : (
-            <div className="mt-3 max-h-72 overflow-auto">
-              <table className="w-full text-left text-[14px]">
-                <thead className="sticky top-0 bg-white text-[12px] uppercase tracking-wide text-slate-400"><tr><th className="py-2">Date</th><th>Description</th><th className="hidden sm:table-cell">Account</th><th className="text-right">Amount</th><th className="hidden text-right sm:table-cell">Balance</th></tr></thead>
-                <tbody>
-                  {tx.map((t) => (
-                    <motion.tr key={t.id} initial={{ opacity: 0, backgroundColor: "#ECFDF5" }} animate={{ opacity: 1, backgroundColor: "#FFFFFF" }} className="border-t border-slate-100">
-                      <td className="py-2.5 text-slate-500 whitespace-nowrap">{monthLabel(t.m)}</td><td className="font-medium">{t.desc}</td><td className="hidden text-slate-500 sm:table-cell">{t.acct}</td>
-                      <td className={cx("text-right font-semibold num", t.amt >= 0 ? "text-emerald-600" : "text-navy")}>{t.amt >= 0 ? "+" : "−"}{money(Math.abs(t.amt), { cents: true })}</td>
-                      <td className="hidden text-right text-slate-500 num sm:table-cell">{money(t.bal, { cents: true })}</td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="mt-2"><EstimateTag>Fictional bank, fictional money. Real rates vary and can change.</EstimateTag></div>
 
       <Section n={1} kicker="Your safety net" title="Emergency fund">
         <Card>
@@ -200,7 +105,7 @@ export default function Bank() {
             <Stat label="In savings now" value={money(s.savings)} tone="green" sub={ef.gap === 0 ? "Goal reached! 🎉" : `${money(ef.gap)} to go · ~${ef.months} months at $150/mo`} />
           </div>
           <div className="mt-3 h-4 overflow-hidden rounded-full bg-slate-100"><motion.div className="h-4 rounded-full bg-emerald-500" animate={{ width: `${ef.progress * 100}%` }} /></div>
-          <p className="mt-2 text-[14px] text-slate-500">Try it: move money from Checking to Savings above and watch the bar fill.</p>
+          <p className="mt-2 text-[14px] text-slate-500">Try it below: move money from Checking to Savings and watch this bar fill.</p>
         </Card>
       </Section>
 
@@ -244,15 +149,104 @@ export default function Bank() {
             <Stat label="4% simple" value={money(lastC["4% simple interest"])} tone="sky" />
             <Stat label="4% compound" value={money(lastC["High-yield 4% (compound)"])} tone="green" />
           </div>
-          <p className="mt-3 text-[14px] text-slate-500">Try it: set the savings rate above to 4% and tap "+5 years" to watch compounding happen in your pretend account.</p>
+          <p className="mt-3 text-[14px] text-slate-500">Try it below: set the savings rate to 4% and tap "+5 years" to watch compounding happen in Dave's pretend account.</p>
         </Card>
+      </Section>
+
+      <Section n={4} practice kicker="Real-world simulation · ready for you" title="Dave's pretend bank">
+      {/* Bank app */}
+        <div className="mt-6 overflow-hidden rounded-[2rem] bg-white shadow-card ring-1 ring-slate-200">
+          <div className="hero-dark p-5 sm:p-6 text-white">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-[13px] text-slate-300"><ShieldCheck size={15} className="text-emerald-400" /> Next Step Bank (fictional) · {monthLabel(s.month)}</div>
+              <ResetButton dark onClick={reset} />
+            </div>
+            <div className="mt-2 text-[13px] text-slate-300">Total balance</div>
+            <div className="font-display text-4xl sm:text-5xl font-semibold"><Count value={s.checking + s.savings} /></div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl bg-white/[.07] p-4 ring-1 ring-white/10">
+                <div className="flex items-center gap-2 text-[13px] text-slate-300"><Wallet size={16} /> Checking · 0.01% APY</div>
+                <div className="mt-1 text-2xl font-bold"><Count value={s.checking} /></div>
+                <div className="text-[12px] text-slate-400">For everyday spending & bills</div>
+              </div>
+              <div className="rounded-2xl bg-emerald-500/15 p-4 ring-1 ring-emerald-400/30">
+                <div className="flex items-center gap-2 text-[13px] text-emerald-200"><PiggyBank size={16} /> Savings · {s.apy}% APY</div>
+                <div className="mt-1 text-2xl font-bold"><Count value={s.savings} /></div>
+                <div className="text-[12px] text-emerald-200/80">Interest earned so far: {money(s.interest, { cents: true })}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-2">
+            <div>
+              <Segmented label="Action" value={action} onChange={setAction} options={[{ value: "deposit", label: "Deposit" }, { value: "withdraw", label: "Withdraw" }, { value: "transfer", label: "Transfer" }]} />
+              <div className="mt-4 space-y-3">
+                <NumberField label="Amount" value={amt} onChange={setAmt} step={50} id="bank-amt" />
+                <div className="flex flex-wrap gap-2">{[50, 200, 500, 1000].map((v) => <button key={v} onClick={() => setAmt(v)} className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold hover:bg-slate-200">{money(v)}</button>)}</div>
+                {action !== "transfer" ? (
+                  <Segmented label="Account" value={acct} onChange={setAcct} options={[{ value: "Checking", label: "Checking" }, { value: "Savings", label: "Savings" }]} />
+                ) : (
+                  <Segmented label="Direction" value={dir} onChange={setDir} options={[{ value: "c2s", label: "Checking → Savings" }, { value: "s2c", label: "Savings → Checking" }]} />
+                )}
+                <Button onClick={doAction} className="w-full">
+                  {action === "deposit" ? <ArrowDownLeft size={18} /> : action === "withdraw" ? <ArrowUpRight size={18} /> : <ArrowLeftRight size={18} />}
+                  {action === "deposit" ? `Deposit ${money(amt)}` : action === "withdraw" ? `Withdraw ${money(amt)}` : `Transfer ${money(amt)}`}
+                </Button>
+                <AnimatePresence>{msg && <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} role="status" className={cx("rounded-xl px-3 py-2 text-sm font-semibold", msg.ok ? "bg-emerald-50 text-emerald-700" : "bg-orange-50 text-orange-700")}>{msg.text}</motion.div>}</AnimatePresence>
+              </div>
+            </div>
+            <div>
+              <div className="font-semibold">⏩ Time machine</div>
+              <Slider label="Savings interest rate (APY)" value={s.apy} min={0} max={6} step={0.25} onChange={(v) => set({ apy: v })} format={(v) => v + "%"} />
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {[[1, "+1 month"], [12, "+1 year"], [60, "+5 years"]].map(([n, l]) => (
+                  <Button key={l} variant="dark" onClick={() => advance(n as number)} className="px-2"><FastForward size={16} />{l}</Button>
+                ))}
+              </div>
+              <div className="mt-3 h-36">
+                <ResponsiveContainer>
+                  <AreaChart data={s.hist} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                    <XAxis dataKey="m" hide /><YAxis hide domain={["dataMin - 50", "dataMax + 50"]} />
+                    <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => monthLabel(Number(l))} formatter={(v) => [money(Number(v), { cents: true }), "Savings"]} />
+                    <Area dataKey="savings" stroke="#10B981" strokeWidth={2.5} fill="#10B981" fillOpacity={0.15} animationDuration={500} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Stat label="Time passed" value={`${Math.floor(s.month / 12)}y ${s.month % 12}m`} />
+                <Stat label="Savings in today's $" value={money(realSavings)} tone="sky" sub="at 3% inflation" />
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-100 p-5 sm:p-6">
+            <div className="font-semibold">Transaction history</div>
+            {tx.length === 0 ? <p className="mt-2 text-slate-500">No transactions yet. Try a deposit or fast-forward time.</p> : (
+              <div className="mt-3 max-h-72 overflow-auto">
+                <table className="w-full text-left text-[14px]">
+                  <thead className="sticky top-0 bg-white text-[12px] uppercase tracking-wide text-slate-400"><tr><th className="py-2">Date</th><th>Description</th><th className="hidden sm:table-cell">Account</th><th className="text-right">Amount</th><th className="hidden text-right sm:table-cell">Balance</th></tr></thead>
+                  <tbody>
+                    {tx.map((t) => (
+                      <motion.tr key={t.id} initial={{ opacity: 0, backgroundColor: "#ECFDF5" }} animate={{ opacity: 1, backgroundColor: "#FFFFFF" }} className="border-t border-slate-100">
+                        <td className="py-2.5 text-slate-500 whitespace-nowrap">{monthLabel(t.m)}</td><td className="font-medium">{t.desc}</td><td className="hidden text-slate-500 sm:table-cell">{t.acct}</td>
+                        <td className={cx("text-right font-semibold num", t.amt >= 0 ? "text-emerald-600" : "text-navy")}>{t.amt >= 0 ? "+" : "−"}{money(Math.abs(t.amt), { cents: true })}</td>
+                        <td className="hidden text-right text-slate-500 num sm:table-cell">{money(t.bal, { cents: true })}</td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="mt-2"><EstimateTag>Fictional bank, fictional money. Real rates vary and can change.</EstimateTag></div>
       </Section>
 
       <Section kicker="Next Step explains" title="What just happened to my money?">
         <AskRipple ctx={{ page: "virtual bank", module: "Virtual Bank: emergency fund, FDIC, compounding", inputs: { apy: s.apy + "%", monthsElapsed: s.month, essentialsMonthly: 3000, emergencyFundGoal: ef.target }, results: { checking: Math.round(s.checking * 100) / 100, savings: Math.round(s.savings * 100) / 100, interestEarned: Math.round(s.interest * 100) / 100, emergencyFundProgressPct: Math.round(ef.progress * 100), fourThousandAfter17yrs: { regularBank: Math.round(lastC["Regular bank 0.5%"]), simple4pct: Math.round(lastC["4% simple interest"]), compound4pct: Math.round(lastC["High-yield 4% (compound)"]) } }, insights }}
           prompts={["How big should Dave's emergency fund be?", "Is our money safe if the bank fails?", "How does compounding work here?"]} />
       </Section>
-      <Section kicker="Quick check" title="Test yourself">
+      <Section n={5} kicker="Quick check" title="Test yourself">
         <Quiz id="bank" onComplete={finish} questions={[
           { q: "What is an emergency fund for?", options: ["Vacations", "Unexpected costs like a broken furnace or car repair", "Buying stocks"], answer: 1, why: "It's a cushion for surprises, so they don't turn into high-interest debt." },
           { q: "FDIC insurance protects deposits up to…", options: ["$25,000", money(RULES.fdic.insuredPerDepositorPerBankPerCategory) + " per depositor, per bank, per category", "Unlimited, including stocks"], answer: 1, why: "The standard amount is $250,000 per depositor, per insured bank, per ownership category. Stocks aren't covered." },

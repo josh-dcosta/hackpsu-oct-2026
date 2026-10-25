@@ -45,7 +45,7 @@ export default function Debt() {
         </Card>
       </Section>
 
-      <Section n={2} kicker="Try it" title="Debt Payoff Simulator">
+      <Section n={2} practice kicker="Real-world simulation · ready for you" title="Debt Payoff Simulator">
         <Card>
           <div className="flex justify-between"><div className="font-semibold">One debt: how payment size changes everything</div><ResetButton onClick={reset} /></div>
           <div className="mt-3 grid gap-6 lg:grid-cols-2">
@@ -147,14 +147,7 @@ export default function Debt() {
         <AskRipple ctx={{ page: "lesson", module: "Debt & Emergency Fund", inputs: s, results: { singleDebtMonths: one.never ? "never" : one.months, singleDebtInterest: one.never ? "infinite" : Math.round(one.totalInterest), withExtra100Months: more.months, withExtra100Interest: Math.round(more.totalInterest), avalanche: { months: av.months, interest: Math.round(av.totalInterest), order: av.order }, snowball: { months: sn.months, interest: Math.round(sn.totalInterest), order: sn.order }, creditUtilizationPct: Math.round(util * 100), emergencyFundGoal: ef.target, monthsToGoal: ef.months }, insights }}
           prompts={["Avalanche or snowball, which fits me?", "Why is the minimum payment a trap?", "Should I save or pay off debt first?"]} />
       </Section>
-      <Section n={4} kicker="Real life" title="Other debts to know">
-        <Examples items={[
-          { emoji: "🎓", title: "Student loans", text: "Federal loans offer income-driven repayment and other protections. Check studentaid.gov before refinancing." },
-          { emoji: "🚗", title: "Auto loans", text: "A longer loan means a lower payment but more total interest, and the car loses value meanwhile." },
-          { emoji: "🏡", title: "Mortgages", text: "One extra payment a year on a 30-year mortgage can cut several years off the loan." },
-        ]} />
-      </Section>
-      <Section n={5} kicker="Quick check" title="Test yourself">
+      <Section n={4} kicker="Quick check" title="Test yourself">
         <Quiz id="debt" onComplete={finish} questions={[
           { q: "Which strategy usually saves the most interest?", options: ["Snowball (smallest balance first)", "Avalanche (highest rate first)", "Paying minimums"], answer: 1, why: "Avalanche targets the most expensive debt first. Snowball can be more motivating." },
           { q: "Credit utilization is…", options: ["Your income", "How much of your available credit you're using", "Your number of cards"], answer: 1, why: "Lower utilization generally helps credit scores." },

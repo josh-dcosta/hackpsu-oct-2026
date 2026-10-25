@@ -36,7 +36,7 @@ export default function K401() {
         </Card>
       </Section>
 
-      <Section n={2} kicker="Try it" title="401(k) Growth Simulator">
+      <Section n={2} practice kicker="Real-world simulation · ready for you" title="401(k) Growth Simulator">
         <Card>
           <div className="grid gap-6 lg:grid-cols-5">
             <div className="lg:col-span-2">
@@ -115,15 +115,8 @@ export default function K401() {
           prompts={["Why does going from 5% to 10% make such a big difference?", "What is an employer match, really?", "Why does starting early matter?"]} />
       </Section>
 
-      <Section n={4} kicker="Real life" title="How people use this">
-        <Examples items={[
-          { emoji: "🪜", title: "The 1% ladder", text: "Raise your contribution 1% every year, often timed with a raise, so you barely notice it in your paycheck." },
-          { emoji: "🎯", title: "Match first", text: "Many people make sure they get at least the full match before other saving goals." },
-          { emoji: "🔁", title: "Changing jobs", text: "Your own contributions are always yours. Employer money may 'vest' over time. Roll old accounts over instead of cashing out." },
-        ]} />
-      </Section>
 
-      <Section n={5} kicker="Quick check" title="Test yourself">
+      <Section n={4} kicker="Quick check" title="Test yourself">
         <Quiz id="k401" onComplete={finish} questions={[
           { q: "Your employer matches 50% up to 6% of pay. You contribute 3%. What happens?", options: ["You get the full match", "You leave part of the match unclaimed", "Your employer pays 6%"], answer: 1, why: "You'd get 1.5% instead of 3%. The rest of the match is left behind." },
           { q: "Why does starting at 25 instead of 35 matter so much?", options: ["Lower fees", "10 extra years of compound growth", "Higher contribution limits"], answer: 1, why: "Early dollars have the most time to earn returns on their returns." },

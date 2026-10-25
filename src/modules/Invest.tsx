@@ -64,7 +64,7 @@ export default function Invest() {
         </Card>
       </Section>
 
-      <Section n={2} kicker="Try it" title="Virtual Portfolio Simulator">
+      <Section n={2} practice kicker="Real-world simulation · ready for you" title="Virtual Portfolio Simulator">
         <Card>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Segmented label="Market conditions" value={s.market} onChange={(v) => set({ market: v })} options={(Object.keys(MARKETS) as MarketKey[]).map((k) => ({ value: k, label: MARKETS[k].label }))} />

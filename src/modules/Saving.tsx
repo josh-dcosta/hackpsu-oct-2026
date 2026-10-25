@@ -30,7 +30,7 @@ export default function Saving() {
         </Card>
       </Section>
 
-      <Section n={2} kicker="Try it" title="Savings vs. Investing Simulator">
+      <Section n={2} practice kicker="Real-world simulation · ready for you" title="Savings vs. Investing Simulator">
         <Card>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Segmented label="Dollars" value={s.real ? "real" : "nominal"} onChange={(x) => set({ real: x === "real" })} options={[{ value: "nominal", label: "Future dollars" }, { value: "real", label: "Today's buying power" }]} />
@@ -72,14 +72,7 @@ export default function Saving() {
         <AskRipple ctx={{ page: "lesson", module: "Savings vs Investing", inputs: s, results: { totalContributed: Math.round(last.contributed), zeroPctAccount: Math.round(last.cash), highYieldSavings: Math.round(last.hysa), investing: Math.round(last.invest), investingIfLowerReturns: Math.round(last.investLow), zeroPctTodaysDollars: Math.round(last.cashReal), hysaTodaysDollars: Math.round(last.hysaReal), investingTodaysDollars: Math.round(last.investReal) }, insights }}
           prompts={["Why not invest my emergency fund?", "Why does the 0% line fall in today's dollars?", "When is saving better than investing?"]} />
       </Section>
-      <Section n={4} kicker="Real life" title="Matching money to time">
-        <Examples items={[
-          { emoji: "🚗", title: "Car in 2 years", text: "Short goal → savings. A market drop right before you need the money would hurt." },
-          { emoji: "🛟", title: "Emergency fund", text: "Savings. The point is that it's there when you need it, not that it grows." },
-          { emoji: "🧓", title: "Retirement in 30 years", text: "Long goal → investing has time to recover from bad years." },
-        ]} />
-      </Section>
-      <Section n={5} kicker="Quick check" title="Test yourself">
+      <Section n={4} kicker="Quick check" title="Test yourself">
         <Quiz id="saving" onComplete={finish} questions={[
           { q: "Where does an emergency fund usually belong?", options: ["Individual stocks", "A safe, easy-to-reach savings account", "Under a mattress"], answer: 1, why: "It needs to be stable and available. Growth is secondary." },
           { q: "Does investing always beat saving?", options: ["Yes, always", "No. Over short periods it can lose money"], answer: 1, why: "Markets can fall, sometimes for years. Long time horizons help." },

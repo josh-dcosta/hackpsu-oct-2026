@@ -4,8 +4,7 @@ import { Layout } from "./components/Layout";
 import { useStore } from "./lib/store";
 import Welcome from "./pages/Welcome";
 import Dashboard from "./pages/Dashboard";
-import Future from "./pages/Future";
-import Learn, { Sims } from "./pages/Learn";
+import Learn from "./pages/Learn";
 import Bank from "./pages/Bank";
 import Coach from "./pages/Coach";
 import Progress from "./pages/Progress";
@@ -20,7 +19,7 @@ import College from "./modules/College";
 import Invest from "./modules/Invest";
 import Debt from "./modules/Debt";
 
-const MODS: Record<string, ComponentType> = { inflation: Inflation, life: LifeStages, saving: Saving, k401: K401, accounts: Accounts, hsa: HSA, college: College, invest: Invest, debt: Debt };
+const MODS: Record<string, ComponentType> = { bank: Bank, inflation: Inflation, life: LifeStages, saving: Saving, k401: K401, accounts: Accounts, hsa: HSA, college: College, invest: Invest, debt: Debt };
 
 function useRoute() {
   const get = () => (window.location.hash.replace(/^#/, "") || "/").split("?")[0];
@@ -40,10 +39,8 @@ export default function App() {
 
   let page;
   if (route === "/") page = <Dashboard />;
-  else if (route === "/future") page = <Future />;
-  else if (route === "/learn") page = <Learn />;
-  else if (route === "/sims") page = <Sims />;
-  else if (route === "/bank") page = <Bank />;
+  else if (route === "/learn" || route === "/sims" || route === "/future") page = <Learn />;
+  else if (route === "/bank") page = <ModuleFrame id="bank"><Bank /></ModuleFrame>;
   else if (route === "/coach") page = <Coach />;
   else if (route === "/progress") page = <Progress />;
   else if (route.startsWith("/learn/")) {

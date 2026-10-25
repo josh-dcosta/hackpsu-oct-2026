@@ -18,7 +18,7 @@ export const BADGES = [
   { id: "diversify", name: "Diversification Detective", emoji: "🕵️", desc: "Completed the investing lesson" },
   { id: "debt", name: "Debt Destroyer", emoji: "🔨", desc: "Completed the debt & emergency fund lesson" },
   { id: "curious", name: "Curious Mind", emoji: "💡", desc: "Asked Next Step 3 questions" },
-  { id: "architect", name: "Financial Future Architect", emoji: "🏛️", desc: "Finished Choose Your Financial Future" },
+  { id: "architect", name: "Financial Future Architect", emoji: "🏛️", desc: "Completed all 10 lessons" },
   { id: "scholar", name: "Money Scholar", emoji: "🎓", desc: "Completed 5 lessons" },
 ] as const;
 
@@ -114,6 +114,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (prev.done.includes(id)) return prev;
       const done = [...prev.done, id];
       if (done.length >= 5) setTimeout(() => badge("scholar"), 300);
+      if (done.length >= 10) setTimeout(() => badge("architect"), 600);
       return { ...prev, done };
     });
     award(40, "Lesson complete", "done-" + id);

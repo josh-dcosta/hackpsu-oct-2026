@@ -28,7 +28,7 @@ export default function HSA() {
           <p className="mt-4 text-[15px] text-slate-600"><b>Who can use one?</b> You need a qualifying high-deductible health plan (HDHP). In {RULES.year} that means a deductible of at least {money(RULES.hsa.hdhpMinDeductibleSelf)} (self) / {money(RULES.hsa.hdhpMinDeductibleFamily)} (family). You also generally can't be enrolled in Medicare or claimed as someone's dependent. {RULES.year} limits: {money(RULES.hsa.selfOnly)} self-only, {money(RULES.hsa.family)} family, +{money(RULES.hsa.catchUp55)} at 55+. Non-medical withdrawals before 65 are taxed plus a 20% penalty. State tax treatment varies.</p>
         </Card>
       </Section>
-      <Section n={2} kicker="Try it" title="HSA Triple Tax Advantage Simulator">
+      <Section n={2} practice kicker="Real-world simulation · ready for you" title="HSA Triple Tax Advantage Simulator">
         <Card>
           <div className="flex justify-end"><ResetButton onClick={reset} /></div>
           <div className="grid gap-x-8 sm:grid-cols-2">
@@ -65,14 +65,7 @@ export default function HSA() {
         <AskRipple ctx={{ page: "lesson", module: "HSA Triple Tax Simulator", inputs: s, results: { taxSavedPerYear: Math.round(r.taxSavedPerYear), totalTaxSaved: Math.round(r.totalTaxSaved), hsaBalance: Math.round(r.hsaFinal), regularSavingsBalance: Math.round(r.savingsFinal) }, insights }}
           prompts={["Explain the triple tax advantage simply", "Who is eligible for an HSA?", "What counts as a qualified expense?"]} />
       </Section>
-      <Section n={4} kicker="Real life" title="Ways people use HSAs">
-        <Examples items={[
-          { emoji: "💊", title: "Pay as you go", text: "Use the HSA for this year's doctor visits and prescriptions, tax-free." },
-          { emoji: "🧾", title: "Save receipts", text: "Some pay medical bills out of pocket, invest the HSA, and keep receipts to reimburse themselves later." },
-          { emoji: "👵", title: "Retirement health fund", text: "After 65, non-medical withdrawals are taxed like a Traditional IRA, with no penalty." },
-        ]} />
-      </Section>
-      <Section n={5} kicker="Quick check" title="Test yourself">
+      <Section n={4} kicker="Quick check" title="Test yourself">
         <Quiz id="hsa" onComplete={finish} questions={[
           { q: "What do you need to contribute to an HSA?", options: ["Any health plan", "A qualifying high-deductible health plan", "A 401(k)"], answer: 1, why: "HSA eligibility requires coverage under a qualifying HDHP, plus a few other rules." },
           { q: "Which is NOT one of the HSA tax advantages?", options: ["Tax-deductible contributions", "Tax-free growth", "Tax-free withdrawals for vacations"], answer: 2, why: "Only qualified medical expenses come out tax-free." },
