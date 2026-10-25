@@ -65,6 +65,8 @@ export function clearMine() { try { localStorage.removeItem(MINE_KEY); } catch {
 type Ctx = State & {
   entered: boolean; // picked demo or own numbers during this visit (not saved, so every visit starts on Welcome)
   setEntered: (v: boolean) => void;
+  highlight: string | null; // plan lever that just changed (from a life moment), glows for a few seconds
+  flash: (lever: string) => void;
   set: (patch: Partial<State> | ((s: State) => Partial<State>)) => void;
   award: (xp: number, reason: string, once?: string) => void;
   badge: (id: string) => void;
@@ -85,6 +87,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const onceRef = useRef<Set<string>>(new Set(JSON.parse(localStorage.getItem(KEY + "-once") || "[]")));
 
   const [entered, setEntered] = useState(false);
+  const [highlight, setHighlight] = useState<string | null>(null);
+  const flashTimer = useRef<ReturnType<typeof setTimeout>>();
+  const flash = useCallback((lever: string) => {
+    setHighlight(lever);
+    clearTimeout(flashTimer.current);
+    flashTimer.current = setTimeout(() => setHighlight(null), 12_000);
+  }, []);
   useEffect(() => {
     try {
       localStorage.setItem(KEY, JSON.stringify(s));
@@ -125,8 +134,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setS(DEFAULT); window.location.hash = "#/welcome";
   }, []);
 
-  const value = useMemo<Ctx>(() => ({ ...s, entered, setEntered, set, award, badge, touch, finishModule, resetAll, toasts, context, setContext, saveSim }),
-    [s, entered, set, award, badge, touch, finishModule, resetAll, toasts, context, saveSim]);
+  const value = useMemo<Ctx>(() => ({ ...s, entered, setEntered, highlight, flash, set, award, badge, touch, finishModule, resetAll, toasts, context, setContext, saveSim }),
+    [s, entered, highlight, flash, set, award, badge, touch, finishModule, resetAll, toasts, context, saveSim]);
   return <C.Provider value={value}>{children}</C.Provider>;
 }
 

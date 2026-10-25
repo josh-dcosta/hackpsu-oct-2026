@@ -149,15 +149,24 @@ const MOMENTS: Moment[] = [
 ];
 
 export function Moments() {
-  const { profile: p, assumptions: a, set, award } = useStore();
+  const { profile: p, assumptions: a, set, flash } = useStore();
   const [sel, setSel] = useState<string | null>(null);
   const [applied, setApplied] = useState<string | null>(null);
+  const [change, setChange] = useState<{ id: string; before: ReturnType<typeof projectLife>; after: ReturnType<typeof projectLife>; beforeA: typeof a; afterA: typeof a } | null>(null);
   const tax = a.taxRate ?? 0.12;
   const proj = useMemo(() => projectLife(p, a), [p, a]);
   const efGoal = Math.round(p.expenses * 0.85) * 3;
   const kid = [...(p.kids || [])].filter((k) => k.age < 18).sort((x, y) => y.age - x.age)[0];
   const kidCost = kid ? simulate529({ childAge: kid.age, collegeAge: 18, costNow: DAVE.collegeCostToday, tuitionInflation: 0.04, monthly: 0, returnRate: 0.04, balance: 0 }) : null;
-  const apply = (id: string, patch: Partial<typeof a>) => { set((s) => ({ assumptions: { ...s.assumptions, ...patch } })); setApplied(id); award(15, "Acted on a life moment", "moment-" + id); };
+  const LEVER: Record<string, string> = { raise: "retire", enroll: "hsa", bill: "savings", retire: "age" };
+  const apply = (id: string, patch: Partial<typeof a>) => {
+    const afterA = { ...a, ...patch };
+    setChange({ id, before: projectLife(p, a), after: projectLife(p, afterA), beforeA: a, afterA });
+    set((s) => ({ assumptions: { ...s.assumptions, ...patch } }));
+    setApplied(id);
+    if (LEVER[id]) flash(LEVER[id]);
+  };
+  const seePlan = () => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth", block: "start" });
   const raise = p.income * 0.04;
   const later = projectLife(p, { ...a, retireAge: a.retireAge + 2 });
 
@@ -170,6 +179,16 @@ export function Moments() {
     retire: { head: proj.depletedAge ? `Today, savings run out at age ${proj.depletedAge}` : "Your money lasts past 90", body: `Working 2 more years (to ${a.retireAge + 2}) means 2 more years of saving and 2 fewer years to fund. With your plan, money would last until ${later.depletedAge ? `age ${later.depletedAge}` : "past 90"}. Also check your real Social Security estimate at ssa.gov: waiting to claim raises your monthly check.`, action: { label: `Try retiring at ${a.retireAge + 2}`, patch: { retireAge: Math.min(75, a.retireAge + 2) } }, lesson: "#/learn/accounts" },
   };
   const c = sel ? content[sel] : null;
+  const who = isDaveProfile(p) ? "Dave" : "you";
+  const DOS: Record<string, { do: string[]; dont: string[] }> = {
+    raise: { do: ["Raise the retirement % the same week the raise starts, before you get used to the money.", "Turn on automatic yearly increases if your plan offers them."], dont: ["Don't let the whole raise disappear into new monthly bills.", "Don't drop below the % needed for any employer match."] },
+    enroll: { do: ["Compare total yearly cost: premiums + deductible + what you usually spend on care.", "Only HSA-qualifying high-deductible plans allow HSA contributions.", "Set the HSA amount through payroll so it also skips payroll tax."], dont: ["Don't pick a high-deductible plan if you can't cover the deductible from savings.", "Don't spend HSA money on non-medical things before 65: tax + 20% penalty."] },
+    bill: { do: ["Pay from your emergency fund, then refill it with an automatic transfer.", "Keep the cushion in an FDIC-insured high-yield account."], dont: ["Don't put it on a credit card you can't pay off this month (often 20%+ interest).", "Don't borrow from your retirement account to cover it."] },
+    college: { do: ["File the FAFSA as soon as it opens, every year.", "Compare each college's net price after grants.", "Keep your own retirement saving going."], dont: ["Don't stop retirement saving to pay tuition.", "Don't take private loans before using federal aid."] },
+    crash: { do: ["Keep investing on schedule; you're buying at lower prices.", "Keep money you'll need within 3 years in savings, not stocks."], dont: ["Don't sell in a panic; that locks in the loss.", "Don't check your balance every day."] },
+    retire: { do: ["Get your real Social Security estimate at ssa.gov.", "Compare retiring at different ages before you decide.", "Plan for healthcare costs before Medicare at 65."], dont: ["Don't claim Social Security early without seeing how much smaller the check is.", "Don't forget that prices keep rising every year you're retired."] },
+  };
+  const d = sel ? DOS[sel] : null;
   // Market drop: what Dave's invested money looks like at retirement if he stays vs. panic-sells.
   // Illustration: a 25% drop, then the market recovers over 3 years (+12%/yr); selling locks in the loss and earns ~3% in cash.
   const yrsLeft = Math.max(3, a.retireAge - p.age);
@@ -183,7 +202,7 @@ export function Moments() {
       <h2 className="font-display text-2xl font-semibold">What's happening in {isDaveProfile(p) ? "Dave's" : "your"} life right now?</h2>
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {MOMENTS.map((m) => (
-          <button key={m.id} onClick={() => { setSel(sel === m.id ? null : m.id); setApplied(null); }} aria-pressed={sel === m.id}
+          <button key={m.id} onClick={() => { setSel(sel === m.id ? null : m.id); setApplied(null); setChange(null); }} aria-pressed={sel === m.id}
             className={cx("flex min-h-[84px] flex-col items-center justify-center gap-1 rounded-2xl p-3 text-center ring-2 transition", sel === m.id ? "bg-navy text-white ring-navy" : "bg-white ring-slate-200 hover:ring-emerald-400")}>
             <span className="text-2xl">{m.emoji}</span><span className="text-[14px] font-semibold leading-tight">{m.label}</span>
           </button>
@@ -211,11 +230,51 @@ export function Moments() {
             )}
             <div className="mt-2"><Verified /></div>
             <div className="mt-3 flex flex-wrap gap-2">
-              {c.action && (applied === sel
-                ? <a href="#plan" className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-emerald-500 px-4 font-semibold text-white"><Check size={16} /> Added. See the impact below</a>
-                : <Button onClick={() => apply(sel, c.action!.patch)} className="min-h-[44px] py-2">{c.action.label}</Button>)}
+              {c.action && applied !== sel && <Button onClick={() => apply(sel, c.action!.patch)} className="min-h-[44px] py-2">{c.action.label}</Button>}
               <a href={c.lesson} className="inline-flex min-h-[44px] items-center rounded-2xl bg-white px-4 font-semibold text-emerald-700 ring-1 ring-emerald-200">Learn more</a>
             </div>
+
+            {/* What changed */}
+            {applied === sel && change && change.id === sel && (() => {
+              const b = change.before, x = change.after;
+              const last = (r: typeof b) => r.depletedAge ?? 90;
+              const rows: [string, string, string, number, (n: number) => string, boolean][] = [
+                ["Taxes saved this year", money(b.taxSavedNow), money(x.taxSavedNow), x.taxSavedNow - b.taxSavedNow, money, true],
+                ["Saving each month", money(b.savingToday), money(x.savingToday), x.savingToday - b.savingToday, money, true],
+                [`Savings at retirement`, `${compact(b.atRetire.nominal)} at ${change.beforeA.retireAge}`, `${compact(x.atRetire.nominal)} at ${change.afterA.retireAge}`, x.atRetire.nominal - b.atRetire.nominal, compact, true],
+                ["Money lasts until", b.depletedAge ? `Age ${b.depletedAge}` : "Past 90", x.depletedAge ? `Age ${x.depletedAge}` : "Past 90", last(x) - last(b), (n) => `${n} yr${n === 1 ? "" : "s"}`, true],
+              ];
+              return (
+                <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-4 rounded-2xl bg-white p-4 ring-2 ring-emerald-400">
+                  <div className="flex items-center gap-2 font-semibold text-emerald-800"><Check size={18} /> Done. Here's what changed in {who === "you" ? "your" : "Dave's"} plan:</div>
+                  <div className="mt-3 divide-y divide-slate-100">
+                    {rows.map(([label, from, to, delta, fmt, upGood]) => (
+                      <div key={label} className="flex flex-wrap items-center justify-between gap-2 py-2 text-[15px]">
+                        <span className="text-slate-600">{label}</span>
+                        <span className="flex items-center gap-2"><span className="num text-slate-400 line-through decoration-slate-300">{from}</span><span className="text-slate-400">→</span><span className="num font-bold text-navy">{to}</span>
+                          {Math.abs(delta) >= 0.5 && <span className={cx("num rounded-full px-2 py-0.5 text-[12px] font-bold", (delta > 0) === upGood ? "bg-emerald-50 text-emerald-700" : "bg-orange-50 text-orange-700")}>{delta > 0 ? "+" : "−"}{fmt(Math.abs(delta))}</span>}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <button onClick={seePlan} className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-navy px-3 py-2 text-sm font-semibold text-white">See it highlighted in the plan ↓</button>
+                </motion.div>
+              );
+            })()}
+
+            {/* Do / Don't */}
+            {d && (
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl bg-white p-4 ring-1 ring-emerald-200">
+                  <div className="font-semibold text-emerald-700">✅ What to do</div>
+                  <ul className="mt-2 space-y-1.5 text-[14px] text-slate-700">{d.do.map((t) => <li key={t} className="flex gap-2"><span className="text-emerald-500">•</span>{t}</li>)}</ul>
+                </div>
+                <div className="rounded-2xl bg-white p-4 ring-1 ring-orange-200">
+                  <div className="font-semibold text-orange-700">❌ What not to do</div>
+                  <ul className="mt-2 space-y-1.5 text-[14px] text-slate-700">{d.dont.map((t) => <li key={t} className="flex gap-2"><span className="text-orange-400">•</span>{t}</li>)}</ul>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

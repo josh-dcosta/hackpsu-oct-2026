@@ -19,16 +19,18 @@ const MIXES = [
   { id: "growth", label: "🌳 Growth", sub: "90% stock index (U.S. + intl)", r: 0.068 },
 ];
 
-function Lever({ title, learn, children, note }: { title: string; learn: string; children: React.ReactNode; note?: React.ReactNode }) {
+function Lever({ title, learn, children, note, hl }: { title: string; learn: string; children: React.ReactNode; note?: React.ReactNode; hl?: boolean }) {
   return (
-    <div className="rounded-2xl bg-slate-50 p-4">
+    <motion.div animate={hl ? { scale: [1, 1.03, 1] } : { scale: 1 }} transition={{ duration: 0.6, repeat: hl ? 2 : 0 }}
+      className={"rounded-2xl p-4 transition-colors " + (hl ? "bg-amber-soft ring-2 ring-amber shadow-lg shadow-amber/20" : "bg-slate-50")}>
+      {hl && <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-amber px-2.5 py-0.5 text-[12px] font-bold text-navy">✨ Just changed</div>}
       <div className="flex items-center justify-between gap-2">
         <div className="font-semibold">{title}</div>
         <a href={learn} className="text-[13px] font-semibold text-emerald-700 hover:underline">Learn →</a>
       </div>
       <div className="mt-2">{children}</div>
       {note && <div className="mt-1 text-[13px] text-slate-500">{note}</div>}
-    </div>
+    </motion.div>
   );
 }
 
@@ -39,7 +41,7 @@ function Delta({ v, fmt, good = true }: { v: number; fmt: (n: number) => string;
 }
 
 function PlanBuilder() {
-  const { profile: p, assumptions: a, set } = useStore();
+  const { profile: p, assumptions: a, set, highlight } = useStore();
   const isDave = isDaveProfile(p);
   const start = isDave ? DAVE_ASSUMPTIONS : CUSTOM_ASSUMPTIONS;
   const base = useMemo(() => projectLife(p, { ...a, contribPct: start.contribPct, hsaAnnual: start.hsaAnnual, cashRate: start.cashRate, accountType: start.accountType, returnRate: start.returnRate }), [p, a, start]);
@@ -60,13 +62,13 @@ function PlanBuilder() {
       </div>
       <div className="mt-4 grid gap-5 lg:grid-cols-5">
         <div className="grid gap-3 sm:grid-cols-2 lg:col-span-3">
-          <Lever title="🏦 Where savings live" learn="#/learn/bank" note={(a.cashRate ?? 0) >= 0.03 ? "Same FDIC safety, about 8× the interest." : "Earning less than inflation."}>
+          <Lever hl={highlight === "savings"} title="🏦 Where savings live" learn="#/learn/bank" note={(a.cashRate ?? 0) >= 0.03 ? "Same FDIC safety, about 8× the interest." : "Earning less than inflation."}>
             <Segmented label="Savings account" value={(a.cashRate ?? 0) >= 0.03 ? "hysa" : "bank"} onChange={(v) => setA({ cashRate: v === "hysa" ? 0.04 : 0.005 })} options={[{ value: "bank", label: "Regular 0.5%" }, { value: "hysa", label: "High-yield 4%" }]} />
           </Lever>
-          <Lever title="🧭 Retirement plan" learn="#/learn/k401" note={a.accountType === "roth" ? `Roth: no tax break now; tax-free later.` : `Saves about ${money(p.income * a.contribPct * tax)} in federal tax this year.`}>
+          <Lever hl={highlight === "retire"} title="🧭 Retirement plan" learn="#/learn/k401" note={a.accountType === "roth" ? `Roth: no tax break now; tax-free later.` : `Saves about ${money(p.income * a.contribPct * tax)} in federal tax this year.`}>
             <Slider id="plan-401k" label="From each paycheck" value={Math.round(a.contribPct * 100)} min={0} max={20} onChange={(v) => setA({ contribPct: v / 100 })} format={(v) => v + "% of pay"} />
           </Lever>
-          <Lever title="🩺 HSA" learn="#/learn/hsa" note={(a.hsaAnnual ?? 0) > 0 ? `Saves about ${money((a.hsaAnnual ?? 0) * (tax + 0.0765))} in tax this year. Needs a qualifying high-deductible health plan.` : "Needs a qualifying high-deductible health plan."}>
+          <Lever hl={highlight === "hsa"} title="🩺 HSA" learn="#/learn/hsa" note={(a.hsaAnnual ?? 0) > 0 ? `Saves about ${money((a.hsaAnnual ?? 0) * (tax + 0.0765))} in tax this year. Needs a qualifying high-deductible health plan.` : "Needs a qualifying high-deductible health plan."}>
             <Slider id="plan-hsa" label="Per year" value={a.hsaAnnual ?? 0} min={0} max={8750} step={250} onChange={(v) => setA({ hsaAnnual: v })} format={money} />
           </Lever>
           <Lever title="⚖️ Roth or Traditional" learn="#/learn/accounts" note={a.accountType === "roth" ? "Pay tax now, withdraw tax-free." : "Tax break now, pay tax on withdrawals."}>
@@ -78,7 +80,8 @@ function PlanBuilder() {
             </Lever>
           </div>
         </div>
-        <div className="rounded-3xl hero-dark p-5 text-white lg:col-span-2">
+        <div className={"rounded-3xl hero-dark p-5 text-white lg:col-span-2 transition " + (highlight ? "ring-4 ring-amber" : "")}>
+          {highlight === "age" && <div className="mb-3 inline-flex items-center gap-1 rounded-full bg-amber px-2.5 py-0.5 text-[12px] font-bold text-navy">✨ Retirement age changed to {a.retireAge}</div>}
           <div className="text-[13px] font-bold uppercase tracking-wider text-emerald-300">Your plan vs. where {isDave ? "Dave" : "you"} started</div>
           <div className="mt-4 space-y-4">
             <div><div className="text-[13px] text-slate-300">Taxes saved this year</div><div className="num text-2xl font-bold">{money(now.taxSavedNow)} <span className="text-base"><Delta v={now.taxSavedNow - base.taxSavedNow} fmt={money} /></span></div></div>
@@ -204,10 +207,6 @@ export default function Dashboard() {
         <div className="mt-3"><Verified dark source="fixed formulas, not AI guesses" /></div>
       </motion.div>
 
-      <Moments />
-      <PlanBuilder />
-      <NextSteps />
-
       {/* Where the monthly bill money comes from */}
       <Card className="mt-5">
         <h2 className="font-display text-2xl font-semibold">Where {isDave ? "Dave's" : "your"} monthly bill money comes from</h2>
@@ -253,6 +252,10 @@ export default function Dashboard() {
         <HowWeCalculate />
       </Card>
 
+      <Moments />
+      <PlanBuilder />
+      <NextSteps />
+
       {kids.length > 0 && (
         <Card className="mt-5">
           <div className="flex items-center gap-2 font-semibold"><GraduationCap className="text-sky-600" /> Big costs ahead: college</div>
@@ -270,22 +273,6 @@ export default function Dashboard() {
         </Card>
       )}
 
-      <a href={moduleHref(nextLesson.id)} className="group mt-5 flex items-center gap-4 rounded-3xl bg-emerald-500 p-5 text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-600">
-        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white/20 text-3xl">{nextLesson.emoji}</span>
-        <span className="flex-1">
-          <span className="block text-[13px] font-bold uppercase tracking-wider text-emerald-100">{done.length ? `Continue learning · ${done.length} of ${MODULES.length} lessons done` : "Start learning"} <BookOpen size={13} className="inline" /></span>
-          <span className="block font-display text-xl sm:text-2xl font-semibold">{nextLesson.title}</span>
-          <span className="text-emerald-50">Learn the idea, then try it on a real-world simulation ready for you.</span>
-        </span>
-        <ArrowRight className="transition group-hover:translate-x-1" />
-      </a>
-
-      <div className="mt-5">
-        <AskRipple
-          ctx={{ page: "dashboard", module: "Retirement check: will savings cover the bills?", inputs: { age: p.age, income: p.income, monthlyBillsToday: p.expenses, savings: p.savings, retirementSaved: p.retirement, ...a }, results: { savingPerMonthToday: Math.round(proj.savingToday), savedByRetirement: Math.round(savedAtRetire), monthlyBillsAtRetirement: Math.round(billsAtRetire), pensionPlusSocialSecurityMonthlyAtRetirement: Math.round(incomeAtRetire), gapFromSavingsMonthly: Math.round(billsAtRetire - incomeAtRetire), savingsRunOutAtAge: runsOut, uncoveredMonthlyAfterThat: shortAt ? Math.round(shortAt.shortfallMonthly) : 0 }, insights }}
-          prompts={isDave ? ["Will Dave have enough to retire?", "Why do his bills almost double?", "What would help the most?"] : ["Will I have enough to retire?", "Why do my bills grow so much?", "What would help me the most?"]}
-          title="Ask Next Step" />
-      </div>
     </div>
   );
 }
