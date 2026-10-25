@@ -1,5 +1,5 @@
 import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { useSim } from "../lib/store";
+import { useSim, useStore } from "../lib/store";
 import { simulate529 } from "../lib/calc";
 import { money, compact, axisMoney } from "../lib/format";
 import { AskRipple, Card, EstimateTag, Examples, Quiz, ResetButton, Section, Slider, Stat, Takeaway, tooltipStyle } from "../components/ui";
@@ -7,7 +7,9 @@ import { useFinish } from "../pages/ModuleFrame";
 
 export default function College() {
   const finish = useFinish("college");
-  const [s, set, reset] = useSim("college", { childAge: 2, collegeAge: 18, cost: 25000, tInfl: 4, monthly: 250, ret: 6, balance: 0 });
+  const { profile } = useStore();
+  const kids = (profile.kids || []).filter((k) => k.age < 18);
+  const [s, set, reset] = useSim("college", { childAge: kids[0]?.age ?? 2, collegeAge: 18, cost: 25000, tInfl: 4, monthly: 250, ret: 6, balance: 0 });
   const r = simulate529({ childAge: s.childAge, collegeAge: s.collegeAge, costNow: s.cost, tuitionInflation: s.tInfl / 100, monthly: s.monthly, returnRate: s.ret / 100, balance: s.balance });
   const insights = [
     `Four years of college that costs ${compact(r.todayCost)} today could cost about ${compact(r.totalCost)} by the time your child starts in ${r.years} years.`,
@@ -26,12 +28,12 @@ export default function College() {
         <Card>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex gap-2">
-              {[{ n: "Emma", a: 17 }, { n: "Jake", a: 15 }].map((k) => (
+              {kids.map((k) => ({ n: k.name, a: k.age })).map((k) => (
                 <button key={k.n} onClick={() => set({ childAge: k.a, collegeAge: 18 })} aria-pressed={s.childAge === k.a}
                   className={"rounded-full px-4 py-2 text-sm font-semibold ring-1 " + (s.childAge === k.a ? "bg-navy text-white ring-navy" : "bg-white ring-slate-200 hover:ring-emerald-400")}>🎓 {k.n}, {k.a}</button>
               ))}
               <button onClick={() => set({ childAge: 2, collegeAge: 18 })} aria-pressed={s.childAge === 2}
-                className={"rounded-full px-4 py-2 text-sm font-semibold ring-1 " + (s.childAge === 2 ? "bg-navy text-white ring-navy" : "bg-white ring-slate-200 hover:ring-emerald-400")}>⏪ If Dave had started when Jake was 2</button>
+                className={"rounded-full px-4 py-2 text-sm font-semibold ring-1 " + (s.childAge === 2 ? "bg-navy text-white ring-navy" : "bg-white ring-slate-200 hover:ring-emerald-400")}>⏪ {kids.length ? `If saving had started when ${kids[kids.length - 1].name} was 2` : "Start saving at age 2"}</button>
             </div>
             <ResetButton onClick={reset} />
           </div>

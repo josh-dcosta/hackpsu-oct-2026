@@ -9,32 +9,25 @@ Most people learn about money the hard way, years after the decision that matter
 Built for HackPSU (October 2026).
 
 ## What's inside
-Four simple sections: **Home · Learn · Ask Next Step · Progress**.
+Four simple sections: **Home · Learn · Ask Next Step · Progress**. Practical, safe money basics, no stock trading.
 
-- **Onboarding**: 8 friendly, skippable questions, preloaded with Dave's answers, or one tap: **Start as Dave**.
-- **Home (dashboard)**: Dave's family, college costs ahead, and his Financial Future Timeline (future dollars vs. today's buying power) with simple sliders and Rough/Baseline/Good scenarios.
-- **Learn**: 10 short lessons, each with one simple pattern:
-  1. **The idea**, in plain English
-  2. **A real-world simulation, ready for you**, preloaded with Dave's numbers. Tweak any slider to fit your own life; **Reset** returns to Dave.
-  3. **Ask Next Step** about the numbers on screen
-  4. **A 3-question check**, then the takeaway
+- **Two ways in**: **Start as Dave** (a worked example: PA school custodian, family of four) or **Use my own numbers** (e.g. Bob, a plumber earning $85k with three kids). Switch anytime from the top of Home.
+- **Home answers one question:** *Will I have enough money to pay the bills after I retire?* It shows saving per month today, bills today vs. at retirement (with inflation), each retirement year's bills vs. pension + Social Security + savings, and the age savings run out.
+- **Build your plan**: five smart moves, each taught by a lesson. See taxes saved, savings at retirement, and how long the money lasts, compared with where you started:
+  🏦 high-yield savings · 🧭 retirement plan % · 🩺 HSA · ⚖️ Roth vs. Traditional · 📈 index-fund mix
+- **Learn**: *Start here: 3 essentials* (Banking: emergency fund, FDIC, compounding · Roth IRA vs. Traditional IRA · Invest safely with index funds), then more lessons (inflation, 401(k), HSA, 529, debt…). Every lesson: the idea → a real-world simulation preloaded with Dave's (or your) numbers → **Add to my plan** → Ask Next Step → 3-question check.
+- **Ask Next Step (AI coach)**: grounded in the computed numbers on screen (`src/lib/calc.ts`); a built-in explainer answers if the AI is offline.
+- **Progress**: XP, badges, and **Download my plan (PDF)**.
 
-  Lessons: Inflation · Life Stages · Saving vs. Investing · Banking (emergency fund, FDIC, compounding) · 401(k) · Roth vs. Traditional · HSA · 529 College · Investing & Diversification · Debt & Emergency Fund.
-- **Ask Next Step (AI coach)**: grounded in the current simulation's computed numbers. All math comes from deterministic functions in `src/lib/calc.ts`. The AI only explains, and a built-in explainer answers if the AI is offline.
-- **Progress**: XP, badges, milestones, and **Download my plan (PDF)**.
-- **Accessibility**: big touch targets, Simple/Detailed toggle, large-text mode, keyboard focus, reduced motion. Mobile tabs + desktop sidebar.
+## 3-minute demo script
+1. **Start as Dave** → Home: "Not quite. Savings run out at age 73." Point to bills $3,600 → $7,012 at 67 and the bar chart.
+2. **Learn → Banking** (emergency fund, FDIC, compounding) → **Add to my plan**.
+3. **Learn → HSA** → **Add $1,500/yr HSA to my plan** → Home shows +$295 taxes saved, +$21k at 67, money lasts longer.
+4. **Learn → Invest safely with index funds** → time buckets → **Use this index-fund mix**.
+5. On Home, flip **Roth/Traditional** and the other moves; ask Next Step "What would help Dave the most?"
+6. Tap **Use my own numbers** → enter Bob (plumber, $85k, 3 kids) → his own answer and plan.
 
-## 3-minute demo script: Dave's scenario (preloaded)
-**Dave, 50**, head custodian at a Pennsylvania public high school (~$22/hr). Household $64,000 with his wife Linda's part-time job, $6,000 saved, $22,000 for retirement plus a PSERS pension. Emma (17) and Jake (15) head to college soon. All of Dave's values live in `src/data/dave.ts`.
-
-1. **Start as Dave** (or **Walk through Dave's answers** to show onboarding).
-2. **Home**: "At 67, you could have $304k" (≈ $184k in today's money). Point to **college costs ahead**: Emma ≈ $97k, Jake ≈ $105k. Switch to **😟 Rough**: money runs short around 77.
-3. **Learn → Inflation**: Dave's PA state university year: $22,000 → ~$24,700 by Jake's freshman year. Ask Next Step a question.
-4. **Learn → College**: tap **Emma**, **Jake**, then **"If Dave had started when Jake was 2."**
-5. **Learn → Banking**: emergency fund, FDIC, compounding: slide APY 0.5% → 4% and tap **+5 years**.
-6. **Progress → Download my plan (PDF)**.
-
-Reset between judges: **Progress → Start over**.
+Reset between judges: **Progress → Start over**. Dave's values live in `src/data/dave.ts`.
 
 ## Tech
 React + TypeScript + Vite · Tailwind · Recharts · Framer Motion · Lucide · jsPDF · Express (serves the app + `/api/ripple`) · Anthropic Claude API (server-side only) · localStorage for progress.

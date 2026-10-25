@@ -5,7 +5,8 @@ import { useStore, SAMPLE_PROFILES } from "../lib/store";
 import { Button, RippleMark, Slider, cx } from "../components/ui";
 import { money } from "../lib/format";
 import type { Profile } from "../lib/calc";
-import { DAVE, DAVE_PROFILE, DAVE_ASSUMPTIONS } from "../data/dave";
+import { DAVE, DAVE_PROFILE, DAVE_ASSUMPTIONS, CUSTOM_PROFILE, CUSTOM_ASSUMPTIONS } from "../data/dave";
+import { UserRound } from "lucide-react";
 
 const GOALS = ["Build an emergency fund", "Pay off debt", "Buy a home", "Start investing", "Save for a child's education", "Retire comfortably", "Understand my money better", "Handle healthcare costs"];
 const LEVELS: { id: Profile["level"]; emoji: string; text: string }[] = [
@@ -41,17 +42,22 @@ export default function Welcome() {
   const { profile, set, award, badge } = useStore();
   const [step, setStep] = useState(0);
   const [p, setP] = useState<Profile>(profile.onboarded ? { ...profile } : { ...DAVE_PROFILE });
-  const total = 8;
+  const total = 9;
   const next = () => setStep((s) => Math.min(total + 1, s + 1));
   const back = () => setStep((s) => Math.max(0, s - 1));
   const patch = (x: Partial<Profile>) => setP((v) => ({ ...v, ...x }));
 
   const finish = (final: Profile) => {
-    set({ profile: { ...final, onboarded: true } });
+    // switching scenario: fresh assumptions & simulators for that scenario
+    const custom = final.scenario === "custom";
+    set({ profile: { ...final, onboarded: true }, assumptions: custom ? { ...CUSTOM_ASSUMPTIONS } : { ...DAVE_ASSUMPTIONS }, sims: {} });
     setTimeout(() => { award(50, "Welcome to Next Step", "onboard"); badge("welcome"); }, 400);
     window.location.hash = "#/";
   };
-  const demo = () => { set({ assumptions: { ...DAVE_ASSUMPTIONS } }); finish({ ...DAVE_PROFILE, onboarded: true }); };
+  const demo = () => finish({ ...DAVE_PROFILE, onboarded: true });
+  const walkDave = () => { setP({ ...DAVE_PROFILE }); next(); };
+  const ownNumbers = () => { setP({ ...CUSTOM_PROFILE }); next(); };
+  const custom = p.scenario === "custom";
 
   const steps = [
     // 0 — the Why
@@ -61,8 +67,9 @@ export default function Welcome() {
       <p className="mx-auto mt-5 max-w-lg text-lg sm:text-xl text-slate-600">Every money choice you make sends ripples into your future. Next Step shows you where they land, <span className="text-emerald-600 font-semibold">before</span> you make them.</p>
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         <Button onClick={demo} className="w-full sm:w-auto text-lg px-8 py-4"><Sparkles size={18} /> Start as Dave</Button>
-        <Button variant="ghost" onClick={next} className="w-full sm:w-auto text-lg px-6 py-4">Walk through Dave's answers <ArrowRight size={20} /></Button>
+        <Button variant="ghost" onClick={walkDave} className="w-full sm:w-auto text-lg px-6 py-4">Walk through Dave's answers <ArrowRight size={20} /></Button>
       </div>
+      <button onClick={ownNumbers} className="mx-auto mt-4 flex items-center gap-2 rounded-2xl bg-navy px-6 py-3.5 text-lg font-semibold text-white hover:bg-navy-800"><UserRound size={19} /> Use my own numbers</button>
       <div className="mx-auto mt-8 max-w-lg rounded-3xl bg-white p-5 text-left shadow-card ring-1 ring-slate-200">
         <div className="flex items-center gap-3">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-2xl">🧹</span>
@@ -72,23 +79,54 @@ export default function Welcome() {
       </div>
       <p className="mt-5 flex items-center justify-center gap-2 text-[14px] text-slate-500"><Lock size={14} /> No bank logins. No account numbers. Rough guesses are perfect.</p>
     </div>,
-    <Q onBack={back} onNext={next} key="name" title="First, what should we call you?" sub="Optional. It just makes things friendlier.">
+    <Q onBack={back} onNext={next} key="name" title={custom ? "First, what should we call you?" : "First, what should we call you?"} sub={custom ? "Optional. It just makes things friendlier." : "This is Dave's scenario. Every answer is filled in; just tap Continue."}>
       <label htmlFor="nm" className="sr-only">Your first name</label>
       <input id="nm" autoFocus value={p.name || ""} onChange={(e) => patch({ name: e.target.value.slice(0, 30) })} placeholder="Your first name"
         className="w-full rounded-2xl bg-white px-5 py-4 text-xl ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" />
+      <label htmlFor="job" className="mt-5 block text-[15px] font-medium text-slate-700">What do you do for work? <span className="text-slate-400">(optional)</span></label>
+      <input id="job" value={p.job || ""} onChange={(e) => patch({ job: e.target.value.slice(0, 60) })} placeholder="e.g. Plumber, nurse, teacher's aide"
+        className="mt-1 w-full rounded-2xl bg-white px-5 py-4 text-xl ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" />
     </Q>,
     <Q onBack={back} onNext={next} key="age" title="Which age range are you in?" sub="This helps us show what matters most at your stage of life." canSkip={false}>
       <div className="grid gap-3 sm:grid-cols-2">
         {AGES.map((a) => (
-          <button key={a.id} onClick={() => { patch({ ...SAMPLE_PROFILES[a.id] }); setTimeout(next, 180); }}
+          <button key={a.id} onClick={() => { if (custom) patch({ ageRange: a.id, age: SAMPLE_PROFILES[a.id].age }); else { patch({ ...SAMPLE_PROFILES[a.id] }); setTimeout(next, 180); } }}
             className={cx("rounded-3xl p-5 text-left ring-2 transition", p.ageRange === a.id ? "bg-emerald-50 ring-emerald-500" : "bg-white ring-slate-200 hover:ring-emerald-300")}>
             <div className="font-display text-3xl font-semibold">{a.id}</div>
             <div className="mt-1 text-slate-500">{a.text}</div>
           </button>
         ))}
       </div>
+      {custom && (
+        <div className="mt-5 rounded-3xl bg-white p-5 ring-1 ring-slate-200">
+          <Slider label="Your exact age" value={p.age} min={18} max={75} onChange={(v) => patch({ age: v, ageRange: v < 35 ? "25–35" : v < 45 ? "35–45" : v < 55 ? "45–55" : "55–65" })} format={(v) => `${v} years old`} />
+        </div>
+      )}
     </Q>,
-    <Q onBack={back} onNext={next} key="inc" title="About how much do you earn in a year?" sub="Before taxes. A rough number is fine. We've filled in a typical one.">
+    <Q onBack={back} onNext={next} key="kids" title="Do you have children?" sub={custom ? "Kids change budgets and bring college costs. Add each one with their age." : "Dave and Linda have two teenagers: Emma and Jake."}>
+      <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-semibold">Number of children</span>
+          <div className="flex items-center gap-3">
+            <button aria-label="Remove a child" onClick={() => patch({ kids: (p.kids || []).slice(0, -1) })} className="grid h-11 w-11 place-items-center rounded-xl bg-slate-100 text-2xl font-bold hover:bg-slate-200">−</button>
+            <span className="num w-8 text-center text-2xl font-bold">{(p.kids || []).length}</span>
+            <button aria-label="Add a child" onClick={() => patch({ kids: [...(p.kids || []), { name: `Child ${(p.kids || []).length + 1}`, age: 10 }].slice(0, 6) })} className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-500 text-2xl font-bold text-white hover:bg-emerald-600">+</button>
+          </div>
+        </div>
+        <div className="mt-4 space-y-4">
+          {(p.kids || []).map((k, i) => (
+            <div key={i} className="rounded-2xl bg-slate-50 p-4">
+              <label htmlFor={`kid-${i}`} className="sr-only">Child {i + 1} name</label>
+              <input id={`kid-${i}`} value={k.name} onChange={(e) => patch({ kids: (p.kids || []).map((x, j) => (j === i ? { ...x, name: e.target.value.slice(0, 20) } : x)) })}
+                className="w-full rounded-xl bg-white px-3 py-2 text-lg font-semibold ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" />
+              <Slider id={`kid-age-${i}`} label="Age" value={k.age} min={0} max={25} onChange={(v) => patch({ kids: (p.kids || []).map((x, j) => (j === i ? { ...x, age: v } : x)) })} format={(v) => (v === 0 ? "Baby" : `${v} years`)} />
+            </div>
+          ))}
+          {(p.kids || []).length === 0 && <p className="text-slate-500">No kids? That's fine. Tap Continue.</p>}
+        </div>
+      </div>
+    </Q>,
+    <Q onBack={back} onNext={next} key="inc" title="About how much do you earn in a year?" sub={custom ? "Before taxes, for your whole household. A rough number is fine." : "Dave earns about $46,000 and Linda about $18,000 part-time."}>
       <div className="rounded-3xl bg-white p-6 ring-1 ring-slate-200">
         <div className="text-center font-display text-5xl font-semibold num">{money(p.income)}</div>
         <Slider label="Yearly income" value={p.income} min={0} max={300000} step={1000} onChange={(v) => patch({ income: v })} format={money} />

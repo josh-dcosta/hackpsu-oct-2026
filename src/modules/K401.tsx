@@ -4,11 +4,11 @@ import { useSim, useStore } from "../lib/store";
 import { simulate401k, LIMITS_NOTE } from "../lib/calc";
 import { RULES, k401Limit } from "../lib/rules";
 import { money, compact, axisMoney } from "../lib/format";
-import { AskRipple, Card, EstimateTag, Examples, Quiz, ResetButton, Section, Slider, Stat, Takeaway, tooltipStyle } from "../components/ui";
+import { ApplyToPlan, AskRipple, Card, EstimateTag, Examples, Quiz, ResetButton, Section, Slider, Stat, Takeaway, tooltipStyle } from "../components/ui";
 import { useFinish } from "../pages/ModuleFrame";
 
 export default function K401() {
-  const { profile, simple } = useStore();
+  const { profile, simple, assumptions } = useStore();
   const finish = useFinish("k401");
   const defaults = { age: profile.age, retireAge: 67, salary: profile.income || 75000, contrib: 5, matchRate: 50, matchCap: 6, ret: 6, growth: 3, balance: profile.retirement, inflation: 3 };
   const [s, set, reset] = useSim("k401", defaults);
@@ -60,6 +60,7 @@ export default function K401() {
                 <Stat label="You contribute" value={compact(r.totalEmployee)} sub={`${money(r.firstYearEmployee)} this year`} />
                 <Stat label="Employer adds" value={compact(r.totalEmployer)} tone="green" sub={`${money(r.firstYearMatch)} this year`} />
               </div>
+              <div className="mt-3 rounded-2xl bg-emerald-50 p-3 text-[15px] text-emerald-900">💸 Pre-tax saving lowers your taxes: putting <b>{money(r.firstYearEmployee)}</b> in this year cuts federal income tax by about <b>{money(r.firstYearEmployee * (assumptions.taxRate ?? 0.12))}</b> (at a {Math.round((assumptions.taxRate ?? 0.12) * 100)}% bracket). Your paycheck shrinks by only about <b>{money(r.firstYearEmployee * (1 - (assumptions.taxRate ?? 0.12)) / 12)}</b>/month.</div>
               {missing > 0 && <div className="mt-3 rounded-2xl bg-amber-soft p-3 text-[15px] text-amber-900">💡 You're missing <b>{money(missing)}</b> of employer match this year. Try {s.matchCap}%.</div>}
               <div className="mt-4 h-64">
                 <ResponsiveContainer>
@@ -110,6 +111,7 @@ export default function K401() {
         </div>
       </Section>
 
+      <ApplyToPlan label={`Use ${s.contrib}% in my plan`} patch={{ contribPct: s.contrib / 100 }} summary={`Your plan will save ${s.contrib}% of every paycheck for retirement, and show the tax savings and how long your money lasts.`} />
       <Section n={3} kicker="Next Step explains" title="Why do small changes matter so much?">
         <AskRipple ctx={{ page: "lesson", module: "401(k) Growth Simulator", inputs: { ...s, contribPct: s.contrib + "%", match: `${s.matchRate}% up to ${s.matchCap}% of pay` }, results: { projected: Math.round(r.final), todaysDollars: Math.round(r.finalReal), yourContributions: Math.round(r.totalEmployee), employerMatch: Math.round(r.totalEmployer), growth: Math.round(r.totalGrowth), at5pct: Math.round(r5.final), at10pct: Math.round(r10.final), at5pctEmployer: Math.round(r5.totalEmployer), at10pctEmployer: Math.round(r10.totalEmployer), startNow: Math.round(early.final), startIn10Years: late ? Math.round(late.final) : null, missedMatchThisYear: Math.round(missing) }, insights }}
           prompts={["Why does going from 5% to 10% make such a big difference?", "What is an employer match, really?", "Why does starting early matter?"]} />

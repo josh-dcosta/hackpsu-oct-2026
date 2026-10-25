@@ -3,7 +3,7 @@ import { useSim, useStore } from "../lib/store";
 import { compareAccounts } from "../lib/calc";
 import { RULES } from "../lib/rules";
 import { money, compact, axisMoney } from "../lib/format";
-import { AskRipple, Card, EstimateTag, Examples, Quiz, ResetButton, Section, Slider, Takeaway, tooltipStyle, cx } from "../components/ui";
+import { ApplyToPlan, AskRipple, Card, EstimateTag, Examples, Quiz, ResetButton, Section, Slider, Takeaway, tooltipStyle, cx } from "../components/ui";
 import { useFinish } from "../pages/ModuleFrame";
 
 const ROWS: [string, string, string, string, string][] = [
@@ -100,6 +100,10 @@ export default function Accounts() {
         <p className="mt-2 text-[12px] text-slate-500">Rules summarized from IRS guidance for {RULES.year}. Details have exceptions. Check irs.gov or a tax professional.</p>
       </Section>
 
+      <div className="grid gap-0 sm:grid-cols-2 sm:gap-4">
+        <ApplyToPlan label="Use Traditional in my plan" patch={{ accountType: "traditional", taxRate: s.now / 100 }} summary="Tax break now; withdrawals taxed later." />
+        <ApplyToPlan label="Use Roth in my plan" patch={{ accountType: "roth", taxRate: s.now / 100 }} summary="Pay tax now; qualified withdrawals tax-free later." />
+      </div>
       <Section n={3} kicker="Next Step explains" title="Understanding the tradeoff">
         <AskRipple ctx={{ page: "lesson", module: "Retirement Account Comparison Lab", inputs: { ...s, taxNow: s.now + "%", taxLater: s.later + "%" }, results: Object.fromEntries(list.map((a) => [a.name, { afterTax: Math.round(a.afterTax), taxesAtWithdrawal: Math.round(a.taxes), investedPerYear: Math.round(a.invested) }])), insights }}
           prompts={["Why are Roth and Traditional equal when tax rates match?", "How would I guess my future tax rate?", "Why might someone use both?"]} />

@@ -20,14 +20,26 @@ export const DAVE = {
 
 export const DAVE_PROFILE: Profile = {
   name: "Dave", ageRange: "45–55", age: 50, income: 64_000, expenses: 3_600, savings: 6_000, retirement: 22_000,
-  goals: ["Save for a child's education", "Build an emergency fund", "Retire comfortably"], level: "Beginner", onboarded: false,
+  goals: ["Save for a child's education", "Build an emergency fund", "Retire comfortably"], level: "Beginner", onboarded: false, scenario: "dave",
+  job: "Head custodian, PA public high school", kids: [{ name: "Emma", age: 17 }, { name: "Jake", age: 15 }],
 };
 
 // Stand-ins: 8% ≈ PSERS member contribution; 2% ≈ employer share to his retirement account;
 // 45% "Social Security" ≈ Social Security + PSERS pension combined.
 export const DAVE_ASSUMPTIONS: Assumptions = {
-  returnRate: 0.06, inflation: 0.03, contribPct: 0.08, matchPct: 0.02, retireAge: 67, ssReplacement: 0.45, salaryGrowth: 0.025, leftoverSaved: 0.5, scenario: "baseline",
+  returnRate: 0.06, inflation: 0.04, contribPct: 0.08, matchPct: 0.02, retireAge: 67, ssReplacement: 0.45, salaryGrowth: 0.025, leftoverSaved: 0.5, scenario: "baseline",
+  hsaAnnual: 0, cashRate: 0.005, accountType: "traditional", taxRate: 0.12,
 };
+
+export const CUSTOM_PROFILE: Profile = {
+  name: "", ageRange: "35–45", age: 40, income: 60_000, expenses: 3_500, savings: 10_000, retirement: 40_000,
+  goals: [], level: "Beginner", onboarded: false, scenario: "custom", job: "", kids: [],
+};
+export const CUSTOM_ASSUMPTIONS: Assumptions = {
+  returnRate: 0.06, inflation: 0.04, contribPct: 0.06, matchPct: 0.03, retireAge: 67, ssReplacement: 0.35, salaryGrowth: 0.03, leftoverSaved: 0.5, scenario: "baseline",
+  hsaAnnual: 0, cashRate: 0.005, accountType: "traditional", taxRate: 0.12,
+};
+export const isDaveProfile = (p: Profile) => p.scenario ? p.scenario === "dave" : p.name === "Dave";
 
 // Preloaded simulator settings (keyed by module id). "Reset" returns to these.
 export const DAVE_SIMS: Record<string, Record<string, unknown>> = {
@@ -39,6 +51,7 @@ export const DAVE_SIMS: Record<string, Record<string, unknown>> = {
   accounts: { budget: 3_500, years: 17, ret: 6, now: 12, later: 12, match: 25 },
   hsa: { annual: 1_500, tax: 12, years: 15, ret: 5, medical: 1_200, payroll: true },
   college: { childAge: 15, collegeAge: 18, cost: 22_000, tInfl: 4, monthly: 150, ret: 4, balance: 0 },
+  buckets: { short: 6_000, medium: 3_000, long: 22_000 },
   invest: { single: 0, several: 5, index: 50, bonds: 35, cash: 10, market: "crash", seed: 7, amount: 22_000 },
   debt: {
     bal: 3_200, apr: 22, pay: 100, extra: 100,

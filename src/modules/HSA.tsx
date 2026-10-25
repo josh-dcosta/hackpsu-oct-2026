@@ -3,7 +3,7 @@ import { useSim } from "../lib/store";
 import { simulateHSA } from "../lib/calc";
 import { RULES } from "../lib/rules";
 import { money, compact, axisMoney } from "../lib/format";
-import { AskRipple, Card, EstimateTag, Examples, Quiz, ResetButton, Section, Slider, Stat, Takeaway, tooltipStyle } from "../components/ui";
+import { ApplyToPlan, AskRipple, Card, EstimateTag, Examples, Quiz, ResetButton, Section, Slider, Stat, Takeaway, tooltipStyle } from "../components/ui";
 import { useFinish } from "../pages/ModuleFrame";
 
 export default function HSA() {
@@ -61,6 +61,7 @@ export default function HSA() {
           <div className="mt-2"><EstimateTag>Federal taxes only. Assumes all withdrawals are for qualified medical expenses.</EstimateTag></div>
         </Card>
       </Section>
+      <ApplyToPlan label={`Add ${money(s.annual)}/yr HSA to my plan`} patch={{ hsaAnnual: s.annual, taxRate: s.tax / 100 }} summary={`Your plan will put ${money(s.annual)} a year into an HSA and show how much tax it saves and how your savings grow.`} />
       <Section n={3} kicker="Next Step explains" title="Where does the advantage come from?">
         <AskRipple ctx={{ page: "lesson", module: "HSA Triple Tax Simulator", inputs: s, results: { taxSavedPerYear: Math.round(r.taxSavedPerYear), totalTaxSaved: Math.round(r.totalTaxSaved), hsaBalance: Math.round(r.hsaFinal), regularSavingsBalance: Math.round(r.savingsFinal) }, insights }}
           prompts={["Explain the triple tax advantage simply", "Who is eligible for an HSA?", "What counts as a qualified expense?"]} />

@@ -6,7 +6,7 @@ import { useSim, useStore } from "../lib/store";
 import { growMonthly, emergencyFund } from "../lib/calc";
 import { RULES } from "../lib/rules";
 import { money, axisMoney } from "../lib/format";
-import { AskRipple, Button, Card, EstimateTag, Examples, NumberField, Quiz, ResetButton, Section, Segmented, Slider, Stat, Takeaway, tooltipStyle, cx } from "../components/ui";
+import { ApplyToPlan, AskRipple, Button, Card, EstimateTag, Examples, NumberField, Quiz, ResetButton, Section, Segmented, Slider, Stat, Takeaway, tooltipStyle, cx } from "../components/ui";
 import { useFinish } from "./ModuleFrame";
 
 type Tx = { id: number; m: number; desc: string; acct: "Checking" | "Savings"; amt: number; bal: number };
@@ -242,6 +242,7 @@ export default function Bank() {
         <div className="mt-2"><EstimateTag>Fictional bank, fictional money. Real rates vary and can change.</EstimateTag></div>
       </Section>
 
+      <ApplyToPlan label={s.apy >= 3 ? `Use high-yield savings (${s.apy}%) in my plan` : "Use high-yield savings (4%) in my plan"} patch={{ cashRate: Math.max(s.apy, 4) / 100 }} summary="Your plan will keep your cushion in an FDIC-insured high-yield savings account instead of a 0.5% account." />
       <Section kicker="Next Step explains" title="What just happened to my money?">
         <AskRipple ctx={{ page: "virtual bank", module: "Virtual Bank: emergency fund, FDIC, compounding", inputs: { apy: s.apy + "%", monthsElapsed: s.month, essentialsMonthly: 3000, emergencyFundGoal: ef.target }, results: { checking: Math.round(s.checking * 100) / 100, savings: Math.round(s.savings * 100) / 100, interestEarned: Math.round(s.interest * 100) / 100, emergencyFundProgressPct: Math.round(ef.progress * 100), fourThousandAfter17yrs: { regularBank: Math.round(lastC["Regular bank 0.5%"]), simple4pct: Math.round(lastC["4% simple interest"]), compound4pct: Math.round(lastC["High-yield 4% (compound)"]) } }, insights }}
           prompts={["How big should Dave's emergency fund be?", "Is our money safe if the bank fails?", "How does compounding work here?"]} />

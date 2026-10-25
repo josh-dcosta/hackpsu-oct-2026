@@ -7,6 +7,7 @@ import { runPortfolio, MARKETS, type MarketKey } from "../lib/calc";
 import { money, compact, axisMoney, pct } from "../lib/format";
 import { AskRipple, Button, Card, EstimateTag, Quiz, ResetButton, Section, Segmented, Slider, Stat, Takeaway, tooltipStyle, cx } from "../components/ui";
 import { useFinish } from "../pages/ModuleFrame";
+import TimeBuckets from "./TimeBuckets";
 
 const ASSETS = [
   { key: "single", label: "One fictional stock (\"ZoomCo\")", color: "#F97361" },
@@ -50,9 +51,10 @@ export default function Invest() {
 
   return (
     <div>
-      <Section n={1} kicker="The idea" title="Don't put all your eggs in one basket">
+      <Section n={1} kicker="The idea" title="Invest the simple, safe way">
         <Card>
-          <p className="text-lg leading-relaxed text-slate-700">One company can soar or go to zero. A <b>diversified</b> fund holds hundreds, so a single failure barely dents it. You give up the chance of a lottery win to avoid a wipe-out.</p>
+          <p className="text-lg leading-relaxed text-slate-700">You don't need to pick stocks or trade to build wealth. A low-cost <b>index fund</b> owns thousands of companies at once, so one company's failure barely dents it. Over 15+ years, most professional stock-pickers have trailed simple index funds.</p>
+          <p className="mt-3 text-lg leading-relaxed text-slate-700">The practical recipe: <b>keep short-term money safe</b> in FDIC-insured savings, and put <b>long-term money</b> in a few diversified index funds, like U.S. stocks, international stocks and bonds. Then add money regularly and leave it alone.</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             {(simple ? GLOSS.slice(0, 4) : GLOSS).map(([t, d]) => (
               <details key={t} className="group rounded-2xl bg-slate-50 p-4">
@@ -64,7 +66,11 @@ export default function Invest() {
         </Card>
       </Section>
 
-      <Section n={2} practice kicker="Real-world simulation · ready for you" title="Virtual Portfolio Simulator">
+      <Section n={2} practice kicker="Real-world simulation · ready for you" title="Match money to time">
+        <TimeBuckets />
+      </Section>
+
+      <Section n={3} kicker="See why" title="One stock vs. index funds">
         <Card>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Segmented label="Market conditions" value={s.market} onChange={(v) => set({ market: v })} options={(Object.keys(MARKETS) as MarketKey[]).map((k) => ({ value: k, label: MARKETS[k].label }))} />
@@ -140,18 +146,18 @@ export default function Invest() {
           <div className="mt-3"><EstimateTag>Hypothetical simulation with fictional stocks. Past patterns don't guarantee future results.</EstimateTag></div>
         </Card>
       </Section>
-      <Section n={3} kicker="Next Step explains" title="Risk and reward">
+      <Section n={4} kicker="Next Step explains" title="Risk and reward">
         <AskRipple ctx={{ page: "lesson", module: "Virtual Portfolio Simulator", inputs: { allocationPct: Object.fromEntries(Object.entries(alloc).map(([k, v]) => [k, Math.round((v / total) * 100)])), market: MARKETS[s.market].label, startingAmount: s.amount }, results: { yourMixFinal: Math.round(r.mine.final), yourWorstDropPct: Math.round(r.mine.maxDD * 100), riskLevel: r.risk, oneStock: Math.round(r.comps.single.final), fewStocks: Math.round(r.comps.several.final), indexFund: Math.round(r.comps.index.final), sixtyForty: Math.round(r.comps.mix.final) }, insights }}
           prompts={["Why is one stock so risky?", "Why hold bonds at all?", "What is dollar-cost averaging?"]} />
       </Section>
-      <Section n={4} kicker="Quick check" title="Test yourself">
+      <Section n={5} kicker="Quick check" title="Test yourself">
         <Quiz id="invest" onComplete={finish} questions={[
           { q: "What does an index fund do?", options: ["Picks the best stocks", "Holds a whole market index, like hundreds of companies", "Guarantees returns"], answer: 1, why: "It tracks an index, giving instant diversification, often at low cost." },
-          { q: "Diversification mainly reduces…", options: ["All risk", "The risk of one company sinking you", "Taxes"], answer: 1, why: "It spreads company-specific risk. The whole market can still fall." },
+          { q: "What's the practical, low-risk way most people build wealth?", options: ["Trading individual stocks often", "Holding low-cost, diversified index funds for many years", "Waiting for the perfect time to buy"], answer: 1, why: "Index funds spread risk across thousands of companies at low cost. Most stock-pickers trail them over the long run." },
           { q: "Money you'll need in 1–2 years is usually best kept in…", options: ["One hot stock", "Savings or cash equivalents", "100% stocks"], answer: 1, why: "Stocks can drop sharply over short periods." },
         ]} />
       </Section>
-      <Takeaway>Diversify, think in decades, and choose a mix you can stick with when the market drops. That's when it matters most.</Takeaway>
+      <Takeaway>Keep short-term money safe, put long-term money in a few low-cost index funds, add to them regularly, and leave them alone.</Takeaway>
     </div>
   );
 }

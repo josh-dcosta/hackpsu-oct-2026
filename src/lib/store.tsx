@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DEFAULT_ASSUMPTIONS, type Assumptions, type Profile } from "./calc";
 import type { Choices } from "./story";
-import { DAVE_PROFILE, DAVE_ASSUMPTIONS, DAVE_SIMS } from "../data/dave";
+import { DAVE_PROFILE, DAVE_ASSUMPTIONS, DAVE_SIMS, isDaveProfile } from "../data/dave";
 
 export const SAMPLE_PROFILES: Record<string, Omit<Profile, "goals" | "level" | "onboarded" | "name">> = {
   "25–35": { ageRange: "25–35", age: 30, income: 75_000, expenses: 3_600, savings: 15_000, retirement: 12_000 },
@@ -141,8 +141,9 @@ export function useStore() {
 
 /** Persisted simulator settings: like useState but saved per module, with reset. */
 export function useSim<T extends Record<string, unknown>>(id: string, defaults: T) {
-  const { sims, saveSim, touch } = useStore();
-  const base = { ...defaults, ...((DAVE_SIMS[id] as Partial<T>) || {}) } as T; // Dave's scenario preloaded
+  const { sims, saveSim, touch, profile } = useStore();
+  // Dave's scenario preloads his numbers; a custom scenario starts from the user's own profile-based defaults
+  const base = (isDaveProfile(profile) ? { ...defaults, ...((DAVE_SIMS[id] as Partial<T>) || {}) } : { ...defaults }) as T;
   const value = { ...base, ...((sims[id] as Partial<T>) || {}) } as T;
   const update = (patch: Partial<T>) => { saveSim(id, { ...value, ...patch }); touch(id); };
   const reset = () => saveSim(id, base);

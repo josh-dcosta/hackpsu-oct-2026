@@ -265,26 +265,54 @@ export function lifeExpenses(o: { age: number; familySize: number; housing: numb
 export type Profile = {
   name?: string; ageRange: string; age: number; income: number; expenses: number; savings: number; retirement: number;
   goals: string[]; level: "Beginner" | "Intermediate" | "Advanced"; onboarded: boolean;
+  scenario?: "dave" | "custom";
+  job?: string;
+  kids?: { name: string; age: number }[];
 };
-export type Assumptions = { returnRate: number; inflation: number; contribPct: number; matchPct: number; retireAge: number; ssReplacement: number; salaryGrowth: number; leftoverSaved: number; scenario: "pessimistic" | "baseline" | "optimistic" };
-export const DEFAULT_ASSUMPTIONS: Assumptions = { returnRate: 0.06, inflation: 0.03, contribPct: 0.06, matchPct: 0.03, retireAge: 67, ssReplacement: 0.35, salaryGrowth: 0.03, leftoverSaved: 0.5, scenario: "baseline" };
+export type Assumptions = {
+  returnRate: number; inflation: number; contribPct: number; matchPct: number; retireAge: number; ssReplacement: number; salaryGrowth: number; leftoverSaved: number; scenario: "pessimistic" | "baseline" | "optimistic";
+  // Plan levers (each taught by a lesson)
+  hsaAnnual?: number; // HSA contributions per year (pre-tax, invested)
+  cashRate?: number; // interest on savings account (regular bank ~0.5%, high-yield ~4%)
+  accountType?: "traditional" | "roth"; // retirement contributions: tax break now vs. tax-free later
+  taxRate?: number; // federal income tax bracket, now and in retirement
+};
+export const DEFAULT_ASSUMPTIONS: Assumptions = { returnRate: 0.06, inflation: 0.03, contribPct: 0.06, matchPct: 0.03, retireAge: 67, ssReplacement: 0.35, salaryGrowth: 0.03, leftoverSaved: 0.5, scenario: "baseline", hsaAnnual: 0, cashRate: 0.005, accountType: "traditional", taxRate: 0.12 };
 
+export type YearFlow = {
+  age: number; retired: boolean;
+  expensesMonthly: number; // what monthly bills cost at this age (prices rise with inflation)
+  savingMonthly: number; // working years: added to savings per month (negative = dipping into savings)
+  incomeMonthly: number; // retirement: Social Security + pension per month
+  fromSavingsMonthly: number; // retirement: pulled from savings per month
+  shortfallMonthly: number; // retirement: bills not covered by anything
+  balanceEnd: number;
+};
 export function projectLife(p: Profile, a: Assumptions) {
   const adj = a.scenario === "optimistic" ? { r: 0.015, i: -0.005 } : a.scenario === "pessimistic" ? { r: -0.02, i: 0.01 } : { r: 0, i: 0 };
-  const ret = a.returnRate + adj.r, inf = Math.max(0, a.inflation + adj.i), cashRate = 0.035;
+  const ret = a.returnRate + adj.r, inf = Math.max(0, a.inflation + adj.i), cashRate = a.cashRate ?? 0.035;
+  const tax = a.taxRate ?? 0.12, roth = a.accountType === "roth", hsa = a.hsaAnnual ?? 0;
+  let taxSavedTotal = 0;
+  const taxSavedNow = (roth ? 0 : p.income * a.contribPct * tax) + hsa * (tax + 0.0765);
   const takeHomeRate = 0.78; // rough after-tax share of pay (assumption)
   let cash = p.savings, invested = p.retirement, salary = p.income;
   let depletedAge: number | null = null;
   const rows: { age: number; nominal: number; real: number; cash: number; invested: number; expensesMonthly: number; retired: boolean }[] = [];
+  const flows: YearFlow[] = [];
   rows.push({ age: p.age, nominal: cash + invested, real: cash + invested, cash, invested, expensesMonthly: p.expenses, retired: p.age >= a.retireAge });
   for (let age = p.age; age < 90; age++) {
     const y = age - p.age;
     const prices = pw(1 + inf, y);
     const expensesYear = p.expenses * 12 * prices;
+    const f: YearFlow = { age, retired: age >= a.retireAge, expensesMonthly: expensesYear / 12, savingMonthly: 0, incomeMonthly: 0, fromSavingsMonthly: 0, shortfallMonthly: 0, balanceEnd: 0 };
     if (age < a.retireAge) {
-      const contrib = salary * a.contribPct + salary * a.matchPct;
-      const takeHome = salary * (1 - a.contribPct) * takeHomeRate;
+      const hsaY = hsa * pw(1 + inf, y); // HSA contributions rise with prices
+      const contrib = salary * a.contribPct + salary * a.matchPct + hsaY;
+      // Traditional: contributions skip income tax now. Roth: paid from after-tax pay. HSA: skips income + payroll tax.
+      const takeHome = (roth ? salary * takeHomeRate - salary * a.contribPct : salary * (1 - a.contribPct) * takeHomeRate) - hsaY * (1 - tax - 0.0765);
+      taxSavedTotal += (roth ? 0 : salary * a.contribPct * tax) + hsaY * (tax + 0.0765);
       const surplus = takeHome - expensesYear > 0 ? (takeHome - expensesYear) * a.leftoverSaved : takeHome - expensesYear;
+      f.savingMonthly = (contrib + surplus) / 12;
       invested = invested * (1 + ret) + contrib * (1 + ret / 2);
       cash = cash * (1 + cashRate);
       if (surplus >= 0) {
@@ -296,22 +324,27 @@ export function projectLife(p: Profile, a: Assumptions) {
       }
       salary *= 1 + a.salaryGrowth;
     } else {
-      const need = expensesYear * 0.85; // many retirees spend somewhat less
-      const ss = p.income * a.ssReplacement * pw(1 + inf, y); // Social Security, rough & inflation-adjusted
-      let gap = Math.max(0, need - ss);
+      const need = expensesYear; // same lifestyle, at future prices
+      const ss = Math.min(need, p.income * a.ssReplacement * pw(1 + inf, y)); // Social Security + pension (rough, rises with prices)
+      let gap = need - ss;
       invested = invested * (1 + ret - 0.01); // a bit more conservative in retirement
       cash = cash * (1 + cashRate);
-      const fromInv = Math.min(gap, invested); invested -= fromInv; gap -= fromInv;
+      // Traditional withdrawals are taxed as income; Roth (and HSA for medical) come out tax-free
+      const keep = roth ? 1 : 1 - tax;
+      const grossInv = Math.min(gap / keep, invested); invested -= grossInv; const fromInv = grossInv * keep; gap -= fromInv;
       const fromCash = Math.min(gap, cash); cash -= fromCash; gap -= fromCash;
+      f.incomeMonthly = ss / 12; f.fromSavingsMonthly = (fromInv + fromCash) / 12; f.shortfallMonthly = Math.max(0, gap) / 12;
       if (gap > 1 && depletedAge === null) depletedAge = age;
     }
     const nominal = Math.max(0, cash + invested);
+    f.balanceEnd = nominal; flows.push(f);
     rows.push({ age: age + 1, nominal, real: nominal / pw(1 + inf, y + 1), cash, invested, expensesMonthly: p.expenses * pw(1 + inf, y + 1), retired: age + 1 >= a.retireAge });
   }
   const at = (age: number) => rows.find((r) => r.age === age) || rows[rows.length - 1];
   const milestones = [35, 45, 55, 65, 75, 85].filter((m) => m >= p.age).map((m) => ({ ...at(m) }));
   const atRetire = at(a.retireAge);
-  return { rows, milestones, atRetire, depletedAge, inflation: inf, returnRate: ret };
+  const firstRetire = flows.find((f) => f.retired);
+  return { rows, flows, milestones, atRetire, depletedAge, inflation: inf, returnRate: ret, firstRetire, savingToday: flows[0]?.savingMonthly ?? 0, taxSavedNow, taxSavedTotal };
 }
 
 export const LIMITS_NOTE = `Contribution limits use ${RULES.year} IRS figures and assume they rise with inflation in later years.`;

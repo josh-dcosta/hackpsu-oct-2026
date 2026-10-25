@@ -95,14 +95,41 @@ export function Section({ n, title, children, kicker, practice }: { n?: number; 
           <h2 className="font-display text-2xl font-semibold text-navy">{title}</h2>
         </div>
       </div>
-      {practice && (
-        <div className="mb-3 flex items-start gap-3 rounded-2xl bg-sky-soft px-4 py-3 text-[15px] text-sky-900">
-          <span className="text-xl">🧹</span>
-          <span><b>Preloaded with Dave's real numbers</b> (PA school custodian, family of four). Move any slider to make it fit your life. Tap <b>Reset</b> anytime to go back to Dave.</span>
-        </div>
-      )}
+      {practice && <PracticeBanner />}
       {children}
     </section>
+  );
+}
+
+function PracticeBanner() {
+  const { profile } = useStore();
+  const dave = profile.scenario ? profile.scenario === "dave" : profile.name === "Dave";
+  return (
+    <div className="mb-3 flex items-start gap-3 rounded-2xl bg-sky-soft px-4 py-3 text-[15px] text-sky-900">
+      <span className="text-xl">{dave ? "🧹" : "🙋"}</span>
+      {dave
+        ? <span><b>Preloaded with Dave's real numbers</b> (PA school custodian, family of four). Move any slider to make it fit your life. Tap <b>Reset</b> anytime to go back to Dave.</span>
+        : <span><b>Preloaded with your numbers</b> where they fit, and realistic examples everywhere else. Move any slider to match your life. <b>Reset</b> puts it back.</span>}
+    </div>
+  );
+}
+
+/** Sends a lesson's choice into the user's plan on the dashboard. */
+export function ApplyToPlan({ label, patch, summary }: { label: string; patch: Partial<import("../lib/calc").Assumptions>; summary: string }) {
+  const { set, award } = useStore();
+  const [done, setDone] = useState(false);
+  return (
+    <div className="mt-4 flex flex-col gap-3 rounded-3xl bg-emerald-50 p-5 ring-1 ring-emerald-200 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <div className="font-semibold text-emerald-900">Make it part of your plan</div>
+        <div className="text-[14px] text-emerald-800">{summary}</div>
+      </div>
+      {done ? (
+        <a href="#/" className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-navy px-5 py-3 font-semibold text-white">✓ Added · See the impact on Home →</a>
+      ) : (
+        <Button onClick={() => { set((s) => ({ assumptions: { ...s.assumptions, ...patch } })); setDone(true); award(15, "Added a move to your plan", "plan-" + label); }}>{label}</Button>
+      )}
+    </div>
   );
 }
 

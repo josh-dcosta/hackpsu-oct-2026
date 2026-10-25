@@ -8,7 +8,7 @@ import { useFinish } from "../pages/ModuleFrame";
 export default function LifeStages() {
   const { profile } = useStore();
   const finish = useFinish("life");
-  const [s, set, reset] = useSim("life", { age: profile.age, family: 3, housing: 1600, retireAge: 67, inflation: 3, paidOff: true, real: false, stage: 1 });
+  const [s, set, reset] = useSim("life", { age: profile.age, family: Math.min(6, 2 + (profile.kids || []).length), housing: 1600, retireAge: 67, inflation: 3, paidOff: true, real: false, stage: 1 });
   const rows = lifeExpenses({ age: s.age, familySize: s.family, housing: s.housing, retireAge: s.retireAge, inflation: s.inflation / 100, mortgagePaidOff: s.paidOff, showReal: s.real });
   const idx = Math.min(s.stage, rows.length - 1);
   const cur = rows[idx];
