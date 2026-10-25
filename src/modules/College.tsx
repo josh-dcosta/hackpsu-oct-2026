@@ -24,7 +24,17 @@ export default function College() {
       </Section>
       <Section n={2} kicker="Try it" title="College Savings Simulator">
         <Card>
-          <div className="flex justify-end"><ResetButton onClick={reset} /></div>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex gap-2">
+              {[{ n: "Emma", a: 17 }, { n: "Jake", a: 15 }].map((k) => (
+                <button key={k.n} onClick={() => set({ childAge: k.a, collegeAge: 18 })} aria-pressed={s.childAge === k.a}
+                  className={"rounded-full px-4 py-2 text-sm font-semibold ring-1 " + (s.childAge === k.a ? "bg-navy text-white ring-navy" : "bg-white ring-slate-200 hover:ring-emerald-400")}>🎓 {k.n}, {k.a}</button>
+              ))}
+              <button onClick={() => set({ childAge: 2, collegeAge: 18 })} aria-pressed={s.childAge === 2}
+                className={"rounded-full px-4 py-2 text-sm font-semibold ring-1 " + (s.childAge === 2 ? "bg-navy text-white ring-navy" : "bg-white ring-slate-200 hover:ring-emerald-400")}>⏪ If Dave had started when Jake was 2</button>
+            </div>
+            <ResetButton onClick={reset} />
+          </div>
           <div className="grid gap-x-8 sm:grid-cols-2">
             <Slider label="Child's age now" value={s.childAge} min={0} max={17} onChange={(v) => set({ childAge: v, collegeAge: Math.max(s.collegeAge, v + 1) })} format={(v) => v === 0 ? "Newborn" : `${v} years`} />
             <Slider label="Starts college at" value={s.collegeAge} min={Math.max(16, s.childAge + 1)} max={22} onChange={(v) => set({ collegeAge: v })} format={(v) => `Age ${v}`} />
@@ -58,7 +68,7 @@ export default function College() {
       </Section>
       <Section n={3} kicker="Next Step explains" title="Why starting early helps">
         <AskRipple ctx={{ page: "lesson", module: "College Savings Simulator", inputs: s, results: { yearsUntilCollege: r.years, fourYearCostTodayPrices: Math.round(r.todayCost), projectedFourYearCost: Math.round(r.totalCost), projectedSaved: Math.round(r.saved), coveragePct: Math.round(r.coverage * 100), monthlyNeededStartingNow: Math.round(r.neededNow), monthlyNeededIfWait5Years: Math.round(r.neededIfWait5) }, insights }}
-          prompts={["Why is waiting 5 years so expensive?", "What can 529 money be used for?", "Should I save for college or retirement first?"]} />
+          prompts={["What can Dave do with only 1–3 years left?", "How do FAFSA and the PA State Grant help?", "Should Dave save for college or retirement first?"]} />
       </Section>
       <Section n={4} kicker="Real life" title="Ideas families use">
         <Examples items={[

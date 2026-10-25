@@ -7,7 +7,9 @@ import { projectLife, futureCost } from "../lib/calc";
 import { money, compact, axisMoney, pct } from "../lib/format";
 import { AskRipple, Card, EstimateTag, ResetButton, Segmented, Slider, Stat, cx, tooltipStyle } from "../components/ui";
 import { MODULES, moduleHref } from "../data/modules";
-import { DEFAULT_ASSUMPTIONS } from "../lib/calc";
+import { simulate529 } from "../lib/calc";
+import { DAVE, DAVE_ASSUMPTIONS } from "../data/dave";
+import { GraduationCap } from "lucide-react";
 
 const greeting = () => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening"; };
 
@@ -24,9 +26,12 @@ export default function Dashboard() {
   const chart = proj.rows.filter((r) => r.age <= 90);
   const selected = sel !== null ? proj.milestones.find((m) => m.age === sel) : null;
 
+  const isDave = p.name === "Dave";
+  const kids = DAVE.kids.map((k) => ({ ...k, r: simulate529({ childAge: k.age, collegeAge: 18, costNow: DAVE.collegeCostToday, tuitionInflation: 0.04, monthly: 0, returnRate: 0.04, balance: 0 }) }));
   const insights = [
     `If things go roughly as assumed, you could have about ${compact(ret.nominal)} at age ${a.retireAge}. In today's buying power that feels like about ${compact(ret.real)}.`,
     `Your ${money(p.expenses)} of monthly spending today could cost about ${money(futureMonthly)} a month by age ${a.retireAge} at ${pct(proj.inflation)} inflation.`,
+    ...(isDave ? [`Emma's and Jake's 4 years at a PA state university could cost about ${compact(kids[0].r.totalCost + kids[1].r.totalCost)} combined before aid, versus ${money(p.savings)} in savings today.`] : []),
     proj.depletedAge ? `Under these assumptions, savings could run short around age ${proj.depletedAge}. Try raising your 401(k) contribution or retirement age.` : `Under these assumptions, your savings last past age 90.`,
   ];
 
@@ -54,6 +59,35 @@ export default function Dashboard() {
           ))}
         </div>
       </motion.div>
+
+      {isDave && (
+        <div className="mt-5 grid gap-4 lg:grid-cols-3">
+          <Card className="lg:col-span-1">
+            <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">Demo scenario</div>
+            <div className="mt-1 font-display text-xl font-semibold">🧹 Dave's family</div>
+            <ul className="mt-2 space-y-1 text-[15px] text-slate-600">
+              <li>Head custodian, PA public high school · ~${DAVE.hourly}/hr</li>
+              <li>Household: {money(DAVE.household)}/yr (Linda part-time)</li>
+              <li>PSERS pension + Social Security later</li>
+              <li>Emma, 17 (senior) · Jake, 15 (sophomore)</li>
+            </ul>
+          </Card>
+          <Card className="lg:col-span-2">
+            <div className="flex items-center gap-2 font-semibold"><GraduationCap className="text-sky-600" /> Big costs ahead: college</div>
+            <p className="text-[14px] text-slate-500">A PA state university costs about {money(DAVE.collegeCostToday)}/year today, before financial aid. College prices rise ~4%/year.</p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {kids.map((k) => (
+                <div key={k.name} className="rounded-2xl bg-sky-soft p-4">
+                  <div className="text-[13px] font-semibold text-sky-800">{k.name} starts in {k.r.years} {k.r.years === 1 ? "year" : "years"}</div>
+                  <div className="num font-display text-2xl font-semibold text-navy">{compact(k.r.totalCost)}</div>
+                  <div className="text-[13px] text-slate-600">for 4 years (vs {compact(k.r.todayCost)} at today's prices)</div>
+                </div>
+              ))}
+            </div>
+            <a href="#/learn/college" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700">Plan for it in the College Savings Simulator <ArrowRight size={14} /></a>
+          </Card>
+        </div>
+      )}
 
       {/* Big CTA */}
       <a href="#/future" className="group mt-5 flex items-center gap-4 rounded-3xl bg-emerald-500 p-5 text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-600">
@@ -118,7 +152,7 @@ export default function Dashboard() {
             <div className="font-semibold">Change the assumptions</div>
             <div className="flex items-center gap-2">
               <Segmented label="Scenario" value={a.scenario} onChange={(v) => setA({ scenario: v })} options={[{ value: "pessimistic", label: "😟 Rough" }, { value: "baseline", label: "Baseline" }, { value: "optimistic", label: "😊 Good" }]} />
-              <ResetButton onClick={() => set({ assumptions: DEFAULT_ASSUMPTIONS })} />
+              <ResetButton onClick={() => set({ assumptions: { ...DAVE_ASSUMPTIONS } })} />
             </div>
           </div>
           <div className="mt-3 grid gap-x-8 sm:grid-cols-2">

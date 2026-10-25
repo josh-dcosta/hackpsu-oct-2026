@@ -7,10 +7,10 @@ import { AskRipple, Card, EstimateTag, Examples, NumberField, Quiz, ResetButton,
 import { useFinish } from "../pages/ModuleFrame";
 
 const ITEMS = [
-  { id: "groceries", emoji: "🛒", label: "Weekly groceries", price: 150, rate: 3 },
-  { id: "rent", emoji: "🏠", label: "Monthly rent", price: 1500, rate: 3.5 },
+  { id: "groceries", emoji: "🛒", label: "Groceries (family of 4) / mo", price: 1000, rate: 3 },
+  { id: "rent", emoji: "🏠", label: "Housing / mo", price: 1250, rate: 3.5 },
   { id: "gas", emoji: "⛽", label: "Tank of gas", price: 50, rate: 3 },
-  { id: "tuition", emoji: "🎓", label: "Year of college", price: 11000, rate: 5 },
+  { id: "tuition", emoji: "🎓", label: "Year at a PA state university", price: 22000, rate: 4 },
   { id: "health", emoji: "🩺", label: "Health insurance / mo", price: 600, rate: 5 },
 ];
 const NOW = new Date().getFullYear();

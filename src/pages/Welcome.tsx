@@ -5,6 +5,7 @@ import { useStore, SAMPLE_PROFILES } from "../lib/store";
 import { Button, RippleMark, Slider, cx } from "../components/ui";
 import { money } from "../lib/format";
 import type { Profile } from "../lib/calc";
+import { DAVE, DAVE_PROFILE, DAVE_ASSUMPTIONS } from "../data/dave";
 
 const GOALS = ["Build an emergency fund", "Pay off debt", "Buy a home", "Start investing", "Save for a child's education", "Retire comfortably", "Understand my money better", "Handle healthcare costs"];
 const LEVELS: { id: Profile["level"]; emoji: string; text: string }[] = [
@@ -39,7 +40,7 @@ function Q({ title, sub, children, canSkip = true, onBack: back, onNext: next }:
 export default function Welcome() {
   const { profile, set, award, badge } = useStore();
   const [step, setStep] = useState(0);
-  const [p, setP] = useState<Profile>({ ...profile });
+  const [p, setP] = useState<Profile>(profile.onboarded ? { ...profile } : { ...DAVE_PROFILE });
   const total = 8;
   const next = () => setStep((s) => Math.min(total + 1, s + 1));
   const back = () => setStep((s) => Math.max(0, s - 1));
@@ -50,7 +51,7 @@ export default function Welcome() {
     setTimeout(() => { award(50, "Welcome to Next Step", "onboard"); badge("welcome"); }, 400);
     window.location.hash = "#/";
   };
-  const demo = () => finish({ ...p, ...SAMPLE_PROFILES["25–35"], name: "Alex", goals: ["Retire comfortably", "Build an emergency fund", "Start investing"], level: "Beginner", onboarded: true });
+  const demo = () => { set({ assumptions: { ...DAVE_ASSUMPTIONS } }); finish({ ...DAVE_PROFILE, onboarded: true }); };
 
   const steps = [
     // 0 — the Why
@@ -59,10 +60,17 @@ export default function Welcome() {
       <h1 className="mt-6 font-display text-4xl sm:text-6xl font-semibold leading-[1.05] tracking-tight">See tomorrow<br />before you spend today.</h1>
       <p className="mx-auto mt-5 max-w-lg text-lg sm:text-xl text-slate-600">Every money choice you make sends ripples into your future. Next Step shows you where they land, <span className="text-emerald-600 font-semibold">before</span> you make them.</p>
       <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-        <Button onClick={next} className="w-full sm:w-auto text-lg px-8 py-4">Let's begin <ArrowRight size={20} /></Button>
-        <Button variant="ghost" onClick={demo} className="w-full sm:w-auto text-lg px-6 py-4"><Sparkles size={18} /> Try a demo profile</Button>
+        <Button onClick={demo} className="w-full sm:w-auto text-lg px-8 py-4"><Sparkles size={18} /> Start as Dave</Button>
+        <Button variant="ghost" onClick={next} className="w-full sm:w-auto text-lg px-6 py-4">Walk through Dave's answers <ArrowRight size={20} /></Button>
       </div>
-      <p className="mt-6 flex items-center justify-center gap-2 text-[14px] text-slate-500"><Lock size={14} /> No bank logins. No account numbers. Rough guesses are perfect.</p>
+      <div className="mx-auto mt-8 max-w-lg rounded-3xl bg-white p-5 text-left shadow-card ring-1 ring-slate-200">
+        <div className="flex items-center gap-3">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-2xl">🧹</span>
+          <div><div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">Demo scenario</div><div className="font-display text-xl font-semibold">Meet Dave, 50</div></div>
+        </div>
+        <p className="mt-3 text-[15px] text-slate-600">{DAVE.role}, earning about ${DAVE.hourly}/hour. With his wife Linda's part-time cafeteria job, the family brings in <b>$64,000</b> a year. They have <b>$6,000</b> saved, and both kids are in high school: <b>Emma (17)</b> and <b>Jake (15)</b>. College is coming fast.</p>
+      </div>
+      <p className="mt-5 flex items-center justify-center gap-2 text-[14px] text-slate-500"><Lock size={14} /> No bank logins. No account numbers. Rough guesses are perfect.</p>
     </div>,
     <Q onBack={back} onNext={next} key="name" title="First, what should we call you?" sub="Optional. It just makes things friendlier.">
       <label htmlFor="nm" className="sr-only">Your first name</label>

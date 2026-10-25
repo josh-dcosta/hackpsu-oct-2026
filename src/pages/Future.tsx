@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ArrowRight, Download, RotateCcw, Sparkles, TrendingDown, TrendingUp } from "lucide-react";
 import { useStore } from "../lib/store";
-import { DECISIONS, STORY_START, altChoices, defaultChoices, simulateStory, type Choices } from "../lib/story";
+import { DECISIONS, STORY_START, STORY_CHARACTER, altChoices, defaultChoices, simulateStory, type Choices } from "../lib/story";
 import { downloadPlan } from "../lib/pdf";
 import { money, compact, axisMoney } from "../lib/format";
 import { AskRipple, Button, Card, EstimateTag, RippleMark, cx, tooltipStyle } from "../components/ui";
@@ -108,7 +108,7 @@ export default function Future() {
         <div className="lg:col-span-3">
           <Card>
             <div className="flex items-center justify-between">
-              <div><div className="font-semibold">Alex's projected net worth</div><div className="text-[13px] text-slate-500">Updates with every choice · future dollars</div></div>
+              <div><div className="font-semibold">Dave's projected net worth</div><div className="text-[13px] text-slate-500">Updates with every choice · future dollars</div></div>
               <EstimateTag />
             </div>
             <div className="mt-4 grid grid-cols-3 gap-2">
@@ -138,7 +138,7 @@ export default function Future() {
               <span className="flex items-center gap-1.5"><i className="h-0.5 w-4 bg-navy" /> Today's buying power</span>
               {d.year > 0 && d.id !== "retire" && <span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-amber" /> You are here</span>}
             </div>
-            <p className="mt-3 text-[12px] text-slate-400">Choices you haven't made yet use a middle-of-the-road default.</p>
+            <p className="mt-3 text-[12px] text-slate-400">Choices you haven't made yet use a middle-of-the-road default. Dave's PSERS pension and Social Security aren't counted in net worth.</p>
           </Card>
         </div>
       </div>
@@ -152,7 +152,7 @@ function Intro({ onStart }: { onStart: () => void }) {
       <div className="mx-auto w-fit"><RippleMark size={64} /></div>
       <div className="mt-5 text-sm font-bold uppercase tracking-wider text-emerald-600">Choose Your Financial Future</div>
       <h1 className="mt-2 font-display text-4xl sm:text-5xl font-semibold leading-tight">Ten choices. Thirty years.<br />Two possible futures.</h1>
-      <p className="mx-auto mt-4 max-w-xl text-lg text-slate-600">Meet <b>Alex</b>. Alex is 30, earns <b>{money(STORY_START.salary)}</b> a year, and has <b>{money(STORY_START.savings)}</b> in savings. You make Alex's money decisions and handle life's surprises. Watch each choice ripple across the decades.</p>
+      <p className="mx-auto mt-4 max-w-xl text-lg text-slate-600">Meet <b>Dave</b>, 50, head custodian at a Pennsylvania high school. With his wife Linda's part-time job they earn <b>{money(STORY_START.salary)}</b> a year and have <b>{money(STORY_START.savings)}</b> saved. Emma (17) and Jake (15) are almost done with high school. You make Dave's money decisions and handle life's surprises. Watch each choice ripple across the years.</p>
       <div className="mx-auto mt-8 grid max-w-xl grid-cols-3 gap-3">
         {[["🧭", "4 planning choices"], ["⚡", "5 life events"], ["🏁", "1 retirement call"]].map(([e, t]) => (
           <div key={t} className="rounded-2xl bg-white p-4 shadow-card ring-1 ring-slate-200"><div className="text-3xl">{e}</div><div className="mt-1 text-[14px] font-semibold">{t}</div></div>
@@ -173,7 +173,7 @@ function Finale({ choices, onReplay, onPdf }: { choices: Choices; onReplay: () =
   const insights = [
     `Path A (your choices) could reach about ${compact(A.y30.netWorth)} in 30 years. Path B could reach about ${compact(B.y30.netWorth)}, a difference of ${compact(Math.abs(gap))}.`,
     `At their retirement ages, Path A has about ${compact(A.retireRow.netWorth)} at ${A.retireAge} and Path B about ${compact(B.retireRow.netWorth)} at ${B.retireAge}.`,
-    `Credit-card interest paid: ${money(A.interestPaid)} on Path A vs ${money(B.interestPaid)} on Path B. Unclaimed employer match: ${compact(A.missedMatch)} vs ${compact(B.missedMatch)}.`,
+    `Interest paid on cards & college loans: ${money(A.interestPaid)} on Path A vs ${money(B.interestPaid)} on Path B. Family share of college paid: ${compact(A.collegePaid)} vs ${compact(B.collegePaid)}.`,
   ];
   const differing = DECISIONS.filter((d) => choices[d.id] !== b[d.id]);
 
@@ -235,7 +235,7 @@ function Finale({ choices, onReplay, onPdf }: { choices: Choices; onReplay: () =
       </Card>
 
       <div className="mt-5">
-        <AskRipple title="Next Step compares your two futures" ctx={{ page: "choose your financial future", module: "Choose Your Financial Future", inputs: { character: "Alex, 30, $75k salary, $15k savings", pathA: Object.fromEntries(DECISIONS.map((d) => [d.title, d.options.find((o) => o.id === choices[d.id])?.label])), pathB: Object.fromEntries(DECISIONS.map((d) => [d.title, d.options.find((o) => o.id === b[d.id])?.label])) }, results: { pathA: { in10: Math.round(A.y10.netWorth), in20: Math.round(A.y20.netWorth), in30: Math.round(A.y30.netWorth), atRetirement: Math.round(A.retireRow.netWorth), retireAge: A.retireAge, cardInterest: Math.round(A.interestPaid), missedMatch: Math.round(A.missedMatch) }, pathB: { in10: Math.round(B.y10.netWorth), in20: Math.round(B.y20.netWorth), in30: Math.round(B.y30.netWorth), atRetirement: Math.round(B.retireRow.netWorth), retireAge: B.retireAge, cardInterest: Math.round(B.interestPaid), missedMatch: Math.round(B.missedMatch) } }, insights }}
+        <AskRipple title="Next Step compares your two futures" ctx={{ page: "choose your financial future", module: "Choose Your Financial Future", inputs: { character: STORY_CHARACTER, pathA: Object.fromEntries(DECISIONS.map((d) => [d.title, d.options.find((o) => o.id === choices[d.id])?.label])), pathB: Object.fromEntries(DECISIONS.map((d) => [d.title, d.options.find((o) => o.id === b[d.id])?.label])) }, results: { pathA: { in10: Math.round(A.y10.netWorth), in20: Math.round(A.y20.netWorth), in30: Math.round(A.y30.netWorth), atRetirement: Math.round(A.retireRow.netWorth), retireAge: A.retireAge, interestPaid: Math.round(A.interestPaid), collegePaid: Math.round(A.collegePaid) }, pathB: { in10: Math.round(B.y10.netWorth), in20: Math.round(B.y20.netWorth), in30: Math.round(B.y30.netWorth), atRetirement: Math.round(B.retireRow.netWorth), retireAge: B.retireAge, interestPaid: Math.round(B.interestPaid), collegePaid: Math.round(B.collegePaid) } }, insights }}
           prompts={["Which decisions mattered most, and why?", "What tradeoffs did Path A make?", "What can't this simulation predict?"]} />
       </div>
       <Card className="mt-5 bg-amber-soft/60">

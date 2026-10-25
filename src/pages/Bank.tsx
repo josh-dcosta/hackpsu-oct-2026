@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Area, AreaChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight, FastForward, ShieldCheck, Wallet, PiggyBank } from "lucide-react";
 import { useSim, useStore } from "../lib/store";
-import { growMonthly } from "../lib/calc";
+import { growMonthly, emergencyFund } from "../lib/calc";
 import { RULES } from "../lib/rules";
 import { money, axisMoney } from "../lib/format";
 import { AskRipple, Button, Card, EstimateTag, Examples, NumberField, Quiz, ResetButton, Section, Segmented, Slider, Stat, Takeaway, tooltipStyle, cx } from "../components/ui";
@@ -77,13 +77,15 @@ export default function Bank() {
 
   const years = s.month / 12;
   const realSavings = s.savings / Math.pow(1.03, years);
-  const typeCompare = (() => {
-    const types = [{ k: "Checking", r: 0.0001 }, { k: "Traditional savings", r: 0.004 }, { k: "High-yield savings", r: 0.04 }, { k: "5-yr CD", r: 0.042 }];
-    const rows = Array.from({ length: 11 }, (_, y) => ({ year: y } as Record<string, number>));
-    types.forEach((t) => growMonthly({ start: 5000, monthly: 0, annualRate: t.r, years: 10 }).forEach((g, i) => (rows[i][t.k] = g.balance)));
-    return rows;
-  })();
-  const simpleVsCompound = Array.from({ length: 31 }, (_, y) => ({ year: y, Simple: 1000 * (1 + 0.05 * y), Compound: 1000 * Math.pow(1.05, y) }));
+  // Compounding demo with Dave's own savings: 17 years until retirement
+  const compoundRows = Array.from({ length: 18 }, (_, y) => ({
+    year: y,
+    "High-yield 4% (compound)": growMonthly({ start: 4000, monthly: 0, annualRate: 0.04, years: y }).at(-1)!.balance,
+    "4% simple interest": 4000 * (1 + 0.04 * y),
+    "Regular bank 0.5%": growMonthly({ start: 4000, monthly: 0, annualRate: 0.005, years: y }).at(-1)!.balance,
+  }));
+  const lastC = compoundRows[compoundRows.length - 1];
+  const ef = emergencyFund({ essentials: 3000, targetMonths: 3, saved: s.savings, monthlySave: 150 });
   const insights = [
     `Your pretend savings of ${money(s.savings)} earn ${s.apy}% APY, about ${money(s.savings * (Math.pow(1 + s.apy / 100, 1 / 12) - 1), { cents: true })} next month.`,
     s.month > 0 ? `After ${s.month} months you've earned ${money(s.interest, { cents: true })} in interest without lifting a finger. That's compound interest.` : "Tap 'fast-forward' to watch interest pile up month by month.",
@@ -97,7 +99,7 @@ export default function Bank() {
         <div>
           <div className="text-[13px] font-semibold text-slate-500">Lesson D · Pretend money only</div>
           <h1 className="font-display text-3xl sm:text-4xl font-semibold">Virtual Bank</h1>
-          <p className="mt-1 text-lg text-slate-500">You start with $5,000 of fictional money. Move it around, then fast-forward time.</p>
+          <p className="mt-1 text-lg text-slate-500">Dave's $6,000 cushion, in pretend money: $2,000 in checking and $4,000 in savings. Move it around, then fast-forward time.</p>
         </div>
       </div>
 
@@ -188,76 +190,76 @@ export default function Bank() {
       </div>
       <div className="mt-2"><EstimateTag>Fictional bank, fictional money. Real rates vary and can change.</EstimateTag></div>
 
-      <Section kicker="Learn" title="Banking basics">
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card>
-            <div className="font-semibold">Simple vs. compound interest</div>
-            <p className="text-[15px] text-slate-600">$1,000 at 5% for 30 years. Simple interest pays only on the original $1,000. Compound interest also pays on past interest.</p>
-            <div className="mt-3 h-48">
-              <ResponsiveContainer>
-                <LineChart data={simpleVsCompound} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                  <CartesianGrid stroke="#EEF2F7" vertical={false} />
-                  <XAxis dataKey="year" tick={{ fontSize: 11, fill: "#64748B" }} tickLine={false} axisLine={false} />
-                  <YAxis tickFormatter={axisMoney} tick={{ fontSize: 11, fill: "#64748B" }} tickLine={false} axisLine={false} width={48} />
-                  <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Year ${l}`} formatter={(v, n) => [money(Number(v)), n]} />
-                  <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Line dataKey="Simple" stroke="#94A3B8" strokeWidth={2.5} dot={false} />
-                  <Line dataKey="Compound" stroke="#10B981" strokeWidth={3} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
+      <Section n={1} kicker="Your safety net" title="Emergency fund">
+        <Card>
+          <p className="text-lg leading-relaxed text-slate-700">An <b>emergency fund</b> is money set aside <b>only</b> for surprises, like a furnace that dies in January, a car repair, or fewer hours over the summer. It keeps a bad week from turning into credit-card debt at 22% interest.</p>
+          <p className="mt-3 text-lg leading-relaxed text-slate-700">A common goal is <b>3–6 months of essential expenses</b>, kept in savings where it's safe and easy to reach. It's not meant to grow fast. It's meant to be there.</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <Stat label="Dave's essentials" value={money(3000) + "/mo"} sub="Mortgage, food, utilities, insurance" />
+            <Stat label="3-month goal" value={money(ef.target)} tone="sky" />
+            <Stat label="In savings now" value={money(s.savings)} tone="green" sub={ef.gap === 0 ? "Goal reached! 🎉" : `${money(ef.gap)} to go · ~${ef.months} months at $150/mo`} />
+          </div>
+          <div className="mt-3 h-4 overflow-hidden rounded-full bg-slate-100"><motion.div className="h-4 rounded-full bg-emerald-500" animate={{ width: `${ef.progress * 100}%` }} /></div>
+          <p className="mt-2 text-[14px] text-slate-500">Try it: move money from Checking to Savings above and watch the bar fill.</p>
+        </Card>
+      </Section>
+
+      <Section n={2} kicker="Is my money safe?" title="FDIC insurance">
+        <Card>
+          <p className="text-lg leading-relaxed text-slate-700">If an FDIC-insured bank fails, the U.S. government's <b>FDIC</b> protects your deposits up to <b>{money(RULES.fdic.insuredPerDepositorPerBankPerCategory)}</b> per depositor, per bank, for each ownership category. Since the FDIC began in 1934, no depositor has lost a penny of FDIC-insured funds.</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl bg-emerald-50 p-5">
+              <div className="font-semibold text-emerald-800">✅ Covered</div>
+              <ul className="mt-2 space-y-1 text-[15px] text-slate-700"><li>Checking accounts</li><li>Savings & high-yield savings accounts</li><li>Money market deposit accounts</li><li>Certificates of deposit (CDs)</li></ul>
             </div>
-            <p className="text-[14px] text-slate-600">After 30 years: <b>{money(2500)}</b> simple vs. <b>{money(1000 * Math.pow(1.05, 30))}</b> compound.</p>
-          </Card>
-          <Card>
-            <div className="font-semibold">Comparing account types</div>
-            <p className="text-[15px] text-slate-600">$5,000 left alone for 10 years at typical example rates.</p>
-            <div className="mt-3 h-48">
-              <ResponsiveContainer>
-                <LineChart data={typeCompare} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                  <CartesianGrid stroke="#EEF2F7" vertical={false} />
-                  <XAxis dataKey="year" tick={{ fontSize: 11, fill: "#64748B" }} tickLine={false} axisLine={false} />
-                  <YAxis tickFormatter={axisMoney} tick={{ fontSize: 11, fill: "#64748B" }} tickLine={false} axisLine={false} width={48} domain={[4800, "auto"]} />
-                  <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Year ${l}`} formatter={(v, n) => [money(Number(v)), n]} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Line dataKey="Checking" stroke="#94A3B8" strokeWidth={2} dot={false} />
-                  <Line dataKey="Traditional savings" stroke="#38BDF8" strokeWidth={2} dot={false} />
-                  <Line dataKey="High-yield savings" stroke="#10B981" strokeWidth={3} dot={false} />
-                  <Line dataKey="5-yr CD" stroke="#6366F1" strokeWidth={2} dot={false} strokeDasharray="5 3" />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className="rounded-2xl bg-orange-50 p-5">
+              <div className="font-semibold text-orange-800">❌ Not covered</div>
+              <ul className="mt-2 space-y-1 text-[15px] text-slate-700"><li>Stocks, bonds & mutual funds</li><li>Crypto</li><li>Annuities & life insurance</li><li>Safe deposit box contents</li></ul>
             </div>
-            <p className="text-[13px] text-slate-500">CDs lock your money for a set term; withdrawing early usually costs a penalty.</p>
-          </Card>
-        </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            ["💳 Checking vs. savings", "Checking is for daily spending, with easy access and little interest. Savings is for money you're setting aside, and it earns more."],
-            ["📊 APY vs. APR", simple ? "APY is what savings actually earn in a year, including compounding. APR is the yearly rate on loans, before compounding." : "APY = (1 + APR/n)ⁿ − 1. Compare APYs for savings and APRs for borrowing."],
-            ["🛡️ FDIC insurance", `Deposits at FDIC-insured banks are protected up to ${money(RULES.fdic.insuredPerDepositorPerBankPerCategory)} per depositor, per bank, per ownership category. Stocks and crypto aren't covered.`],
-            ["🛟 Emergency fund", "Keep 3–6 months of essential expenses in savings, so a surprise bill doesn't become debt."],
-          ].map(([t, d]) => <Card key={t} className="p-4 sm:p-5"><div className="font-semibold">{t}</div><p className="mt-1 text-[14px] text-slate-600">{d}</p></Card>)}
-        </div>
+          </div>
+          <p className="mt-3 text-[14px] text-slate-500">Before opening an account, look for "Member FDIC" or check the bank with the FDIC's BankFind tool at fdic.gov. Credit unions have similar protection through the NCUA.</p>
+        </Card>
+      </Section>
+
+      <Section n={3} kicker="Money that grows itself" title="Compounding">
+        <Card>
+          <p className="text-lg leading-relaxed text-slate-700"><b>Compound interest</b> means you earn interest on your savings <b>and</b> on the interest you've already earned. Like a snowball rolling downhill, it starts small and speeds up over time.</p>
+          <p className="mt-2 text-[15px] text-slate-600">Dave's {money(4000)} in savings over the 17 years until he turns 67, left alone:</p>
+          <div className="mt-3 h-60">
+            <ResponsiveContainer>
+              <LineChart data={compoundRows} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid stroke="#EEF2F7" vertical={false} />
+                <XAxis dataKey="year" tickFormatter={(v) => `Yr ${v}`} tick={{ fontSize: 11, fill: "#64748B" }} tickLine={false} axisLine={false} />
+                <YAxis tickFormatter={axisMoney} tick={{ fontSize: 11, fill: "#64748B" }} tickLine={false} axisLine={false} width={48} domain={[3800, "auto"]} />
+                <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Year ${l}`} formatter={(v, n) => [money(Number(v)), n]} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Line dataKey="High-yield 4% (compound)" stroke="#10B981" strokeWidth={3} dot={false} />
+                <Line dataKey="4% simple interest" stroke="#38BDF8" strokeWidth={2.5} dot={false} strokeDasharray="6 4" />
+                <Line dataKey="Regular bank 0.5%" stroke="#94A3B8" strokeWidth={2.5} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-3">
+            <Stat label="Regular bank 0.5%" value={money(lastC["Regular bank 0.5%"])} />
+            <Stat label="4% simple" value={money(lastC["4% simple interest"])} tone="sky" />
+            <Stat label="4% compound" value={money(lastC["High-yield 4% (compound)"])} tone="green" />
+          </div>
+          <p className="mt-3 text-[14px] text-slate-500">Try it: set the savings rate above to 4% and tap "+5 years" to watch compounding happen in your pretend account.</p>
+        </Card>
       </Section>
 
       <Section kicker="Next Step explains" title="What just happened to my money?">
-        <AskRipple ctx={{ page: "virtual bank", module: "Virtual Bank", inputs: { apy: s.apy + "%", monthsElapsed: s.month }, results: { checking: Math.round(s.checking * 100) / 100, savings: Math.round(s.savings * 100) / 100, interestEarned: Math.round(s.interest * 100) / 100, savingsInTodaysDollarsAt3pctInflation: Math.round(realSavings) }, insights }}
-          prompts={["How does compound interest work here?", "What's the difference between APY and APR?", "Is my money safe in a bank?"]} />
-      </Section>
-      <Section kicker="Real life" title="Everyday banking moves">
-        <Examples items={[
-          { emoji: "🔁", title: "Pay yourself first", text: "Set an automatic transfer to savings on payday, before you have a chance to spend it." },
-          { emoji: "🔎", title: "Shop for APY", text: "Online banks often pay much higher savings rates than big branch banks. Check that they're FDIC-insured." },
-          { emoji: "🚫", title: "Avoid fees", text: "Overdraft and monthly fees can wipe out any interest you earn. Many accounts waive them." },
-        ]} />
+        <AskRipple ctx={{ page: "virtual bank", module: "Virtual Bank: emergency fund, FDIC, compounding", inputs: { apy: s.apy + "%", monthsElapsed: s.month, essentialsMonthly: 3000, emergencyFundGoal: ef.target }, results: { checking: Math.round(s.checking * 100) / 100, savings: Math.round(s.savings * 100) / 100, interestEarned: Math.round(s.interest * 100) / 100, emergencyFundProgressPct: Math.round(ef.progress * 100), fourThousandAfter17yrs: { regularBank: Math.round(lastC["Regular bank 0.5%"]), simple4pct: Math.round(lastC["4% simple interest"]), compound4pct: Math.round(lastC["High-yield 4% (compound)"]) } }, insights }}
+          prompts={["How big should Dave's emergency fund be?", "Is our money safe if the bank fails?", "How does compounding work here?"]} />
       </Section>
       <Section kicker="Quick check" title="Test yourself">
         <Quiz id="bank" onComplete={finish} questions={[
-          { q: "When comparing savings accounts, which number should you compare?", options: ["APR", "APY", "Routing number"], answer: 1, why: "APY includes compounding, so it shows what you'll actually earn." },
-          { q: "FDIC insurance covers deposits up to…", options: ["$25,000", money(RULES.fdic.insuredPerDepositorPerBankPerCategory) + " per depositor, per bank, per category", "Unlimited"], answer: 1, why: "The standard insurance amount is $250,000 per depositor, per insured bank, per ownership category." },
+          { q: "What is an emergency fund for?", options: ["Vacations", "Unexpected costs like a broken furnace or car repair", "Buying stocks"], answer: 1, why: "It's a cushion for surprises, so they don't turn into high-interest debt." },
+          { q: "FDIC insurance protects deposits up to…", options: ["$25,000", money(RULES.fdic.insuredPerDepositorPerBankPerCategory) + " per depositor, per bank, per category", "Unlimited, including stocks"], answer: 1, why: "The standard amount is $250,000 per depositor, per insured bank, per ownership category. Stocks aren't covered." },
           { q: "Compound interest means…", options: ["Interest only on what you deposited", "Interest on your deposits AND on past interest", "A bank fee"], answer: 1, why: "Interest earns interest, which is why growth speeds up over time." },
         ]} />
       </Section>
-      <Takeaway>Keep spending money in checking, park your cushion in a high-yield savings account, and let compound interest quietly work.</Takeaway>
+      <Takeaway>Build a cushion first, keep it somewhere FDIC-insured, and let compound interest quietly do the work.</Takeaway>
     </div>
   );
 }

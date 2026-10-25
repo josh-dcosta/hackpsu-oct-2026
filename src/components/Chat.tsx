@@ -6,11 +6,11 @@ import { askRipple } from "../lib/ripple";
 import { RichText, RippleMark, cx } from "./ui";
 
 const STARTERS = [
-  "Why does inflation matter for my savings?",
-  "Why does raising my 401(k) from 5% to 10% make such a big difference?",
-  "What's the difference between a Roth IRA and a Traditional IRA?",
-  "How big should my emergency fund be?",
-  "What should I learn next?",
+  "How will Emma's and Jake's college costs affect our savings?",
+  "How does inflation affect our $6,000 in savings?",
+  "Is Dave's PSERS pension enough to retire on?",
+  "How big should our emergency fund be?",
+  "What should Dave learn next?",
 ];
 
 export function Chat({ compact }: { compact?: boolean }) {

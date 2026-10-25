@@ -70,7 +70,7 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
   if (o.story.finished) {
     const mine = simulateStory(o.story.choices), alt = simulateStory(altChoices(o.story.choices));
     h2("3. Choose Your Financial Future: two paths");
-    para("A fictional 30-year-old earning $75,000. Path A is my choices. Path B is the road not taken.", 9.5, SLATE);
+    para("Dave, 50, head custodian at a PA high school (household income $64,000, kids Emma 17 and Jake 15). Path A is my choices. Path B is the road not taken.", 9.5, SLATE);
     row(["", "In 10 years", "In 20 years", "In 30 years", `At retirement`], [120, 95, 95, 95, 110], true, NAVY);
     row(["Path A (mine)", money(mine.y10.netWorth), money(mine.y20.netWorth), money(mine.y30.netWorth), money(mine.retireRow.netWorth)], [120, 95, 95, 95, 110]);
     row(["Path B", money(alt.y10.netWorth), money(alt.y20.netWorth), money(alt.y30.netWorth), money(alt.retireRow.netWorth)], [120, 95, 95, 95, 110], false, [248, 250, 252]);

@@ -1,11 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DEFAULT_ASSUMPTIONS, type Assumptions, type Profile } from "./calc";
 import type { Choices } from "./story";
+import { DAVE_PROFILE, DAVE_ASSUMPTIONS, DAVE_SIMS } from "../data/dave";
 
 export const SAMPLE_PROFILES: Record<string, Omit<Profile, "goals" | "level" | "onboarded" | "name">> = {
   "25–35": { ageRange: "25–35", age: 30, income: 75_000, expenses: 3_600, savings: 15_000, retirement: 12_000 },
   "35–45": { ageRange: "35–45", age: 40, income: 95_000, expenses: 5_200, savings: 25_000, retirement: 85_000 },
-  "45–55": { ageRange: "45–55", age: 50, income: 105_000, expenses: 5_800, savings: 35_000, retirement: 210_000 },
+  "45–55": { ageRange: "45–55", age: 50, income: 64_000, expenses: 3_600, savings: 6_000, retirement: 22_000 }, // Dave
   "55–65": { ageRange: "55–65", age: 60, income: 98_000, expenses: 5_000, savings: 50_000, retirement: 390_000 },
 };
 
@@ -39,13 +40,13 @@ type State = {
 };
 
 const DEFAULT: State = {
-  profile: { ...SAMPLE_PROFILES["25–35"], goals: ["Retire comfortably", "Build an emergency fund"], level: "Beginner", onboarded: false },
-  assumptions: DEFAULT_ASSUMPTIONS,
+  profile: { ...DAVE_PROFILE },
+  assumptions: { ...DAVE_ASSUMPTIONS },
   xp: 0, badges: [], done: [], touched: [], quiz: {}, simple: true, bigText: false, asked: 0, chat: [],
   story: { choices: {}, step: 0, finished: false }, sims: {},
 };
 
-const KEY = "ripple-v1";
+const KEY = "nextstep-dave-v1";
 function load(): State {
   try { const raw = localStorage.getItem(KEY); if (raw) return { ...DEFAULT, ...JSON.parse(raw) }; } catch { /* ignore */ }
   return DEFAULT;
@@ -140,8 +141,9 @@ export function useStore() {
 /** Persisted simulator settings: like useState but saved per module, with reset. */
 export function useSim<T extends Record<string, unknown>>(id: string, defaults: T) {
   const { sims, saveSim, touch } = useStore();
-  const value = { ...defaults, ...((sims[id] as Partial<T>) || {}) } as T;
+  const base = { ...defaults, ...((DAVE_SIMS[id] as Partial<T>) || {}) } as T; // Dave's scenario preloaded
+  const value = { ...base, ...((sims[id] as Partial<T>) || {}) } as T;
   const update = (patch: Partial<T>) => { saveSim(id, { ...value, ...patch }); touch(id); };
-  const reset = () => saveSim(id, defaults);
+  const reset = () => saveSim(id, base);
   return [value, update, reset] as const;
 }

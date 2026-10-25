@@ -19,12 +19,17 @@ Built for HackPSU (October 2026).
 - **Download my plan (PDF)**: personal snapshot, projections, both story paths, takeaways.
 - **Accessibility**: big touch targets, Simple/Detailed toggle, large-text mode, keyboard focus styles, labeled controls, reduced-motion support. Mobile bottom tabs + desktop sidebar.
 
-## 3–5 minute demo script
-1. Open the site → **Try a demo profile** (or answer the 8 questions).
-2. Dashboard: drag **401(k) contribution** and **Retirement age**, toggle **Future $ / Today's $**.
-3. **Learn → Inflation**: pick "Year of college", slide to 2056, watch $100 shrink.
-4. **Learn → 401(k)**: move 5% → 10%, tap **"Why does going from 5% to 10% make such a big difference?"**
-5. **Choose Your Financial Future**: make the 10 choices, then see **Two possible futures**, remix Path B, ask Next Step to compare, download the PDF.
+## 3–5 minute demo script: Dave's scenario (preloaded)
+**Dave, 50**, head custodian at a Pennsylvania public high school (~$22/hr). Household income $64,000 with his wife Linda's part-time job, $6,000 saved, $22,000 for retirement plus a PSERS pension. Emma (17) and Jake (15) head to college soon. All of Dave's values live in `src/data/dave.ts`.
+
+1. Open the site → **Start as Dave** (or **Walk through Dave's answers** to show onboarding).
+2. **Dashboard**: "At 67, you could have $304k" (≈ $184k in today's money). Point to **Big costs ahead: college**: Emma ≈ $97k, Jake ≈ $105k for 4 years. Switch to **😟 Rough**: money runs short around 77.
+3. **Learn → Inflation**: a PA state university year: $22,000 → ~$24,700 by Jake's freshman year.
+4. **Learn → College**: tap **Emma**, then **Jake**, then **"If Dave had started when Jake was 2"**.
+5. **Virtual Bank**: emergency fund ($9,000 goal), FDIC, compounding: slide APY 0.5% → 4% and tap **+5 years**.
+6. **Choose Your Financial Future**: Dave's 10 decisions (savings, extra 457(b), bank vs. high-yield, mix, Emma's & Jake's college paths, furnace, union raise, market drop, retirement age) → **Two possible futures** → ask Next Step to compare → **Download my plan (PDF)**.
+
+To reset the demo between judges: **Progress → Start over**.
 
 ## Tech
 React + TypeScript + Vite · Tailwind · Recharts · Framer Motion · Lucide · jsPDF · Express (serves the app + `/api/ripple`) · Anthropic Claude API (server-side only) · localStorage for progress.
