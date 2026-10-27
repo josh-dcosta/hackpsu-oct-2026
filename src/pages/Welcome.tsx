@@ -3,7 +3,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Lock, Sparkles } from "lucide-react";
 import { useStore, SAMPLE_PROFILES, loadMine, clearMine } from "../lib/store";
 import { Button, Slider, cx } from "../components/ui";
-import { Logo } from "../components/Brand";
+import { Logo, Wordmark, WorkerIcon } from "../components/Brand";
+import { SiteMenu } from "../components/SiteMenu";
+import { Journey } from "./About";
 import { money } from "../lib/format";
 import type { Profile } from "../lib/calc";
 import { DAVE, DAVE_PROFILE, DAVE_ASSUMPTIONS, CUSTOM_PROFILE, CUSTOM_ASSUMPTIONS } from "../data/dave";
@@ -73,45 +75,59 @@ export default function Welcome() {
   const custom = p.scenario === "custom";
 
   const steps = [
-    // 0 — the Why
-    <div key="intro" className="text-center">
-      <div className="mx-auto w-fit"><Logo size={72} /></div>
-      <h1 className="mt-6 font-display text-4xl sm:text-6xl font-semibold leading-[1.05] tracking-tight">See tomorrow<br />before you spend today.</h1>
-      <p className="mx-auto mt-5 max-w-lg text-lg sm:text-xl text-slate-600">Every money choice you make sends ripples into your future. Next Step shows you where they land, <span className="text-emerald-600 font-semibold">before</span> you make them.</p>
-      <div className="mx-auto mt-9 grid max-w-3xl gap-4 text-left sm:grid-cols-2">
+    // 0 — what this is, then two ways in
+    <div key="intro">
+      <div className="text-center">
+        <h1 className="font-display text-4xl sm:text-6xl font-semibold leading-[1.05] tracking-tight">See tomorrow before you spend today.</h1>
+        <p className="mx-auto mt-5 max-w-4xl text-lg sm:text-xl leading-relaxed text-slate-600">
+          <b className="text-navy">Next Step</b> is a free, simple money simulator for everyday working people. It started as my entry to <b className="text-navy">HackPSU</b> at Penn State,
+          where the challenge was to use AI to help people turn <b className="text-navy">information</b> into <b className="text-navy">understanding</b>, understanding into <b className="text-navy">confidence</b>,
+          and confidence into <b className="text-navy">action</b>. It answers one honest question, <i>"Will I have enough money to pay my bills after I retire?"</i>, then shows the small,
+          safe moves that make the biggest difference and turns them into real next steps.
+        </p>
+      </div>
+      <div className="mt-8"><Journey /></div>
+
+      <div className="mt-12 text-center">
+        <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">Two ways to start</div>
+        <h2 className="mt-1 font-display text-3xl font-semibold">Try the demo, or use your own numbers</h2>
+        <p className="mx-auto mt-2 max-w-3xl text-[16px] text-slate-600">The <b>demo scenario</b> has every number filled in for Dave, a school custodian, so you can see how everything works in a minute. When you're ready, <b>use your own numbers</b> to get your own answer, plan and next steps.</p>
+      </div>
+      <div className="mt-6 grid gap-5 text-left md:grid-cols-2">
         {/* Demo */}
-        <div className="flex flex-col rounded-3xl bg-white p-6 shadow-card ring-1 ring-slate-200">
-          <div className="flex items-center gap-3">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-2xl">🧹</span>
-            <div><div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">See how it works</div><div className="font-display text-xl font-semibold">Dave's demo scenario</div></div>
+        <div className="relative flex flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-emerald-600 to-emerald-700 p-6 sm:p-7 text-white shadow-card">
+          <svg aria-hidden className="pointer-events-none absolute -right-6 -top-6 h-48 w-48 opacity-[.13]" viewBox="0 0 40 40"><rect x="5" y="25" width="9" height="9" rx="2" fill="#fff" /><rect x="15.5" y="18" width="9" height="16" rx="2" fill="#fff" /><rect x="26" y="11" width="9" height="23" rx="2" fill="#fff" /></svg>
+          <div className="relative flex items-center gap-4">
+            <WorkerIcon size={60} />
+            <div><div className="text-[12px] font-bold uppercase tracking-wider text-emerald-100">See how it works</div><div className="font-display text-2xl font-semibold">Demo scenario</div></div>
           </div>
-          <p className="mt-3 flex-1 text-[15px] text-slate-600">Dave, 50, is a head custodian at a Pennsylvania public high school, earning about ${DAVE.hourly}/hour. With Linda's part-time job they bring in <b>$64,000</b> a year, have <b>$6,000</b> saved, and two kids, <b>Emma (17)</b> and <b>Jake (15)</b>, heading to college soon.</p>
-          <Button onClick={demo} className="mt-4 w-full text-lg"><Sparkles size={18} /> Explore Dave's demo</Button>
-          <button onClick={walkDave} className="mt-2 flex items-center justify-center gap-1.5 rounded-xl py-2 text-sm font-semibold text-slate-500 hover:text-navy"><PlayCircle size={15} /> Walk through Dave's answers first</button>
+          <p className="relative mt-4 flex-1 text-[16px] leading-relaxed text-emerald-50">Dave, 50, is a head custodian at a Pennsylvania public high school, earning about ${DAVE.hourly}/hour. With Linda's part-time job they bring in <b className="text-white">$64,000</b> a year, have <b className="text-white">$6,000</b> saved, and two kids, <b className="text-white">Emma (17)</b> and <b className="text-white">Jake (15)</b>, heading to college soon.</p>
+          <button onClick={walkDave} className="relative mt-4 flex items-center justify-center gap-1.5 rounded-xl py-2 text-[15px] font-semibold text-white/90 underline-offset-4 hover:text-white hover:underline"><PlayCircle size={16} /> Walk through Dave's answers first</button>
+          <button onClick={demo} className="relative mt-1 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-lg font-semibold text-emerald-700 shadow-lg shadow-emerald-900/20 hover:bg-emerald-50"><Sparkles size={18} /> Explore Dave's demo</button>
         </div>
         {/* Own */}
-        <div className="flex flex-col rounded-3xl bg-navy p-6 text-white shadow-card">
-          <div className="flex items-center gap-3">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-2xl">🙋</span>
-            <div><div className="text-[12px] font-bold uppercase tracking-wider text-emerald-300">{mine ? "Welcome back" : "Make it yours"}</div><div className="font-display text-xl font-semibold">{mine ? `${mine.profile.name || "Your"}${mine.profile.name ? "'s" : ""} numbers` : "Use my own numbers"}</div></div>
+        <div className="flex flex-col rounded-3xl bg-navy p-6 sm:p-7 text-white shadow-card">
+          <div className="flex items-center gap-4">
+            <span className="grid h-[60px] w-[60px] shrink-0 place-items-center rounded-2xl bg-white/10 text-3xl">🙋</span>
+            <div><div className="text-[12px] font-bold uppercase tracking-wider text-emerald-300">{mine ? "Welcome back" : "Make it yours"}</div><div className="font-display text-2xl font-semibold">{mine ? `${mine.profile.name || "Your"}${mine.profile.name ? "'s" : ""} numbers` : "Use my own numbers"}</div></div>
           </div>
-          <p className="mt-3 flex-1 text-[15px] text-slate-300">{mine
+          <p className="mt-4 flex-1 text-[16px] leading-relaxed text-slate-300">{mine
             ? `Pick up where you left off: ${money(mine.profile.income)} a year${mine.profile.kids?.length ? `, ${mine.profile.kids.length} ${mine.profile.kids.length === 1 ? "child" : "children"}` : ""}, and your plan and next steps saved on this device.`
-            : "Answer a few quick questions (about 2 minutes) and see your own retirement answer, plan and next steps. Rough guesses are fine."}</p>
+            : "Answer a few quick questions (about 2 minutes): age, kids, income, monthly bills and savings. See your own retirement answer, plan and next steps. Rough guesses are fine."}</p>
           {mine ? (
             <>
-              <button onClick={continueMine} className="mt-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 text-[17px] font-semibold text-white hover:bg-emerald-600 whitespace-nowrap"><UserRound size={18} /> Continue with my numbers</button>
-              <div className="mt-2 flex justify-center gap-4">
+              <div className="mt-4 flex justify-center gap-4">
                 <button onClick={ownNumbers} className="flex items-center gap-1.5 rounded-xl py-2 text-sm font-semibold text-slate-300 hover:text-white"><Pencil size={14} /> Edit my answers</button>
                 <button onClick={freshNumbers} className="rounded-xl py-2 text-sm font-semibold text-slate-400 hover:text-white">Start fresh</button>
               </div>
+              <button onClick={continueMine} className="mt-1 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 text-[17px] font-semibold text-white hover:bg-emerald-600 whitespace-nowrap"><UserRound size={18} /> Continue with my numbers</button>
             </>
           ) : (
-            <button onClick={ownNumbers} className="mt-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-lg font-semibold text-white hover:bg-emerald-600"><UserRound size={19} /> Enter my numbers <ArrowRight size={18} /></button>
+            <button onClick={ownNumbers} className="mt-4 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-lg font-semibold text-white hover:bg-emerald-600"><UserRound size={19} /> Enter my numbers <ArrowRight size={18} /></button>
           )}
         </div>
       </div>
-      <p className="mt-5 flex items-center justify-center gap-2 text-[14px] text-slate-500"><Lock size={14} /> No bank logins. No account numbers. Rough guesses are perfect.</p>
+      <p className="mt-6 flex items-center justify-center gap-2 text-center text-[14px] text-slate-500"><Lock size={14} /> No bank logins. No account numbers. Your numbers stay on your device. Educational, not financial advice.</p>
     </div>,
     <Q onBack={back} onNext={next} key="name" title={custom ? "First, what should we call you?" : "First, what should we call you?"} sub={custom ? "Optional. It just makes things friendlier." : "This is Dave's scenario. Every answer is filled in; just tap Continue."}>
       <label htmlFor="nm" className="sr-only">Your first name</label>
@@ -214,7 +230,15 @@ export default function Welcome() {
 
   return (
     <div className="ripple-bg min-h-screen">
-      <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-5 py-8">
+      {step === 0 && (
+        <header className="sticky top-0 z-30 border-b border-slate-200/60 bg-paper/80 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2.5 sm:px-6">
+            <a href="#/welcome" className="flex items-center gap-2.5"><Logo size={38} /><Wordmark /></a>
+            <SiteMenu className="w-full justify-center sm:w-auto" />
+          </div>
+        </header>
+      )}
+      <div className={cx("mx-auto flex flex-col px-4 sm:px-6", step === 0 ? "max-w-6xl py-10" : "min-h-screen max-w-2xl py-8")}>
         {step > 0 && step <= total && (
           <div className="mb-8 flex items-center gap-3" aria-label={`Step ${step} of ${total}`}>
             <Logo size={32} />

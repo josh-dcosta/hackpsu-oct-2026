@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Bar, CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ArrowRight, BookOpen, GraduationCap, CheckCircle2, AlertTriangle, ChevronDown } from "lucide-react";
+import { ArrowRight, GraduationCap, CheckCircle2, AlertTriangle, ChevronDown, Target, BarChart3, Zap, Compass, ListChecks, HelpCircle } from "lucide-react";
+import { WorkerIcon } from "../components/Brand";
 import { useStore } from "../lib/store";
 import { projectLife, simulate529 } from "../lib/calc";
 import { money, compact, pct, axisMoney } from "../lib/format";
@@ -122,6 +123,32 @@ export default function Dashboard() {
   const his = p.name ? `${p.name}'s` : "your";
   const nextLesson = nextLessonFor(done);
   const isDave = isDaveProfile(p);
+  const TABS = [
+    { id: "answer", label: "The answer", icon: Target },
+    { id: "money", label: "Where the money comes from", icon: BarChart3 },
+    { id: "moments", label: "Life moments", icon: Zap },
+    { id: "plan", label: "Build the plan", icon: Compass },
+    { id: "steps", label: "Next steps", icon: ListChecks },
+    ...((p.kids || []).some((k) => k.age < 18) ? [{ id: "college", label: "College", icon: GraduationCap }] : []),
+  ];
+  const [tab, setTab] = useState("answer");
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const go = (id: string) => {
+    setTab(id);
+    // If we've scrolled past the tabs, bring the top of the new section into view
+    const mark = tabsRef.current;
+    if (!mark) return;
+    const header = window.innerWidth >= 768 ? 64 : 104;
+    const y = mark.getBoundingClientRect().top + window.scrollY - header;
+    if (window.scrollY > y) window.scrollTo({ top: y, behavior: "smooth" });
+  };
+  // Life moments can send people to the plan tab to see what changed
+  useEffect(() => {
+    const on = (e: Event) => go((e as CustomEvent<string>).detail);
+    window.addEventListener("ns-tab", on);
+    return () => window.removeEventListener("ns-tab", on);
+  }, []);
+  const nextTab = TABS[TABS.findIndex((t) => t.id === tab) + 1];
   const kids = (p.kids || []).filter((k) => k.age < 18).map((k) => ({ ...k, r: simulate529({ childAge: k.age, collegeAge: 18, costNow: DAVE.collegeCostToday, tuitionInflation: 0.04, monthly: 0, returnRate: 0.04, balance: 0 }) }));
 
   // The one question: after retirement, are the monthly bills covered?
@@ -147,25 +174,61 @@ export default function Dashboard() {
 
   return (
     <div>
-      {/* Scenario switcher */}
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow-card ring-1 ring-slate-200">
-        <div className="flex items-center gap-2 text-[15px]">
-          <span className="text-xl">{isDave ? "🧹" : "🙋"}</span>
-          <span>Viewing <b>{isDave ? "Dave's demo scenario" : `${p.name ? p.name + "'s" : "your"} own numbers`}</b></span>
+      {/* Who this is: the scenario at a glance */}
+      <div className={"mb-4 rounded-3xl p-5 sm:p-6 shadow-card ring-1 " + (isDave ? "bg-gradient-to-br from-emerald-50 via-white to-amber-50 ring-emerald-200" : "bg-white ring-slate-200")}>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-start gap-4">
+            {isDave ? <WorkerIcon size={64} /> : <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-navy text-3xl">🙋</span>}
+            <div>
+              <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">{isDave ? "You're viewing the demo scenario" : "You're viewing your own numbers"}</div>
+              <div className="font-display text-2xl sm:text-3xl font-semibold">{isDave ? "Meet Dave" : p.name ? `${p.name}'s plan` : "Your plan"}</div>
+              <p className="mt-1 max-w-2xl text-[15px] text-slate-600">{isDave
+                ? `Head custodian at a Pennsylvania public high school, earning about $${DAVE.hourly} an hour. His wife Linda works part-time. Every number below is Dave's, already filled in.`
+                : `${p.job ? p.job + ". " : ""}Every number below comes from the answers you gave. Change them anytime.`}</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <a href={isDave ? "#/welcome" : "#/welcome?edit"} className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> {isDave ? "Use my own numbers" : "Edit my numbers"}</a>
+            {!isDave && <a href="#/welcome" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"><UserRound size={14} /> Try the demo</a>}
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <a href={isDave ? "#/welcome" : "#/welcome?edit"} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> {isDave ? "Use my own numbers" : "Edit my numbers"}</a>
-          {!isDave && <a href="#/welcome" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"><UserRound size={14} /> Try Dave's demo</a>}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {[
+            ["Age", `${p.age}`],
+            ["Household income", `${money(p.income)}/yr`],
+            ["Monthly bills", money(p.expenses)],
+            ["Savings", money(p.savings)],
+            ["Retirement savings", money(p.retirement)],
+            ...((p.kids || []).length ? [[(p.kids || []).length === 1 ? "Child" : "Children", (p.kids || []).map((k) => `${k.name} ${k.age}`).join(", ")]] : []),
+          ].map(([k, v]) => (
+            <span key={k} className="rounded-xl bg-white px-3 py-1.5 text-[14px] ring-1 ring-slate-200"><span className="text-slate-500">{k} </span><b className="num text-navy">{v}</b></span>
+          ))}
         </div>
       </div>
 
+      {/* Section tabs */}
+      <div ref={tabsRef} />
+      <div className="sticky top-[104px] md:top-16 z-20 -mx-4 mb-4 scroll-mt-28 bg-paper/90 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6">
+        <div role="tablist" aria-label="Dashboard sections" className="flex gap-1.5 overflow-x-auto rounded-2xl bg-white p-1.5 shadow-card ring-1 ring-slate-200 [scrollbar-width:none]">
+          {TABS.map((t) => (
+            <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => go(t.id)}
+              className={"inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2.5 text-[14px] font-semibold transition " + (tab === t.id ? "bg-navy text-white" : "text-slate-600 hover:bg-slate-100")}>
+              <t.icon size={16} className={tab === t.id ? "text-emerald-400" : ""} />{t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {tab === "answer" && <>
       {/* Hero: the answer, in one picture */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="hero-dark rounded-[2rem] p-6 sm:p-8 text-white overflow-hidden">
-        <div className="text-lg text-slate-300">Will {isDave ? "Dave" : "you"} have enough money to pay the bills after retiring at {a.retireAge}?</div>
-        <h1 className="mt-1 flex items-start gap-3 font-display text-3xl sm:text-5xl font-semibold leading-tight">
-          {ok ? <CheckCircle2 className="mt-1 h-9 w-9 shrink-0 text-emerald-400" /> : <AlertTriangle className="mt-1 h-9 w-9 shrink-0 text-amber" />}
-          <span>{ok ? <>Yes. The money lasts past age 90.</> : <>Not quite. Savings run out at <span className="text-amber">age {runsOut}</span>.</>}</span>
-        </h1>
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/15 px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-400/30"><HelpCircle size={14} /> The big question</div>
+        <h1 className="mt-3 font-display text-3xl sm:text-5xl font-semibold leading-tight">Will {isDave ? "Dave" : "you"} have enough money to pay the bills after retiring at {a.retireAge}?</h1>
+        <p className="mt-2 text-[15px] text-slate-400">This panel follows {isDave ? "Dave's" : "your"} savings from today to age 90 and checks every year of retirement.</p>
+        <div className={"mt-4 inline-flex items-start gap-2.5 rounded-2xl px-4 py-3 ring-1 " + (ok ? "bg-emerald-400/10 ring-emerald-400/30" : "bg-amber/10 ring-amber/30")}>
+          {ok ? <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-emerald-400" /> : <AlertTriangle className="mt-0.5 h-6 w-6 shrink-0 text-amber" />}
+          <span className="text-xl sm:text-2xl font-semibold"><span className="text-slate-300">Answer: </span>{ok ? <>Yes. The money lasts past age 90.</> : <>Not quite. Savings run out at <span className="text-amber">age {runsOut}</span>.</>}</span>
+        </div>
 
         {/* Retirement years: covered vs not */}
         <div className="mt-6">
@@ -206,9 +269,10 @@ export default function Dashboard() {
         </div>
         <div className="mt-3"><Verified dark source="fixed formulas, not AI guesses" /></div>
       </motion.div>
+      </>}
 
       {/* Where the monthly bill money comes from */}
-      <Card className="mt-5">
+      {tab === "money" && <Card>
         <h2 className="font-display text-2xl font-semibold">Where {isDave ? "Dave's" : "your"} monthly bill money comes from</h2>
         <div className="mt-3 flex flex-wrap gap-4 text-[14px]">
           <span className="flex items-center gap-2"><i className="h-3.5 w-3.5 rounded bg-navy" /> Pension + Social Security</span>
@@ -250,14 +314,14 @@ export default function Dashboard() {
           </div>
         )}
         <HowWeCalculate />
-      </Card>
+      </Card>}
 
-      <Moments />
-      <PlanBuilder />
-      <NextSteps />
+      {tab === "moments" && <div className="-mt-5"><Moments /></div>}
+      {tab === "plan" && <div className="-mt-5"><PlanBuilder /></div>}
+      {tab === "steps" && <div className="-mt-5"><NextSteps /></div>}
 
-      {kids.length > 0 && (
-        <Card className="mt-5">
+      {tab === "college" && kids.length > 0 && (
+        <Card>
           <div className="flex items-center gap-2 font-semibold"><GraduationCap className="text-sky-600" /> Big costs ahead: college</div>
           <p className="text-[14px] text-slate-500">A public in-state university costs about {money(DAVE.collegeCostToday)} a year today, before financial aid, and prices rise about 4% a year.</p>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
@@ -271,6 +335,13 @@ export default function Dashboard() {
           </div>
           <a href="#/learn/college" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700">Plan for it in the College lesson <ArrowRight size={14} /></a>
         </Card>
+      )}
+
+      {/* Next section */}
+      {nextTab && (
+        <div className="mt-5 flex justify-center">
+          <button onClick={() => go(nextTab.id)} className="inline-flex items-center gap-2 rounded-2xl bg-navy px-5 py-3 font-semibold text-white hover:bg-navy-800">Next: {nextTab.label} <ArrowRight size={17} /></button>
+        </div>
       )}
 
     </div>

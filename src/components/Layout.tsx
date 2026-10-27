@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Home, BookOpen, MessageCircle, CheckCircle2, Type, X } from "lucide-react";
+import { Home, BookOpen, MessageCircle, CheckCircle2, X } from "lucide-react";
+import { SiteMenu } from "./SiteMenu";
 import { useStore } from "../lib/store";
 import { Chat } from "./Chat";
 import { cx } from "./ui";
@@ -16,7 +17,7 @@ export const NAV = [
 const MOBILE = ["#/", "#/learn", "#/coach", "#/progress"];
 
 export function Layout({ route, children }: { route: string; children: ReactNode }) {
-  const { done, bigText, simple, set, toasts, profile } = useStore();
+  const { done, simple, set, toasts } = useStore();
   const [coach, setCoach] = useState(false);
   const active = (href: string) => (href === "#/" ? route === "/" : ("#" + route).startsWith(href));
 
@@ -48,17 +49,21 @@ export function Layout({ route, children }: { route: string; children: ReactNode
       <header className="sticky top-0 z-30 border-b border-slate-200/60 bg-paper/80 backdrop-blur lg:ml-64">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <a href="#/" className="flex items-center gap-2 lg:hidden"><Logo size={36} /><Wordmark sub={false} /></a>
-          <div className="hidden text-[15px] text-slate-500 lg:block">{profile.onboarded ? `Ages ${profile.ageRange} · ${profile.level}` : "Welcome"}</div>
+          <SiteMenu route={route} className="hidden md:flex" />
           <div className="flex items-center gap-2">
-            <button onClick={() => set({ simple: !simple })} aria-pressed={simple}
-              className="rounded-xl px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 bg-white hover:bg-slate-50" title="Switch between simple and detailed explanations">
-              {simple ? "Simple" : "Detailed"}
-            </button>
-            <button onClick={() => set({ bigText: !bigText })} aria-pressed={bigText} aria-label="Toggle larger text"
-              className={cx("grid h-10 w-10 place-items-center rounded-xl ring-1 ring-slate-200", bigText ? "bg-navy text-white" : "bg-white")}><Type size={18} /></button>
+            <div className="flex items-center gap-2" title="Changes how lessons are worded: Simple uses plain words; Detailed adds terms and formulas.">
+              <span className="hidden text-[13px] font-medium text-slate-500 xl:inline">Lesson wording</span>
+              <div role="group" aria-label="Lesson wording" className="flex rounded-xl bg-white p-0.5 ring-1 ring-slate-200">
+                {[true, false].map((v) => (
+                  <button key={String(v)} onClick={() => set({ simple: v })} aria-pressed={simple === v}
+                    className={cx("rounded-lg px-2.5 py-1.5 text-[13px] font-semibold", simple === v ? "bg-navy text-white" : "text-slate-500 hover:text-navy")}>{v ? "Simple" : "Detailed"}</button>
+                ))}
+              </div>
+            </div>
             <a href="#/progress" className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700 lg:hidden num" aria-label="Lessons completed"><CheckCircle2 size={15} />{done.length}/{MODULES.length}</a>
           </div>
         </div>
+        <div className="border-t border-slate-200/60 px-3 py-1 md:hidden"><SiteMenu route={route} className="justify-center" /></div>
       </header>
 
       <main id="main" className="lg:ml-64">

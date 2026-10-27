@@ -8,6 +8,7 @@ import Learn from "./pages/Learn";
 import Bank from "./pages/Bank";
 import Coach from "./pages/Coach";
 import Progress from "./pages/Progress";
+import { AboutApp, AboutMe, Mission } from "./pages/About";
 import ModuleFrame from "./pages/ModuleFrame";
 import Inflation from "./modules/Inflation";
 import LifeStages from "./modules/LifeStages";
@@ -36,6 +37,12 @@ export default function App() {
   const route = useRoute();
   const { profile, entered } = useStore();
   // Every visit starts on the Welcome page: pick the demo or your own numbers
+  const PUBLIC: Record<string, ComponentType> = { "/about": AboutApp, "/mission": Mission, "/me": AboutMe };
+  // About pages are always reachable, even before choosing a scenario
+  if (PUBLIC[route]) {
+    const P = PUBLIC[route];
+    return <Layout route={route}><motion.div key={route} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}><P /></motion.div></Layout>;
+  }
   if (!entered || route === "/welcome" || !profile.onboarded) return <Welcome />;
 
   let page;

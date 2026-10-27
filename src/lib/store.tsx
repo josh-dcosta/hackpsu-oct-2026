@@ -101,7 +101,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(MINE_KEY, JSON.stringify({ profile: s.profile, assumptions: s.assumptions, sims: s.sims, stepsDone: s.stepsDone }));
     } catch { /* ignore */ }
   }, [s]);
-  useEffect(() => { document.documentElement.classList.toggle("big-text", s.bigText); }, [s.bigText]);
+  useEffect(() => { document.documentElement.classList.remove("big-text"); }, []);
 
   const toast = useCallback((text: string, emoji?: string) => {
     const id = Date.now() + Math.random();

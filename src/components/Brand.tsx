@@ -38,3 +38,27 @@ export function CoachIcon({ size = 40, className = "" }: { size?: number; classN
     </span>
   );
 }
+
+// A friendly blue-collar worker in a hard hat: the face of the demo scenario.
+export function WorkerIcon({ size = 48, className = "" }: { size?: number; className?: string }) {
+  return (
+    <span className={"grid shrink-0 place-items-center rounded-2xl bg-amber-soft ring-1 ring-amber/30 " + className} style={{ width: size, height: size }} aria-hidden>
+      <svg viewBox="0 0 48 48" width={size * 0.86} height={size * 0.86}>
+        {/* shoulders + work shirt */}
+        <path d="M9 46c0-8.5 6.7-14 15-14s15 5.5 15 14z" fill="#1D4ED8" />
+        <path d="M19 32.6l5 6 5-6" fill="none" stroke="#DBEAFE" strokeWidth="2" strokeLinejoin="round" />
+        <rect x="14.5" y="38" width="5" height="8" rx="1" fill="#F59E0B" opacity=".9" />
+        <rect x="28.5" y="38" width="5" height="8" rx="1" fill="#F59E0B" opacity=".9" />
+        {/* face */}
+        <circle cx="24" cy="22" r="8.2" fill="#E8B48A" />
+        <circle cx="21" cy="22.5" r="1" fill="#0F172A" />
+        <circle cx="27" cy="22.5" r="1" fill="#0F172A" />
+        <path d="M21.3 25.8q2.7 2 5.4 0" fill="none" stroke="#0F172A" strokeWidth="1.2" strokeLinecap="round" />
+        {/* hard hat */}
+        <path d="M14.5 17.5a9.5 9 0 0 1 19 0z" fill="#F59E0B" />
+        <rect x="12" y="16.6" width="24" height="3" rx="1.5" fill="#D97706" />
+        <rect x="22.6" y="8.6" width="2.8" height="8.4" rx="1.2" fill="#FCD34D" />
+      </svg>
+    </span>
+  );
+}

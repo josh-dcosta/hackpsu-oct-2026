@@ -166,7 +166,7 @@ export function Moments() {
     setApplied(id);
     if (LEVER[id]) flash(LEVER[id]);
   };
-  const seePlan = () => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const seePlan = () => window.dispatchEvent(new CustomEvent("ns-tab", { detail: "plan" }));
   const raise = p.income * 0.04;
   const later = projectLife(p, { ...a, retireAge: a.retireAge + 2 });
 
@@ -257,7 +257,7 @@ export function Moments() {
                       </div>
                     ))}
                   </div>
-                  <button onClick={seePlan} className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-navy px-3 py-2 text-sm font-semibold text-white">See it highlighted in the plan ↓</button>
+                  <button onClick={seePlan} className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-navy px-3 py-2 text-sm font-semibold text-white">See it highlighted in the plan →</button>
                 </motion.div>
               );
             })()}
