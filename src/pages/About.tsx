@@ -150,7 +150,7 @@ export function AboutApp() {
       {
         id: "see", label: "See tomorrow", body: (go) => (
           <Fill className="hero-dark rounded-[2rem] p-6 sm:p-10 text-white">
-            <div className="flex items-center gap-3"><Logo size={46} /><Kicker dark>About the app</Kicker></div>
+            <div className="flex items-center gap-3"><Logo size={46} /><Kicker dark>The App</Kicker></div>
             <h1 className="mt-5 font-display text-3xl sm:text-5xl font-semibold leading-tight">See tomorrow before you spend today.</h1>
             <p className="mt-4 max-w-4xl text-[17px] sm:text-lg leading-relaxed text-slate-300">
               <b className="text-white">Next Step</b> is a free, simple money simulator for everyday working people. It started as my entry to <b className="text-white">HackPSU</b>, Penn State's hackathon,
@@ -191,7 +191,7 @@ export function Mission() {
         id: "vision", label: "The vision", body: () => (
           <div className="flex h-full flex-col gap-4">
             <div className="hero-dark flex flex-1 flex-col justify-center rounded-[2rem] p-6 sm:p-10 text-white">
-              <Kicker dark>Where it's going</Kicker>
+              <Kicker dark>Future Plans</Kicker>
               <h1 className="mt-4 font-display text-3xl sm:text-5xl font-semibold leading-tight">Taking Next Step to the people who need it most.</h1>
               <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-300">
                 I want to take this financial literacy app into local churches and workers' unions, and help people make better financial decisions and plans
@@ -256,7 +256,7 @@ function Photo() {
 export function AboutMe() {
   return (
     <Panels tabs={[{
-      id: "me", label: "About me", body: () => (
+      id: "me", label: "Me", body: () => (
         <div className="grid h-full gap-4 lg:grid-cols-5">
           <Fill className="hero-dark rounded-[2rem] p-6 sm:p-8 text-center text-white lg:col-span-2"><div className="flex flex-col items-center">
             <Photo />

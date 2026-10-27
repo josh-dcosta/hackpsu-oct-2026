@@ -2,12 +2,12 @@ import { Info, HeartHandshake, UserRound } from "lucide-react";
 import { cx } from "./ui";
 
 export const ABOUT_NAV = [
-  { href: "#/about", label: "About the app", short: "The app", icon: Info },
-  { href: "#/mission", label: "Where it's going", short: "Mission", icon: HeartHandshake },
-  { href: "#/me", label: "About me", short: "About me", icon: UserRound },
+  { href: "#/about", label: "The App", short: "The App", icon: Info },
+  { href: "#/mission", label: "Future Plans", short: "Future Plans", icon: HeartHandshake },
+  { href: "#/me", label: "Me", short: "Me", icon: UserRound },
 ];
 
-// Always-visible top menu: About the app · Where it's going · About me
+// Always-visible top menu: The App · Future Plans · Me
 export function SiteMenu({ route, dark = false, className = "" }: { route?: string; dark?: boolean; className?: string }) {
   return (
     <nav aria-label="About" className={cx("flex items-center gap-1 overflow-x-auto", className)}>
