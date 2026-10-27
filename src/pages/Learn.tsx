@@ -28,8 +28,11 @@ export default function Learn() {
   const coreDone = CORE.filter((m) => done.includes(m.id)).length;
   return (
     <div>
-      <h1 className="font-display text-4xl font-semibold">Learn by doing</h1>
-      <p className="mt-2 max-w-2xl text-lg text-slate-500">Practical, safe money basics. Each lesson teaches one idea, then gives you a real-world simulation that's already filled in. Tweak it to fit your own life, ask Next Step anything, and finish with a 3-question check.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <h1 className="font-display text-4xl font-semibold">Learn by doing</h1>
+        <a href="#/progress" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><CheckCircle2 size={15} className="text-emerald-600" /> My progress</a>
+      </div>
+      <p className="mt-2 max-w-2xl text-lg text-slate-500">Short, practical money lessons. Each one explains one idea, lets you try it in a simulator, and ends with a quick 3-question check.</p>
       <a href={moduleHref(nextUp.id)} className="mt-6 flex items-center gap-4 rounded-3xl hero-dark p-5 text-white">
         <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white/10 text-3xl">{nextUp.emoji}</span>
         <span className="flex-1"><span className="text-[13px] font-semibold text-emerald-300">Up next</span><span className="block font-display text-2xl font-semibold">{nextUp.title}</span></span>

@@ -86,7 +86,7 @@ export function ResetButton({ onClick, dark }: { onClick: () => void; dark?: boo
   return <button onClick={onClick} className={cx("inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold", dark ? "text-slate-200 hover:bg-white/10" : "text-slate-500 hover:bg-slate-100 hover:text-navy")}><RotateCcw size={15} /> Reset</button>;
 }
 
-export function Section({ n, title, children, kicker, practice }: { n?: number; title: string; kicker?: string; children: ReactNode; practice?: boolean }) {
+export function Section({ n, title, children, kicker }: { n?: number; title: string; kicker?: string; children: ReactNode; practice?: boolean }) {
   return (
     <section className="mt-8 first:mt-0">
       <div className="mb-3 flex items-center gap-3">
@@ -96,22 +96,8 @@ export function Section({ n, title, children, kicker, practice }: { n?: number; 
           <h2 className="font-display text-2xl font-semibold text-navy">{title}</h2>
         </div>
       </div>
-      {practice && <PracticeBanner />}
       {children}
     </section>
-  );
-}
-
-function PracticeBanner() {
-  const { profile } = useStore();
-  const dave = profile.scenario ? profile.scenario === "dave" : profile.name === "Dave";
-  return (
-    <div className="mb-3 flex items-start gap-3 rounded-2xl bg-sky-soft px-4 py-3 text-[15px] text-sky-900">
-      <span className="text-xl">{dave ? "🧹" : "🙋"}</span>
-      {dave
-        ? <span><b>Preloaded with Dave's real numbers</b> (PA school custodian, family of four). Move any slider to make it fit your life. Tap <b>Reset</b> anytime to go back to Dave.</span>
-        : <span><b>Preloaded with your numbers</b> where they fit, and realistic examples everywhere else. Move any slider to match your life. <b>Reset</b> puts it back.</span>}
-    </div>
   );
 }
 

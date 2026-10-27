@@ -1,25 +1,22 @@
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, MessageCircle, CheckCircle2, X, Rocket, Info } from "lucide-react";
+import { BookOpen, MessageCircle, CheckCircle2, Rocket, Info } from "lucide-react";
 import { ABOUT_NAV } from "./SiteMenu";
 import { useStore } from "../lib/store";
-import { Chat } from "./Chat";
 import { cx } from "./ui";
-import { Logo, Wordmark, CoachIcon } from "./Brand";
+import { Logo, Wordmark } from "./Brand";
 import { MODULES } from "../data/modules";
 
 export const NAV = [
   { href: "#/try", label: "Try it now", short: "Try it", icon: Rocket },
   { href: "#/learn", label: "Learn", short: "Learn", icon: BookOpen },
-  { href: "#/coach", label: "Ask Next Step", short: "Next Step", icon: MessageCircle },
-  { href: "#/progress", label: "Progress", short: "Progress", icon: CheckCircle2 },
+  { href: "#/coach", label: "Ask Next Step", short: "Ask", icon: MessageCircle },
 ];
 
 
 export function Layout({ route, children }: { route: string; children: ReactNode }) {
   const { done, toasts } = useStore();
-  const [coach, setCoach] = useState(false);
-  const active = (href: string) => (href === "#/about" ? route === "/" || route === "/about" : ("#" + route).startsWith(href));
+    const active = (href: string) => (href === "#/about" ? route === "/" || route === "/about" : ("#" + route).startsWith(href));
   const inAbout = ABOUT_NAV.some((n) => active(n.href));
 
   return (
@@ -40,12 +37,23 @@ export function Layout({ route, children }: { route: string; children: ReactNode
             ))}
           </div>
           <div className="!mt-4" />
-          {NAV.map((n) => (
-            <a key={n.href} href={n.href} aria-current={active(n.href) ? "page" : undefined}
-              className={cx("flex items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-semibold transition", active(n.href) ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white")}>
-              <n.icon size={20} className={active(n.href) ? "text-emerald-400" : ""} />{n.label}
-            </a>
-          ))}
+          {NAV.map((n) => {
+            const on = n.href === "#/learn" ? active("#/learn") || active("#/progress") || active("#/bank") : active(n.href);
+            return (
+              <div key={n.href}>
+                <a href={n.href} aria-current={active(n.href) ? "page" : undefined}
+                  className={cx("flex items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-semibold transition", active(n.href) && !(n.href === "#/learn" && active("#/progress")) ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white")}>
+                  <n.icon size={20} className={on ? "text-emerald-400" : ""} />{n.label}
+                </a>
+                {n.href === "#/learn" && (
+                  <div className="ml-[22px] mt-0.5 border-l border-white/10 pl-3">
+                    <a href="#/progress" aria-current={active("#/progress") ? "page" : undefined}
+                      className={cx("flex items-center gap-2 rounded-xl px-3 py-2 text-[14px] font-semibold transition", active("#/progress") ? "bg-white/10 text-white" : "text-slate-400 hover:bg-white/5 hover:text-white")}><CheckCircle2 size={15} /> Progress</a>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
         <div className="mt-auto rounded-2xl bg-white/5 p-4">
           <div className="flex items-center justify-between text-sm"><span className="text-slate-300">Lessons completed</span><span className="num font-bold text-emerald-400">{done.length}/{MODULES.length}</span></div>
@@ -66,29 +74,9 @@ export function Layout({ route, children }: { route: string; children: ReactNode
         <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6 lg:pb-10 lg:pt-8">{children}</div>
       </main>
 
-      {/* Floating coach */}
-      {route !== "/coach" && !inAbout && (
-        <button onClick={() => setCoach(true)} className="fixed bottom-24 right-4 z-30 flex items-center gap-2 rounded-full bg-navy p-1.5 text-white shadow-xl shadow-navy/30 hover:scale-[1.02] transition lg:bottom-6 lg:right-6 lg:py-2 lg:pl-2 lg:pr-5" aria-label="Ask Next Step">
-          <CoachIcon size={44} /><span className="hidden font-semibold lg:inline">Ask Next Step</span>
-        </button>
-      )}
-      <AnimatePresence>
-        {coach && (
-          <motion.div className="fixed inset-0 z-50 flex justify-end bg-navy/40" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setCoach(false)}>
-            <motion.div role="dialog" aria-label="Ask Next Step" className="flex h-full w-full max-w-md flex-col bg-paper p-4 sm:p-5" initial={{ x: 40 }} animate={{ x: 0 }} exit={{ x: 40 }} onClick={(e) => e.stopPropagation()}>
-              <div className="mb-3 flex items-center justify-between">
-                <div className="font-display text-xl font-semibold">Ask Next Step</div>
-                <button onClick={() => setCoach(false)} aria-label="Close" className="grid h-10 w-10 place-items-center rounded-xl hover:bg-slate-100"><X /></button>
-              </div>
-              <div className="min-h-0 flex-1"><Chat compact /></div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Mobile bottom tabs */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur safe-bottom lg:hidden" aria-label="Main">
-        <div className="mx-auto grid max-w-md grid-cols-5">
+        <div className="mx-auto grid max-w-md grid-cols-4">
           {[{ href: "#/about", short: "About", icon: Info }, ...NAV].map((n) => (
             <a key={n.href} href={n.href} aria-current={(n.href === "#/about" ? inAbout : active(n.href)) ? "page" : undefined}
               className={cx("flex flex-col items-center gap-1 pt-2.5 pb-1 text-[11px] font-semibold", (n.href === "#/about" ? inAbout : active(n.href)) ? "text-emerald-600" : "text-slate-500")}>

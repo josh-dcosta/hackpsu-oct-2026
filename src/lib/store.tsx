@@ -38,6 +38,7 @@ type State = {
   story: { choices: Choices; step: number; finished: boolean };
   sims: Record<string, unknown>; // saved simulator settings per module
   stepsDone: Record<string, boolean>; // next-steps checklist
+  moments?: string[]; // life moments picked on Try it now (undefined = picked automatically from the scenario)
 };
 
 const DEFAULT: State = {
@@ -150,8 +151,9 @@ export function useSim<T extends Record<string, unknown>>(id: string, defaults: 
   const { sims, saveSim, touch, profile } = useStore();
   // Dave's scenario preloads his numbers; a custom scenario starts from the user's own profile-based defaults
   const base = (isDaveProfile(profile) ? { ...defaults, ...((DAVE_SIMS[id] as Partial<T>) || {}) } : { ...defaults }) as T;
-  const value = { ...base, ...((sims[id] as Partial<T>) || {}) } as T;
-  const update = (patch: Partial<T>) => { saveSim(id, { ...value, ...patch }); touch(id); };
-  const reset = () => saveSim(id, base);
+  const key = id + "@2"; // lessons were redesigned: ignore settings saved by the old versions
+  const value = { ...base, ...((sims[key] as Partial<T>) || {}) } as T;
+  const update = (patch: Partial<T>) => { saveSim(key, { ...value, ...patch }); touch(id); };
+  const reset = () => saveSim(key, base);
   return [value, update, reset] as const;
 }

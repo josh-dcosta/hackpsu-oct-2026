@@ -288,7 +288,13 @@ export type YearFlow = {
   shortfallMonthly: number; // retirement: bills not covered by anything
   balanceEnd: number;
 };
-export function projectLife(p: Profile, a: Assumptions) {
+// Life moments that change the money picture (see lib/plan.ts)
+export type LifeEvents = {
+  costs?: { age: number; amount: number }[]; // one-time costs at an age, in future dollars (surprise bill, college)
+  extraMonthly?: number; // added to monthly bills from now on, in today's dollars (e.g. higher insurance)
+  marketDrop?: { drop: number; panic: boolean }; // investments fall this year; panic = sell and sit in cash for 3 years
+};
+export function projectLife(p: Profile, a: Assumptions, ev: LifeEvents = {}) {
   const adj = a.scenario === "optimistic" ? { r: 0.015, i: -0.005 } : a.scenario === "pessimistic" ? { r: -0.02, i: 0.01 } : { r: 0, i: 0 };
   const ret = a.returnRate + adj.r, inf = Math.max(0, a.inflation + adj.i), cashRate = a.cashRate ?? 0.035;
   const tax = a.taxRate ?? 0.12, roth = a.accountType === "roth", hsa = a.hsaAnnual ?? 0;
@@ -299,11 +305,17 @@ export function projectLife(p: Profile, a: Assumptions) {
   let depletedAge: number | null = null;
   const rows: { age: number; nominal: number; real: number; cash: number; invested: number; expensesMonthly: number; retired: boolean }[] = [];
   const flows: YearFlow[] = [];
-  rows.push({ age: p.age, nominal: cash + invested, real: cash + invested, cash, invested, expensesMonthly: p.expenses, retired: p.age >= a.retireAge });
+  rows.push({ age: p.age, nominal: cash + invested, real: cash + invested, cash, invested, expensesMonthly: p.expenses + (ev.extraMonthly ?? 0), retired: p.age >= a.retireAge });
   for (let age = p.age; age < 90; age++) {
     const y = age - p.age;
     const prices = pw(1 + inf, y);
-    const expensesYear = p.expenses * 12 * prices;
+    const expensesYear = (p.expenses + (ev.extraMonthly ?? 0)) * 12 * prices;
+    // one-time costs come out of cash first, then investments
+    const oneTime = (ev.costs ?? []).filter((c) => c.age === age).reduce((t, c) => t + c.amount, 0);
+    if (oneTime > 0) { const fromCash = Math.min(cash, oneTime); cash -= fromCash; invested -= oneTime - fromCash; }
+    // a market drop this year, then 3 recovery years. Panic-selling misses the recovery.
+    const md = ev.marketDrop;
+    const yr = md ? (y === 0 ? -md.drop : y <= 3 ? (md.panic ? cashRate : ret + 0.08) : ret) : ret;
     const f: YearFlow = { age, retired: age >= a.retireAge, expensesMonthly: expensesYear / 12, savingMonthly: 0, incomeMonthly: 0, fromSavingsMonthly: 0, shortfallMonthly: 0, balanceEnd: 0 };
     if (age < a.retireAge) {
       const hsaY = hsa * pw(1 + inf, y); // HSA contributions rise with prices
@@ -313,7 +325,7 @@ export function projectLife(p: Profile, a: Assumptions) {
       taxSavedTotal += (roth ? 0 : salary * a.contribPct * tax) + hsaY * (tax + 0.0765);
       const surplus = takeHome - expensesYear > 0 ? (takeHome - expensesYear) * a.leftoverSaved : takeHome - expensesYear;
       f.savingMonthly = (contrib + surplus) / 12;
-      invested = invested * (1 + ret) + contrib * (1 + ret / 2);
+      invested = invested * (1 + yr) + contrib * (1 + yr / 2);
       cash = cash * (1 + cashRate);
       if (surplus >= 0) {
         const efTarget = (expensesYear / 12) * 6;
@@ -327,7 +339,7 @@ export function projectLife(p: Profile, a: Assumptions) {
       const need = expensesYear; // same lifestyle, at future prices
       const ss = Math.min(need, p.income * a.ssReplacement * pw(1 + inf, y)); // Social Security + pension (rough, rises with prices)
       let gap = need - ss;
-      invested = invested * (1 + ret - 0.01); // a bit more conservative in retirement
+      invested = invested * (1 + (md && y <= 3 ? yr : ret - 0.01)); // a bit more conservative in retirement
       cash = cash * (1 + cashRate);
       // Traditional withdrawals are taxed as income; Roth (and HSA for medical) come out tax-free
       const keep = roth ? 1 : 1 - tax;
@@ -338,7 +350,7 @@ export function projectLife(p: Profile, a: Assumptions) {
     }
     const nominal = Math.max(0, cash + invested);
     f.balanceEnd = nominal; flows.push(f);
-    rows.push({ age: age + 1, nominal, real: nominal / pw(1 + inf, y + 1), cash, invested, expensesMonthly: p.expenses * pw(1 + inf, y + 1), retired: age + 1 >= a.retireAge });
+    rows.push({ age: age + 1, nominal, real: nominal / pw(1 + inf, y + 1), cash, invested, expensesMonthly: (p.expenses + (ev.extraMonthly ?? 0)) * pw(1 + inf, y + 1), retired: age + 1 >= a.retireAge });
   }
   const at = (age: number) => rows.find((r) => r.age === age) || rows[rows.length - 1];
   const milestones = [35, 45, 55, 65, 75, 85].filter((m) => m >= p.age).map((m) => ({ ...at(m) }));

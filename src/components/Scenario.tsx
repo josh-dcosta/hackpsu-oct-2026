@@ -12,7 +12,7 @@ export function useScenario() {
   const finish = (final: Profile) => {
     const custom = final.scenario === "custom";
     const keep = custom && mine; // editing your own numbers keeps your plan; the demo always starts fresh
-    set({ profile: { ...final, onboarded: true }, assumptions: keep ? mine.assumptions : custom ? { ...CUSTOM_ASSUMPTIONS } : { ...DAVE_ASSUMPTIONS }, sims: keep ? mine.sims : {}, stepsDone: keep ? mine.stepsDone : {} });
+    set({ profile: { ...final, onboarded: true }, assumptions: keep ? mine.assumptions : custom ? { ...CUSTOM_ASSUMPTIONS } : { ...DAVE_ASSUMPTIONS }, sims: keep ? mine.sims : {}, stepsDone: keep ? mine.stepsDone : {}, moments: undefined });
     setEntered(true);
     window.location.hash = "#/try";
   };
@@ -25,7 +25,7 @@ export function useScenario() {
     freshNumbers: () => { clearMine(); window.location.hash = "#/try?walk=mine"; },
     continueMine: () => {
       if (!mine) return;
-      set({ profile: { ...mine.profile, onboarded: true }, assumptions: mine.assumptions, sims: mine.sims, stepsDone: mine.stepsDone });
+      set({ profile: { ...mine.profile, onboarded: true }, assumptions: mine.assumptions, sims: mine.sims, stepsDone: mine.stepsDone, moments: undefined });
       setEntered(true); window.location.hash = "#/try";
     },
   };

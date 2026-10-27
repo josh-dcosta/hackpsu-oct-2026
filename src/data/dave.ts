@@ -43,19 +43,13 @@ export const isDaveProfile = (p: Profile) => p.scenario ? p.scenario === "dave" 
 
 // Preloaded simulator settings (keyed by module id). "Reset" returns to these.
 export const DAVE_SIMS: Record<string, Record<string, unknown>> = {
-  inflation: { item: "tuition", price: 22_000, rate: 4, years: 3 },
-  life: { age: 50, family: 4, housing: 1_250, retireAge: 67, inflation: 3, paidOff: true, real: false, stage: 0 },
-  saving: { start: 6_000, monthly: 150, sav: 0.5, inv: 6, inflation: 3, years: 17, real: true },
-  bank: { checking: 2_000, savings: 4_000, apy: 0.5, month: 0, interest: 0, tx: [], hist: [{ m: 0, savings: 4_000, checking: 2_000 }] },
-  k401: { age: 50, retireAge: 67, salary: 46_000, contrib: 8, matchRate: 100, matchCap: 2, ret: 6, growth: 2.5, balance: 22_000, inflation: 3 },
-  accounts: { budget: 3_500, years: 17, ret: 6, now: 12, later: 12, match: 25 },
-  hsa: { annual: 1_500, tax: 12, years: 15, ret: 5, medical: 1_200, payroll: true },
+  inflation: { item: "tuition", price: 22_000, rate: 4, years: 10 },
+  life: { age: 50, family: 4, housing: 1_250, retireAge: 67, inflation: 3, paidOff: true, real: false },
+  saving: { start: 6_000, monthly: 150, sav: 4, inv: 6, inflation: 3, years: 17, real: false },
+  k401: { age: 50, retireAge: 67, salary: 45_000, contrib: 5, matchRate: 100, matchCap: 5, ret: 6, growth: 2.5, balance: 22_000, inflation: 3 },
+  accounts: { budget: 3_500, years: 17, ret: 6, now: 12, later: 12, match: 50 },
+  hsa: { annual: 1_800, tax: 12, years: 17, ret: 5, medical: 1_200, payroll: true },
   college: { childAge: 15, collegeAge: 18, cost: 22_000, tInfl: 4, monthly: 150, ret: 4, balance: 0 },
-  buckets: { short: 6_000, medium: 3_000, long: 22_000 },
-  invest: { single: 0, several: 5, index: 50, bonds: 35, cash: 10, market: "crash", seed: 7, amount: 22_000 },
-  debt: {
-    bal: 3_200, apr: 22, pay: 100, extra: 100,
-    d1b: 600, d1r: 25, d2b: 3_200, d2r: 22, d3b: 9_000, d3r: 7.5,
-    limit: 8_000, used: 3_800, ess: 3_000, efMonths: 3, efSaved: 6_000, efMonthly: 150,
-  },
+  invest: { single: 0, several: 0, index: 60, bonds: 40, cash: 0, market: "crash", seed: 7, amount: 22_000 },
+  debt: { cc: 3_200, ccApr: 22, store: 600, storeApr: 25, car: 9_000, carApr: 7.5, pay: 450 },
 };

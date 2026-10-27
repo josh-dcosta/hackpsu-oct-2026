@@ -1,349 +1,320 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Bar, CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ArrowRight, GraduationCap, CheckCircle2, AlertTriangle, ChevronDown, Target, BarChart3, Zap, Compass, ListChecks, HelpCircle } from "lucide-react";
-import { WorkerIcon } from "../components/Brand";
+import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceDot } from "recharts";
+import { ArrowRight, Check, CalendarPlus, ChevronDown, ExternalLink, Pencil, UserRound, Sparkles, Zap, Compass, ListChecks, Target } from "lucide-react";
 import { useStore } from "../lib/store";
-import { projectLife, simulate529 } from "../lib/calc";
-import { money, compact, pct, axisMoney } from "../lib/format";
-import { AskRipple, Card, EstimateTag, ResetButton, Segmented, Slider, Stat, tooltipStyle } from "../components/ui";
-import { MODULES, moduleHref, nextLessonFor } from "../data/modules";
-import { Moments, NextSteps, HowWeCalculate, Verified } from "../components/Action";
-import { DAVE, DAVE_ASSUMPTIONS, CUSTOM_ASSUMPTIONS, isDaveProfile } from "../data/dave";
-import { UserRound, Pencil } from "lucide-react";
+import { money, compact, axisMoney } from "../lib/format";
+import { Card, cx, tooltipStyle } from "../components/ui";
+import { WorkerIcon } from "../components/Brand";
+import { DAVE, isDaveProfile } from "../data/dave";
+import { MOMENTS, autoMoments, whyAuto, buildPlan, PLAN_ASSUMPTIONS, type MomentId, type PlanItem } from "../lib/plan";
+import { downloadReminder } from "../lib/steps";
 
-const greeting = () => { const h = new Date().getHours(); return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening"; };
+const TABS = [
+  { id: "moments", label: "Life moments", icon: Zap },
+  { id: "plan", label: "Your plan", icon: Compass },
+  { id: "steps", label: "Next steps", icon: ListChecks },
+  { id: "answer", label: "The answer", icon: Target },
+] as const;
+type TabId = (typeof TABS)[number]["id"];
 
-const MIXES = [
-  { id: "safe", label: "🐢 Safer", sub: "Mostly bond index", r: 0.045 },
-  { id: "balanced", label: "⚖️ Balanced", sub: "60% stock / 40% bond index", r: 0.06 },
-  { id: "growth", label: "🌳 Growth", sub: "90% stock index (U.S. + intl)", r: 0.068 },
-];
-
-function Lever({ title, learn, children, note, hl }: { title: string; learn: string; children: React.ReactNode; note?: React.ReactNode; hl?: boolean }) {
-  return (
-    <motion.div animate={hl ? { scale: [1, 1.03, 1] } : { scale: 1 }} transition={{ duration: 0.6, repeat: hl ? 2 : 0 }}
-      className={"rounded-2xl p-4 transition-colors " + (hl ? "bg-amber-soft ring-2 ring-amber shadow-lg shadow-amber/20" : "bg-slate-50")}>
-      {hl && <div className="mb-2 inline-flex items-center gap-1 rounded-full bg-amber px-2.5 py-0.5 text-[12px] font-bold text-navy">✨ Just changed</div>}
-      <div className="flex items-center justify-between gap-2">
-        <div className="font-semibold">{title}</div>
-        <a href={learn} className="text-[13px] font-semibold text-emerald-700 hover:underline">Learn →</a>
-      </div>
-      <div className="mt-2">{children}</div>
-      {note && <div className="mt-1 text-[13px] text-slate-500">{note}</div>}
-    </motion.div>
-  );
-}
-
-function Delta({ v, fmt, good = true }: { v: number; fmt: (n: number) => string; good?: boolean }) {
-  if (Math.abs(v) < 0.5) return <span className="text-slate-400">no change</span>;
-  const up = v > 0;
-  return <span className={(up === good ? "text-emerald-300" : "text-orange-300") + " font-semibold"}>{up ? "+" : "−"}{fmt(Math.abs(v))}</span>;
-}
-
-function PlanBuilder() {
-  const { profile: p, assumptions: a, set, highlight } = useStore();
+function ScenarioPanel() {
+  const { profile: p } = useStore();
   const isDave = isDaveProfile(p);
-  const start = isDave ? DAVE_ASSUMPTIONS : CUSTOM_ASSUMPTIONS;
-  const base = useMemo(() => projectLife(p, { ...a, contribPct: start.contribPct, hsaAnnual: start.hsaAnnual, cashRate: start.cashRate, accountType: start.accountType, returnRate: start.returnRate }), [p, a, start]);
-  const now = useMemo(() => projectLife(p, a), [p, a]);
-  const setA = (x: Partial<typeof a>) => set((s) => ({ assumptions: { ...s.assumptions, ...x } }));
-  const tax = a.taxRate ?? 0.12;
-  const mix = MIXES.reduce((best, m) => (Math.abs(m.r - a.returnRate) < Math.abs(best.r - a.returnRate) ? m : best), MIXES[1]);
-  const lastAge = (r: typeof now) => r.depletedAge ?? 90;
   return (
-    <Card className="mt-5 scroll-mt-20" id="plan">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">Build {isDave ? "Dave's" : "your"} plan</div>
-          <h2 className="font-display text-2xl font-semibold">Five smart moves. See what each one changes.</h2>
-          <p className="text-slate-500">Each move has a lesson. Try it here, or tap "Add to my plan" inside the lesson.</p>
-        </div>
-        <ResetButton onClick={() => setA({ contribPct: start.contribPct, hsaAnnual: start.hsaAnnual, cashRate: start.cashRate, accountType: start.accountType, returnRate: start.returnRate })} />
-      </div>
-      <div className="mt-4 grid gap-5 lg:grid-cols-5">
-        <div className="grid gap-3 sm:grid-cols-2 lg:col-span-3">
-          <Lever hl={highlight === "savings"} title="🏦 Where savings live" learn="#/learn/bank" note={(a.cashRate ?? 0) >= 0.03 ? "Same FDIC safety, about 8× the interest." : "Earning less than inflation."}>
-            <Segmented label="Savings account" value={(a.cashRate ?? 0) >= 0.03 ? "hysa" : "bank"} onChange={(v) => setA({ cashRate: v === "hysa" ? 0.04 : 0.005 })} options={[{ value: "bank", label: "Regular 0.5%" }, { value: "hysa", label: "High-yield 4%" }]} />
-          </Lever>
-          <Lever hl={highlight === "retire"} title="🧭 Retirement plan" learn="#/learn/k401" note={a.accountType === "roth" ? `Roth: no tax break now; tax-free later.` : `Saves about ${money(p.income * a.contribPct * tax)} in federal tax this year.`}>
-            <Slider id="plan-401k" label="From each paycheck" value={Math.round(a.contribPct * 100)} min={0} max={20} onChange={(v) => setA({ contribPct: v / 100 })} format={(v) => v + "% of pay"} />
-          </Lever>
-          <Lever hl={highlight === "hsa"} title="🩺 HSA" learn="#/learn/hsa" note={(a.hsaAnnual ?? 0) > 0 ? `Saves about ${money((a.hsaAnnual ?? 0) * (tax + 0.0765))} in tax this year. Needs a qualifying high-deductible health plan.` : "Needs a qualifying high-deductible health plan."}>
-            <Slider id="plan-hsa" label="Per year" value={a.hsaAnnual ?? 0} min={0} max={8750} step={250} onChange={(v) => setA({ hsaAnnual: v })} format={money} />
-          </Lever>
-          <Lever title="⚖️ Roth or Traditional" learn="#/learn/accounts" note={a.accountType === "roth" ? "Pay tax now, withdraw tax-free." : "Tax break now, pay tax on withdrawals."}>
-            <Segmented label="Account type" value={a.accountType ?? "traditional"} onChange={(v) => setA({ accountType: v })} options={[{ value: "traditional", label: "Traditional" }, { value: "roth", label: "Roth" }]} />
-          </Lever>
-          <div className="sm:col-span-2">
-            <Lever title="📈 Index-fund mix for long-term money" learn="#/learn/invest" note={mix.sub + ". No stock-picking."}>
-              <Segmented label="Investment mix" value={mix.id} onChange={(v) => setA({ returnRate: MIXES.find((m) => m.id === v)!.r })} options={MIXES.map((m) => ({ value: m.id, label: m.label }))} />
-            </Lever>
+    <div className={"mb-4 rounded-3xl p-5 sm:p-6 shadow-card ring-1 " + (isDave ? "bg-gradient-to-br from-emerald-50 via-white to-amber-50 ring-emerald-200" : "bg-white ring-slate-200")}>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-start gap-4">
+          {isDave ? <WorkerIcon size={64} /> : <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-navy text-3xl">🙋</span>}
+          <div>
+            <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">{isDave ? "Scenario: Dave" : "Scenario: my own numbers"}</div>
+            <div className="font-display text-2xl sm:text-3xl font-semibold">{isDave ? "Meet Dave" : p.name ? `${p.name}'s plan` : "Your plan"}</div>
+            <p className="mt-1 max-w-2xl text-[15px] text-slate-600">{isDave
+              ? `Head custodian at a Pennsylvania public high school, earning about $${DAVE.hourly} an hour. His wife Linda works part-time.`
+              : `${p.job ? p.job + ". " : ""}Built from the answers you gave.`}</p>
           </div>
         </div>
-        <div className={"rounded-3xl hero-dark p-5 text-white lg:col-span-2 transition " + (highlight ? "ring-4 ring-amber" : "")}>
-          {highlight === "age" && <div className="mb-3 inline-flex items-center gap-1 rounded-full bg-amber px-2.5 py-0.5 text-[12px] font-bold text-navy">✨ Retirement age changed to {a.retireAge}</div>}
-          <div className="text-[13px] font-bold uppercase tracking-wider text-emerald-300">Your plan vs. where {isDave ? "Dave" : "you"} started</div>
-          <div className="mt-4 space-y-4">
-            <div><div className="text-[13px] text-slate-300">Taxes saved this year</div><div className="num text-2xl font-bold">{money(now.taxSavedNow)} <span className="text-base"><Delta v={now.taxSavedNow - base.taxSavedNow} fmt={money} /></span></div></div>
-            <div><div className="text-[13px] text-slate-300">Saving each month now</div><div className="num text-2xl font-bold">{money(now.savingToday)} <span className="text-base"><Delta v={now.savingToday - base.savingToday} fmt={money} /></span></div></div>
-            <div><div className="text-[13px] text-slate-300">Savings at {a.retireAge}</div><div className="num text-2xl font-bold">{compact(now.atRetire.nominal)} <span className="text-base"><Delta v={now.atRetire.nominal - base.atRetire.nominal} fmt={compact} /></span></div></div>
-            <Verified dark source="IRS 2026 limits" />
-            <div><div className="text-[13px] text-slate-300">Money lasts until</div><div className="num text-2xl font-bold">{now.depletedAge ? `Age ${now.depletedAge}` : "Past 90"} <span className="text-base"><Delta v={lastAge(now) - lastAge(base)} fmt={(n) => `${n} yr${n === 1 ? "" : "s"}`} /></span></div></div>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <a href={isDave ? "#/try?pick" : "#/try?walk=mine"} className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> {isDave ? "Use my own numbers" : "Edit my numbers"}</a>
+          {!isDave && <a href="#/try?pick" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"><UserRound size={14} /> Try Dave's scenario</a>}
         </div>
       </div>
-    </Card>
-  );
-}
-
-function MoneyBar({ label, bills, income, savings, gap }: { label: string; bills: number; income: number; savings: number; gap: number }) {
-  const w = (v: number) => `${Math.max(0, (v / bills) * 100)}%`;
-  return (
-    <div>
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="font-semibold">{label}</span>
-        <span className="text-[14px] text-slate-500">Monthly bills <b className="num text-navy">{money(bills)}</b></span>
-      </div>
-      <div className="mt-2 flex h-12 overflow-hidden rounded-2xl bg-slate-100 text-[13px] font-bold text-white">
-        {income > 0 && <motion.div initial={{ width: 0 }} animate={{ width: w(income) }} className="flex items-center justify-center bg-navy px-1" title="Pension + Social Security">{income / bills > 0.18 && money(income)}</motion.div>}
-        {savings > 0 && <motion.div initial={{ width: 0 }} animate={{ width: w(savings) }} className="flex items-center justify-center bg-emerald-500 px-1" title="From savings">{savings / bills > 0.12 && money(savings)}</motion.div>}
-        {gap > 0 && <motion.div initial={{ width: 0 }} animate={{ width: w(gap) }} className="flex items-center justify-center bg-coral px-1" title="Not covered">{gap / bills > 0.12 && money(gap)}</motion.div>}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {[
+          ["Age", `${p.age}`],
+          ["Household income", `${money(p.income)}/yr`],
+          ["Monthly bills", money(p.expenses)],
+          ["Savings", money(p.savings)],
+          ["Retirement savings", money(p.retirement)],
+          ...((p.kids || []).length ? [[(p.kids || []).length === 1 ? "Child" : "Children", (p.kids || []).map((k) => `${k.name} ${k.age}`).join(", ")]] : []),
+        ].map(([k, v]) => (
+          <span key={k} className="rounded-xl bg-white px-3 py-1.5 text-[14px] ring-1 ring-slate-200"><span className="text-slate-500">{k} </span><b className="num text-navy">{v}</b></span>
+        ))}
       </div>
     </div>
   );
 }
 
-export default function Dashboard() {
-  const { profile: p, assumptions: a, set, done } = useStore();
-  const proj = useMemo(() => projectLife(p, a), [p, a]);
-  const setA = (x: Partial<typeof a>) => set((s) => ({ assumptions: { ...s.assumptions, ...x } }));
-  const [showAssume, setShowAssume] = useState(false);
-  const who = p.name || "You";
+function Kicker({ children }: { children: React.ReactNode }) {
+  return <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">{children}</div>;
+}
+
+/* 1 · Life moments: pick as many as apply */
+function MomentsStep({ selected, toggle, auto }: { selected: MomentId[]; toggle: (m: MomentId) => void; auto: MomentId[] }) {
+  const { profile: p } = useStore();
   const his = p.name ? `${p.name}'s` : "your";
-  const nextLesson = nextLessonFor(done);
-  const isDave = isDaveProfile(p);
-  const TABS = [
-    { id: "answer", label: "The answer", icon: Target },
-    { id: "money", label: "Where the money comes from", icon: BarChart3 },
-    { id: "moments", label: "Life moments", icon: Zap },
-    { id: "plan", label: "Build the plan", icon: Compass },
-    { id: "steps", label: "Next steps", icon: ListChecks },
-    ...((p.kids || []).some((k) => k.age < 18) ? [{ id: "college", label: "College", icon: GraduationCap }] : []),
-  ];
-  const [tab, setTab] = useState("answer");
+  return (
+    <Card>
+      <Kicker>Step 1</Kicker>
+      <h2 className="font-display text-2xl sm:text-3xl font-semibold">What's happening in {his} life right now?</h2>
+      <p className="mt-1 text-slate-500">Pick every moment that applies. Some are already picked from {his} scenario.</p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {MOMENTS.map((m) => {
+          const on = selected.includes(m.id);
+          const isAuto = auto.includes(m.id);
+          return (
+            <button key={m.id} onClick={() => toggle(m.id)} aria-pressed={on}
+              className={cx("relative flex items-start gap-3 rounded-2xl p-4 text-left ring-2 transition", on ? "bg-emerald-50 ring-emerald-500" : "bg-white ring-slate-200 hover:ring-emerald-300")}>
+              <span className="text-3xl">{m.emoji}</span>
+              <span className="flex-1">
+                <span className="block text-[17px] font-semibold">{m.title}</span>
+                <span className="block text-[14px] text-slate-500">{m.sub}</span>
+                {isAuto && <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[12px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><Sparkles size={12} /> From the scenario: {whyAuto(p, m.id)}</span>}
+              </span>
+              <span className={cx("grid h-7 w-7 shrink-0 place-items-center rounded-lg ring-2", on ? "bg-emerald-500 text-white ring-emerald-500" : "bg-white ring-slate-300")}>{on && <Check size={16} />}</span>
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-4 text-[14px] text-slate-500">{selected.length ? `${selected.length} moment${selected.length === 1 ? "" : "s"} picked. Next Step builds ${his} plan around them.` : "No moments picked: the plan will cover the basics."}</p>
+    </Card>
+  );
+}
+
+/* 2 · The plan, built automatically */
+function PlanStep({ items }: { items: PlanItem[] }) {
+  const { profile: p } = useStore();
+  const monthlyItems = items.filter((i) => i.monthly > 0);
+  const total = monthlyItems.reduce((t, i) => t + i.monthly, 0);
+  return (
+    <Card>
+      <Kicker>Step 2</Kicker>
+      <h2 className="font-display text-2xl sm:text-3xl font-semibold">{p.name ? `${p.name}'s` : "Your"} plan: where the money lives</h2>
+      <p className="mt-1 text-slate-500">Built automatically from the scenario and the life moments picked.</p>
+      <div className="mt-5">
+        <div className="flex items-baseline justify-between text-[14px]"><span className="font-semibold">Saved every month</span><span className="num text-xl font-bold">{money(total)}/mo</span></div>
+        <div className="mt-2 flex h-12 overflow-hidden rounded-2xl text-[13px] font-bold text-white">
+          {monthlyItems.map((i) => (
+            <motion.div key={i.id} initial={{ width: 0 }} animate={{ width: `${(i.monthly / total) * 100}%` }} className="flex items-center justify-center px-1" style={{ background: i.color }} title={i.title}>
+              {i.monthly / total > 0.12 && money(i.monthly)}
+            </motion.div>
+          ))}
+        </div>
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-slate-600">
+          {monthlyItems.map((i) => <span key={i.id} className="flex items-center gap-1.5"><i className="h-3 w-3 rounded" style={{ background: i.color }} />{i.title} {money(i.monthly)}</span>)}
+        </div>
+      </div>
+      <div className="mt-5 grid gap-3 md:grid-cols-2">
+        {items.map((i) => {
+          const m = MOMENTS.find((x) => x.id === i.moment);
+          return (
+            <div key={i.id} className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200" style={{ borderLeft: `6px solid ${i.color}` }}>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2"><span className="text-2xl">{i.emoji}</span><span className="text-lg font-semibold">{i.title}</span></div>
+                {m && <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[12px] font-semibold text-slate-600 ring-1 ring-slate-200">{m.emoji} {m.title}</span>}
+              </div>
+              <div className="mt-1 text-[14px] text-slate-500">{i.where}</div>
+              <div className="num mt-2 text-[17px] font-bold text-navy">{i.amount}</div>
+              <p className="mt-1 text-[14px] text-slate-600">{i.why}</p>
+            </div>
+          );
+        })}
+      </div>
+    </Card>
+  );
+}
+
+/* 3 · Next steps, each linked to a real product */
+function StepsStep({ items }: { items: PlanItem[] }) {
+  const { stepsDone, set } = useStore();
+  const [open, setOpen] = useState<string | null>(items[0]?.id ?? null);
+  const done = items.filter((i) => stepsDone[i.id]).length;
+  return (
+    <Card>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <Kicker>Step 3</Kicker>
+          <h2 className="font-display text-2xl sm:text-3xl font-semibold">Next steps</h2>
+          <p className="mt-1 text-slate-500">Every action in the plan, with the First National Bank product that does it.</p>
+        </div>
+        <span className="num rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">{done}/{items.length} done</span>
+      </div>
+      <div className="mt-4 space-y-2.5">
+        {items.map((i) => {
+          const isOpen = open === i.id, isDone = !!stepsDone[i.id];
+          return (
+            <div key={i.id} className={cx("rounded-2xl ring-1", isDone ? "bg-emerald-50/60 ring-emerald-200" : "bg-white ring-slate-200")}>
+              <div className="flex items-start gap-3 p-4">
+                <button onClick={() => set((s) => ({ stepsDone: { ...s.stepsDone, [i.id]: !isDone } }))} aria-pressed={isDone} aria-label={`Mark ${i.title} done`}
+                  className={cx("mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg ring-2", isDone ? "bg-emerald-500 text-white ring-emerald-500" : "bg-white ring-slate-300")}>{isDone && <Check size={18} />}</button>
+                <button onClick={() => setOpen(isOpen ? null : i.id)} className="flex flex-1 items-start justify-between gap-2 text-left" aria-expanded={isOpen}>
+                  <span>
+                    <span className="flex flex-wrap items-center gap-2"><span className={cx("text-[17px] font-semibold", isDone && "text-slate-400 line-through")}>{i.emoji} {i.title}</span><span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold uppercase text-slate-500">{i.when}</span></span>
+                    <span className="mt-0.5 block text-[14px] text-slate-600">{i.amount}</span>
+                  </span>
+                  <ChevronDown size={18} className={cx("mt-1 shrink-0 text-slate-400 transition", isOpen && "rotate-180")} />
+                </button>
+              </div>
+              {isOpen && (
+                <div className="border-t border-slate-100 px-4 pb-4 pt-3 sm:pl-[60px]">
+                  <ol className="list-decimal space-y-1 pl-5 text-[15px] text-slate-700">{i.how.map((h) => <li key={h}>{h}</li>)}</ol>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {i.products.map((pr) => (
+                      <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#00377B] px-3.5 py-2.5 text-sm font-semibold text-white hover:opacity-90">
+                        <span className="rounded bg-white px-1 text-[10px] font-extrabold text-[#00377B]">FNB</span>{pr.name.replace("FNB ", "")}<ExternalLink size={14} />
+                      </a>
+                    ))}
+                    {(i.also || []).map((pr) => (
+                      <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2.5 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50">{pr.name}<ExternalLink size={14} /></a>
+                    ))}
+                    <button onClick={() => downloadReminder({ id: i.id, title: i.title, why: i.why, how: i.how, source: i.products[0] ? { label: i.products[0].name, url: i.products[0].url } : undefined } as never)}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2.5 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><CalendarPlus size={15} /> Add a reminder</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <p className="mt-4 text-[12px] text-slate-500">Product links go to First National Bank's personal banking pages at fnb-online.com. Check current rates, fees and eligibility with the bank.</p>
+    </Card>
+  );
+}
+
+/* 4 · The answer: one graph, then the answer */
+function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
+  const { profile: p, assumptions: a, set } = useStore();
+  const [how, setHow] = useState(false);
+  const { without: w, withPlan: wp } = plan;
+  const data = w.rows.map((r, i) => ({ age: r.age, without: Math.round(r.nominal), with: Math.round(wp.rows[i]?.nominal ?? 0) }));
+  const R = a.retireAge;
+  const wAt = Math.round(w.atRetire.nominal), pAt = Math.round(wp.atRetire.nominal);
+  const last = (d: number | null) => d ?? 90;
+  const extra = last(wp.depletedAge) - last(w.depletedAge);
+  const name = p.name || "you";
+  const lbl = (txt: string, color: string, dy = -12) => ({ value: txt, position: "top" as const, fill: color, fontSize: 12, fontWeight: 700, dy });
+  return (
+    <Card>
+      <Kicker>Step 4 · The answer</Kicker>
+      <h2 className="font-display text-2xl sm:text-3xl font-semibold">Will {name} have enough money to pay the bills after retiring at {R}?</h2>
+      <div className="mt-4 h-80 sm:h-96">
+        <ResponsiveContainer>
+          <LineChart data={data} margin={{ top: 28, right: 24, left: 4, bottom: 4 }}>
+            <CartesianGrid stroke="#EEF2F7" vertical={false} />
+            <XAxis dataKey="age" tick={{ fontSize: 12, fill: "#64748B" }} tickLine={false} axisLine={false} interval={4} />
+            <YAxis tickFormatter={axisMoney} tick={{ fontSize: 12, fill: "#64748B" }} tickLine={false} axisLine={false} width={56} />
+            <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Age ${l}`} formatter={(v, n) => [money(Number(v)), n === "with" ? "With the plan" : "Without the plan"]} />
+            <ReferenceLine x={R} stroke="#94A3B8" strokeDasharray="4 4" label={w.depletedAge && Math.abs(w.depletedAge - R) < 3 ? undefined : { value: `Retire at ${R}`, position: "insideBottomLeft", fill: "#64748B", fontSize: 12, dy: -18 }} />
+            <Line dataKey="without" stroke="#F97361" strokeWidth={3} dot={false} animationDuration={700} />
+            <Line dataKey="with" stroke="#10B981" strokeWidth={3.5} dot={false} animationDuration={700} />
+            <ReferenceDot x={R} y={pAt} r={6} fill="#10B981" stroke="#fff" strokeWidth={2} label={lbl(`With plan: ${compact(pAt)}`, "#047857")} />
+            {wAt > 0 && <ReferenceDot x={R} y={wAt} r={6} fill="#F97361" stroke="#fff" strokeWidth={2} label={lbl(`Without: ${compact(wAt)}`, "#C2410C", 22)} />}
+            {w.depletedAge && <ReferenceDot x={w.depletedAge} y={0} r={6} fill="#F97361" stroke="#fff" strokeWidth={2} label={lbl(`Runs out at ${w.depletedAge}`, "#C2410C")} />}
+            {wp.depletedAge && <ReferenceDot x={wp.depletedAge} y={0} r={6} fill="#10B981" stroke="#fff" strokeWidth={2} label={lbl(`Runs out at ${wp.depletedAge}`, "#047857", w.depletedAge && Math.abs(wp.depletedAge - w.depletedAge) < 6 ? -44 : -12)} />}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="mt-1 flex flex-wrap gap-4 text-[13px] font-semibold"><span className="flex items-center gap-2 text-orange-700"><i className="h-1 w-6 rounded bg-coral" /> Without the plan</span><span className="flex items-center gap-2 text-emerald-700"><i className="h-1 w-6 rounded bg-emerald-500" /> With the plan</span><span className="text-slate-500">Total savings by age</span></div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-2">
+        <div className="rounded-2xl bg-orange-50 p-5 ring-1 ring-orange-200">
+          <div className="text-[13px] font-bold uppercase tracking-wider text-orange-700">Without the plan</div>
+          <div className="mt-1 font-display text-2xl font-semibold text-navy">{w.depletedAge ? `Not enough. Savings run out at ${w.depletedAge}.` : "Savings last past 90."}</div>
+          <p className="mt-1 text-[15px] text-slate-600">About {money(wAt)} saved at {R}.</p>
+        </div>
+        <div className="rounded-2xl bg-emerald-50 p-5 ring-1 ring-emerald-300">
+          <div className="text-[13px] font-bold uppercase tracking-wider text-emerald-700">With the plan</div>
+          <div className="mt-1 font-display text-2xl font-semibold text-navy">{wp.depletedAge ? `Money lasts until ${wp.depletedAge}${extra > 0 ? `, ${extra} more year${extra === 1 ? "" : "s"}` : ""}.` : "Money lasts past 90."}</div>
+          <p className="mt-1 text-[15px] text-slate-600">About {money(pAt)} saved at {R}{pAt > wAt ? `, ${money(pAt - wAt)} more` : ""}.</p>
+        </div>
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-center gap-2 text-[13px]">
+        <span className="font-semibold text-slate-600">Prices rise each year:</span>
+        {[2, 3, 4, 5, 6].map((v) => (
+          <button key={v} onClick={() => set((s) => ({ assumptions: { ...s.assumptions, inflation: v / 100 } }))} aria-pressed={Math.abs(a.inflation * 100 - v) < 0.01}
+            className={cx("rounded-lg px-2.5 py-1 font-semibold", Math.abs(a.inflation * 100 - v) < 0.01 ? "bg-navy text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")}>{v}%</button>
+        ))}
+        <span className="text-slate-400">U.S. long-run average ≈ 3%</span>
+      </div>
+
+      <button onClick={() => setHow(!how)} aria-expanded={how} className="mt-4 flex w-full items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-left text-[15px] font-semibold ring-1 ring-slate-200">How we calculate this <ChevronDown size={18} className={how ? "rotate-180 transition" : "transition"} /></button>
+      {how && (
+        <ul className="mt-3 list-disc space-y-1 pl-5 text-[14px] text-slate-600">
+          <li>Fixed formulas, not AI guesses. Bills rise {Math.round(a.inflation * 100)}% a year; investments earn about {Math.round(a.returnRate * 100)}% a year (not guaranteed).</li>
+          <li>Pension + Social Security are estimated at {Math.round(a.ssReplacement * 100)}% of today's pay, rising with prices. Savings cover the rest of the bills.</li>
+          <li>Life moments: surprise bill {money(PLAN_ASSUMPTIONS.surpriseBill)}; medical costs +{money(PLAN_ASSUMPTIONS.medicalMonthly)}/mo; market drop {Math.round(PLAN_ASSUMPTIONS.marketDrop * 100)}% (without a plan: selling and sitting in cash for 3 years); college {money(PLAN_ASSUMPTIONS.collegeShareNoAid)}/yr per student without the FAFSA vs {money(PLAN_ASSUMPTIONS.collegeShareWithAid)} with typical grants, rising 4% a year.</li>
+          <li>The plan: automatic payday transfers save most of what's left after bills, emergency money earns about {Math.round(PLAN_ASSUMPTIONS.savingsRateWithPlan * 100)}% in a money market (rates vary), plus the items in step 2.</li>
+          <li>Educational estimates, not financial advice.</li>
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+export default function Dashboard() {
+  const { profile: p, assumptions: a, moments: saved, set, setContext } = useStore();
+  const auto = useMemo(() => autoMoments(p), [p]);
+  const selected = (saved as MomentId[] | undefined) ?? auto;
+  const toggle = (m: MomentId) => set({ moments: selected.includes(m) ? selected.filter((x) => x !== m) : [...selected, m] });
+  const plan = useMemo(() => buildPlan(p, a, selected), [p, a, selected]);
+  const [tab, setTab] = useState<TabId>("moments");
   const tabsRef = useRef<HTMLDivElement>(null);
-  const go = (id: string) => {
+  const go = (id: TabId) => {
     setTab(id);
-    // If we've scrolled past the tabs, bring the top of the new section into view
-    const mark = tabsRef.current;
-    if (!mark) return;
+    const mark = tabsRef.current; if (!mark) return;
     const header = window.innerWidth >= 1024 ? 0 : 64;
     const y = mark.getBoundingClientRect().top + window.scrollY - header;
     if (window.scrollY > y) window.scrollTo({ top: y, behavior: "smooth" });
   };
-  // Life moments can send people to the plan tab to see what changed
-  useEffect(() => {
-    const on = (e: Event) => go((e as CustomEvent<string>).detail);
-    window.addEventListener("ns-tab", on);
-    return () => window.removeEventListener("ns-tab", on);
-  }, []);
   const nextTab = TABS[TABS.findIndex((t) => t.id === tab) + 1];
-  const kids = (p.kids || []).filter((k) => k.age < 18).map((k) => ({ ...k, r: simulate529({ childAge: k.age, collegeAge: 18, costNow: DAVE.collegeCostToday, tuitionInflation: 0.04, monthly: 0, returnRate: 0.04, balance: 0 }) }));
-
-  // The one question: after retirement, are the monthly bills covered?
-  const first = proj.firstRetire;
-  const billsAtRetire = first?.expensesMonthly ?? p.expenses;
-  const incomeAtRetire = first?.incomeMonthly ?? 0;
-  const savedAtRetire = proj.atRetire.nominal;
-  const runsOut = proj.depletedAge;
-  const shortAt = runsOut ? proj.flows.find((f) => f.age === runsOut + 1) : null;
-  const ok = !runsOut;
-  const retireFlows = proj.flows.filter((f) => f.retired).map((f) => ({
-    age: f.age, "Monthly bills": Math.round(f.expensesMonthly), "Pension + Social Security": Math.round(f.incomeMonthly),
-    Savings: Math.round(f.fromSavingsMonthly), "Not covered": Math.round(f.shortfallMonthly),
-  }));
-  const years = Math.max(1, 90 - a.retireAge);
-  const coveredYears = runsOut ? Math.max(0, runsOut - a.retireAge) : years;
-
-  const insights = [
-    `${who} saves about ${money(proj.savingToday)} a month today and could have about ${compact(savedAtRetire)} saved by age ${a.retireAge}.`,
-    `Prices rise ${pct(proj.inflation)} a year, so ${his} ${money(p.expenses)} of monthly bills could cost about ${money(billsAtRetire)} a month at ${a.retireAge}. Pension + Social Security cover about ${money(incomeAtRetire)}; savings must cover the other ${money(billsAtRetire - incomeAtRetire)}.`,
-    runsOut ? `At that pace, savings run out around age ${runsOut}. After that, about ${money(shortAt?.shortfallMonthly ?? 0)} a month of bills would not be covered.` : `At that pace, savings last past age 90.`,
-  ];
+  useEffect(() => {
+    setContext({
+      page: "try it now", lifeMoments: selected,
+      plan: plan.items.map((i) => ({ title: i.title, amount: i.amount, where: i.where })),
+      results: { withoutPlan: { savingsAtRetirement: Math.round(plan.without.atRetire.nominal), runsOutAt: plan.without.depletedAge }, withPlan: { savingsAtRetirement: Math.round(plan.withPlan.atRetire.nominal), runsOutAt: plan.withPlan.depletedAge } },
+    });
+  }, [plan, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div>
-      {/* Who this is: the scenario at a glance */}
-      <div className={"mb-4 rounded-3xl p-5 sm:p-6 shadow-card ring-1 " + (isDave ? "bg-gradient-to-br from-emerald-50 via-white to-amber-50 ring-emerald-200" : "bg-white ring-slate-200")}>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-start gap-4">
-            {isDave ? <WorkerIcon size={64} /> : <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-navy text-3xl">🙋</span>}
-            <div>
-              <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">{isDave ? "You're viewing the demo scenario" : "You're viewing your own numbers"}</div>
-              <div className="font-display text-2xl sm:text-3xl font-semibold">{isDave ? "Meet Dave" : p.name ? `${p.name}'s plan` : "Your plan"}</div>
-              <p className="mt-1 max-w-2xl text-[15px] text-slate-600">{isDave
-                ? `Head custodian at a Pennsylvania public high school, earning about $${DAVE.hourly} an hour. His wife Linda works part-time. Every number below is Dave's, already filled in.`
-                : `${p.job ? p.job + ". " : ""}Every number below comes from the answers you gave. Change them anytime.`}</p>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <a href={isDave ? "#/try?pick" : "#/try?walk=mine"} className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> {isDave ? "Use my own numbers" : "Edit my numbers"}</a>
-            {!isDave && <a href="#/try?pick" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"><UserRound size={14} /> Try the demo</a>}
-          </div>
-        </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {[
-            ["Age", `${p.age}`],
-            ["Household income", `${money(p.income)}/yr`],
-            ["Monthly bills", money(p.expenses)],
-            ["Savings", money(p.savings)],
-            ["Retirement savings", money(p.retirement)],
-            ...((p.kids || []).length ? [[(p.kids || []).length === 1 ? "Child" : "Children", (p.kids || []).map((k) => `${k.name} ${k.age}`).join(", ")]] : []),
-          ].map(([k, v]) => (
-            <span key={k} className="rounded-xl bg-white px-3 py-1.5 text-[14px] ring-1 ring-slate-200"><span className="text-slate-500">{k} </span><b className="num text-navy">{v}</b></span>
-          ))}
-        </div>
-      </div>
-
-      {/* Section tabs */}
+      <ScenarioPanel />
       <div ref={tabsRef} />
-      <div className="sticky top-16 lg:top-0 z-20 -mx-4 mb-4 scroll-mt-28 bg-paper/90 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6">
-        <div role="tablist" aria-label="Dashboard sections" className="flex gap-1.5 overflow-x-auto rounded-2xl bg-white p-1.5 shadow-card ring-1 ring-slate-200 [scrollbar-width:none]">
-          {TABS.map((t) => (
+      <div className="sticky top-16 z-20 -mx-4 mb-4 bg-paper/90 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 lg:top-0">
+        <div role="tablist" aria-label="Try it now steps" className="flex gap-1.5 overflow-x-auto rounded-2xl bg-white p-1.5 shadow-card ring-1 ring-slate-200 [scrollbar-width:none]">
+          {TABS.map((t, n) => (
             <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => go(t.id)}
-              className={"inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2.5 text-[14px] font-semibold transition " + (tab === t.id ? "bg-navy text-white" : "text-slate-600 hover:bg-slate-100")}>
-              <t.icon size={16} className={tab === t.id ? "text-emerald-400" : ""} />{t.label}
+              className={"inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-[14px] font-semibold transition " + (tab === t.id ? "bg-navy text-white" : "text-slate-600 hover:bg-slate-100")}>
+              <span className={cx("grid h-5 w-5 place-items-center rounded-full text-[11px] num", tab === t.id ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-600")}>{n + 1}</span>{t.label}
             </button>
           ))}
         </div>
       </div>
 
-      {tab === "answer" && <>
-      {/* Hero: the answer, in one picture */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="hero-dark rounded-[2rem] p-6 sm:p-8 text-white overflow-hidden">
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/15 px-3 py-1 text-[12px] font-bold uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-400/30"><HelpCircle size={14} /> The big question</div>
-        <h1 className="mt-3 font-display text-3xl sm:text-5xl font-semibold leading-tight">Will {isDave ? "Dave" : "you"} have enough money to pay the bills after retiring at {a.retireAge}?</h1>
-        <p className="mt-2 text-[15px] text-slate-400">This panel follows {isDave ? "Dave's" : "your"} savings from today to age 90 and checks every year of retirement.</p>
-        <div className={"mt-4 inline-flex items-start gap-2.5 rounded-2xl px-4 py-3 ring-1 " + (ok ? "bg-emerald-400/10 ring-emerald-400/30" : "bg-amber/10 ring-amber/30")}>
-          {ok ? <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-emerald-400" /> : <AlertTriangle className="mt-0.5 h-6 w-6 shrink-0 text-amber" />}
-          <span className="text-xl sm:text-2xl font-semibold"><span className="text-slate-300">Answer: </span>{ok ? <>Yes. The money lasts past age 90.</> : <>Not quite. Savings run out at <span className="text-amber">age {runsOut}</span>.</>}</span>
-        </div>
-
-        {/* Retirement years: covered vs not */}
-        <div className="mt-6">
-          <div className="flex h-14 overflow-hidden rounded-2xl ring-1 ring-white/10">
-            <motion.div initial={{ width: 0 }} animate={{ width: `${(coveredYears / years) * 100}%` }} transition={{ duration: 0.8 }} className="flex items-center justify-center bg-emerald-500 font-semibold">
-              {coveredYears / years > 0.18 && `✓ Bills covered · ${a.retireAge}–${runsOut ?? 90}`}
-            </motion.div>
-            {!ok && <div className="flex flex-1 items-center justify-center bg-coral font-semibold">{(years - coveredYears) / years > 0.2 && `✗ Not enough · ${runsOut}–90`}</div>}
-          </div>
-          <div className="mt-1.5 flex justify-between text-[13px] text-slate-400"><span>Retire at {a.retireAge}</span><span>Age 90</span></div>
-        </div>
-
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl bg-white/[.07] p-4 ring-1 ring-white/10">
-            <div className="text-[13px] font-semibold uppercase tracking-wider text-emerald-300">💰 Saving now</div>
-            <div className="mt-1 flex flex-wrap items-baseline gap-2"><span className="num text-2xl font-bold">{money(proj.savingToday)}/mo</span><ArrowRight size={16} className="text-slate-400" /><span className="num text-2xl font-bold">{compact(savedAtRetire)}</span><span className="text-slate-300">by {a.retireAge}</span></div>
-          </div>
-          <div className="rounded-2xl bg-white/[.07] p-4 ring-1 ring-white/10">
-            <div className="text-[13px] font-semibold uppercase tracking-wider text-orange-300">🧾 Monthly bills</div>
-            <div className="mt-1 flex flex-wrap items-baseline gap-2"><span className="num text-2xl font-bold">{money(p.expenses)}</span><span className="text-slate-300">today</span><ArrowRight size={16} className="text-slate-400" /><span className="num text-2xl font-bold">{money(billsAtRetire)}</span><span className="text-slate-300">at {a.retireAge}</span></div>
-            <div className="mt-3">
-              <div className="flex items-center justify-between text-[13px]">
-                <label htmlFor="hero-inflation" className="text-slate-300">Prices rise each year (inflation)</label>
-                <span className="num rounded-lg bg-white/10 px-2 py-0.5 font-bold text-white">{(a.inflation * 100).toFixed(1).replace(/\.0$/, "")}%</span>
-              </div>
-              <input id="hero-inflation" type="range" className="rs" min={0} max={8} step={0.5} value={a.inflation * 100}
-                style={{ ["--p" as string]: `${(a.inflation * 100 / 8) * 100}%` }}
-                onChange={(e) => setA({ inflation: Number(e.target.value) / 100 })} aria-valuetext={`${a.inflation * 100}% a year`} />
-              <div className="-mt-1 flex flex-wrap gap-1.5">
-                {[2, 3, 4, 5, 6].map((v) => (
-                  <button key={v} onClick={() => setA({ inflation: v / 100 })} aria-pressed={Math.abs(a.inflation * 100 - v) < 0.01}
-                    className={"rounded-lg px-2.5 py-1 text-[12px] font-semibold " + (Math.abs(a.inflation * 100 - v) < 0.01 ? "bg-orange-300 text-navy" : "bg-white/10 text-slate-200 hover:bg-white/20")}>{v}%</button>
-                ))}
-                <span className="self-center text-[11px] text-slate-400">U.S. long-run average ≈ 3%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="mt-3"><Verified dark source="fixed formulas, not AI guesses" /></div>
+      <motion.div key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+        {tab === "moments" && <MomentsStep selected={selected} toggle={toggle} auto={auto} />}
+        {tab === "plan" && <PlanStep items={plan.items} />}
+        {tab === "steps" && <StepsStep items={plan.items} />}
+        {tab === "answer" && <AnswerStep plan={plan} />}
       </motion.div>
-      </>}
 
-      {/* Where the monthly bill money comes from */}
-      {tab === "money" && <Card>
-        <h2 className="font-display text-2xl font-semibold">Where {isDave ? "Dave's" : "your"} monthly bill money comes from</h2>
-        <div className="mt-3 flex flex-wrap gap-4 text-[14px]">
-          <span className="flex items-center gap-2"><i className="h-3.5 w-3.5 rounded bg-navy" /> Pension + Social Security</span>
-          <span className="flex items-center gap-2"><i className="h-3.5 w-3.5 rounded bg-emerald-500" /> Savings</span>
-          <span className="flex items-center gap-2"><i className="h-3.5 w-3.5 rounded bg-coral" /> Not covered</span>
-        </div>
-        <p className="mt-2 text-[14px] text-slate-500">Each bar is one year of retirement. The orange line is what the monthly bills cost that year, rising with inflation.</p>
-        <div className="mt-3 h-72 sm:h-80">
-          <ResponsiveContainer>
-            <ComposedChart data={retireFlows} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
-              <CartesianGrid stroke="#EEF2F7" vertical={false} />
-              <XAxis dataKey="age" tick={{ fontSize: 12, fill: "#64748B" }} tickLine={false} axisLine={false} />
-              <YAxis tickFormatter={axisMoney} tick={{ fontSize: 12, fill: "#64748B" }} tickLine={false} axisLine={false} width={56} />
-              <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Age ${l} · per month`} formatter={(v, n) => [money(Number(v)), n]} />
-              <Bar dataKey="Pension + Social Security" stackId="a" fill="#0F172A" animationDuration={600} />
-              <Bar dataKey="Savings" stackId="a" fill="#10B981" animationDuration={600} />
-              <Bar dataKey="Not covered" stackId="a" fill="#F97361" radius={[6, 6, 0, 0]} animationDuration={600} />
-              <Line dataKey="Monthly bills" stroke="#F59E0B" strokeWidth={3} dot={false} type="monotone" animationDuration={600} />
-              {runsOut && <ReferenceLine x={runsOut} stroke="#F97361" strokeDasharray="4 4" label={{ value: "Savings run out", position: "insideTopLeft", fill: "#C2410C", fontSize: 12 }} />}
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="mt-2 flex flex-wrap gap-4 text-[13px] text-slate-600"><span className="flex items-center gap-2"><i className="h-0.5 w-5 bg-amber" /> Monthly bills</span></div>
-        <div className="mt-6 text-[13px] font-bold uppercase tracking-wider text-slate-500">Up close</div>
-        <div className="mt-3 space-y-5">
-          <MoneyBar label={`At ${a.retireAge}, when ${isDave ? "Dave retires" : "you retire"}`} bills={billsAtRetire} income={incomeAtRetire} savings={first?.fromSavingsMonthly ?? 0} gap={first?.shortfallMonthly ?? 0} />
-          {shortAt && <MoneyBar label={`At ${shortAt.age}, after savings run out`} bills={shortAt.expensesMonthly} income={shortAt.incomeMonthly} savings={shortAt.fromSavingsMonthly} gap={shortAt.shortfallMonthly} />}
-        </div>
-
-        <button onClick={() => setShowAssume(!showAssume)} aria-expanded={showAssume} className="mt-6 flex w-full items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-left font-semibold ring-1 ring-slate-200">
-          Change the assumptions <ChevronDown size={18} className={showAssume ? "rotate-180 transition" : "transition"} />
-        </button>
-        {showAssume && (
-          <div className="mt-3 grid gap-x-8 sm:grid-cols-2">
-            <Slider label="Retirement age" value={a.retireAge} min={Math.max(55, p.age + 1)} max={75} onChange={(v) => setA({ retireAge: v })} format={(v) => "Age " + v} />
-            <Slider label="Pension + Social Security (rough % of pay)" value={Math.round(a.ssReplacement * 100)} min={0} max={80} onChange={(v) => setA({ ssReplacement: v / 100 })} format={(v) => v + "%"} help="Social Security alone is often 35–40%. Check yours at ssa.gov." />
-            <Slider label="Monthly bills today" value={p.expenses} min={500} max={15000} step={100} onChange={(v) => set((s) => ({ profile: { ...s.profile, expenses: v } }))} format={money} />
-            <div className="sm:col-span-2 flex justify-end"><ResetButton onClick={() => set({ assumptions: isDave ? { ...DAVE_ASSUMPTIONS } : { ...CUSTOM_ASSUMPTIONS } })} /></div>
-          </div>
-        )}
-        <HowWeCalculate />
-      </Card>}
-
-      {tab === "moments" && <div className="-mt-5"><Moments /></div>}
-      {tab === "plan" && <div className="-mt-5"><PlanBuilder /></div>}
-      {tab === "steps" && <div className="-mt-5"><NextSteps /></div>}
-
-      {tab === "college" && kids.length > 0 && (
-        <Card>
-          <div className="flex items-center gap-2 font-semibold"><GraduationCap className="text-sky-600" /> Big costs ahead: college</div>
-          <p className="text-[14px] text-slate-500">A public in-state university costs about {money(DAVE.collegeCostToday)} a year today, before financial aid, and prices rise about 4% a year.</p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            {kids.map((k, i) => (
-              <div key={k.name + i} className="rounded-2xl bg-sky-soft p-4">
-                <div className="text-[13px] font-semibold text-sky-800">{k.name} starts in {k.r.years} {k.r.years === 1 ? "year" : "years"}</div>
-                <div className="num font-display text-2xl font-semibold text-navy">{compact(k.r.totalCost)}</div>
-                <div className="text-[13px] text-slate-600">for 4 years</div>
-              </div>
-            ))}
-          </div>
-          <a href="#/learn/college" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-emerald-700">Plan for it in the College lesson <ArrowRight size={14} /></a>
-        </Card>
-      )}
-
-      {/* Next section */}
       {nextTab && (
         <div className="mt-5 flex justify-center">
-          <button onClick={() => go(nextTab.id)} className="inline-flex items-center gap-2 rounded-2xl bg-navy px-5 py-3 font-semibold text-white hover:bg-navy-800">Next: {nextTab.label} <ArrowRight size={17} /></button>
+          <button onClick={() => go(nextTab.id)} className="inline-flex items-center gap-2 rounded-2xl bg-navy px-6 py-3.5 text-[17px] font-semibold text-white hover:bg-navy-800">
+            {tab === "moments" ? "Build my plan" : `Next: ${nextTab.label}`} <ArrowRight size={18} />
+          </button>
         </div>
       )}
-
     </div>
   );
 }
