@@ -2,7 +2,7 @@ import { Bar, BarChart, CartesianGrid, LabelList, Legend, ResponsiveContainer, T
 import { useSim } from "../lib/store";
 import { compareAccounts } from "../lib/calc";
 import { money, compact, axisMoney } from "../lib/format";
-import { AskRipple, Quiz, Section, Slider, tooltipStyle, cx } from "../components/ui";
+import { WhatItMeans, Quiz, Section, Slider, tooltipStyle, cx } from "../components/ui";
 import { Idea, Simulator, axis } from "../components/Lesson";
 import { useFinish } from "../pages/ModuleFrame";
 
@@ -63,8 +63,8 @@ export default function Accounts() {
           </ResponsiveContainer>
         } />
 
-      <Section n={3} kicker="Next Step explains" title="Understanding the trade-off">
-        <AskRipple ctx={{ page: "lesson", module: "Retirement Account Simulator", inputs: { ...s, taxNow: s.now + "%", taxLater: s.later + "%" }, results: Object.fromEntries(list.map((a) => [a.name, { afterTax: Math.round(a.afterTax), taxesAtWithdrawal: Math.round(a.taxes) }])), insights }}
+      <Section n={3} kicker="What it means" title="Understanding the trade-off">
+        <WhatItMeans ctx={{ page: "lesson", module: "Retirement Account Simulator", inputs: { ...s, taxNow: s.now + "%", taxLater: s.later + "%" }, results: Object.fromEntries(list.map((a) => [a.name, { afterTax: Math.round(a.afterTax), taxesAtWithdrawal: Math.round(a.taxes) }])), insights }}
           prompts={["Why are Roth and Traditional equal when tax rates match?", "How would I guess my future tax rate?", "Why might someone use both?"]} />
       </Section>
       <Section n={4} kicker="Quick check" title="Test yourself">

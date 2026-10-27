@@ -4,7 +4,7 @@ import { useStore } from "../lib/store";
 import { growMonthly } from "../lib/calc";
 import { RULES } from "../lib/rules";
 import { money, compact, axisMoney } from "../lib/format";
-import { AskRipple, Card, Quiz, Section, tooltipStyle } from "../components/ui";
+import { WhatItMeans, Card, Quiz, Section, tooltipStyle } from "../components/ui";
 import { endLabel, axis } from "../components/Lesson";
 import { useFinish } from "./ModuleFrame";
 
@@ -90,8 +90,8 @@ export default function Bank() {
         </Card>
       </Section>
 
-      <Section n={4} kicker="Next Step explains" title="What does this mean for me?">
-        <AskRipple ctx={{ page: "lesson", module: "Emergency fund, FDIC and compounding", inputs: { essentialsMonthly: essentials, saved }, results: { threeMonthGoal: t3, sixMonthGoal: t6, monthsCovered: Math.round(covered * 10) / 10, compound4pct: last.compound, simple4pct: last.simple, regular05pct: last.regular, years }, insights }}
+      <Section n={4} kicker="What it means" title="What does this mean for me?">
+        <WhatItMeans ctx={{ page: "lesson", module: "Emergency fund, FDIC and compounding", inputs: { essentialsMonthly: essentials, saved }, results: { threeMonthGoal: t3, sixMonthGoal: t6, monthsCovered: Math.round(covered * 10) / 10, compound4pct: last.compound, simple4pct: last.simple, regular05pct: last.regular, years }, insights }}
           prompts={["How fast can I build my emergency fund?", "Is my money safe if the bank fails?", "How does compounding work?"]} />
       </Section>
       <Section n={5} kicker="Quick check" title="Test yourself">

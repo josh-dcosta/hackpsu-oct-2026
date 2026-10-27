@@ -3,7 +3,7 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { useSim } from "../lib/store";
 import { futureCost, todaysDollars } from "../lib/calc";
 import { money, axisMoney } from "../lib/format";
-import { AskRipple, NumberField, Quiz, Section, Slider, cx, tooltipStyle } from "../components/ui";
+import { WhatItMeans, NumberField, Quiz, Section, Slider, cx, tooltipStyle } from "../components/ui";
 import { Idea, Simulator, endLabel, axis } from "../components/Lesson";
 import { useFinish } from "../pages/ModuleFrame";
 
@@ -81,8 +81,8 @@ export default function Inflation() {
           </ResponsiveContainer>
         } />
 
-      <Section n={3} kicker="Next Step explains" title="What does this mean for you?">
-        <AskRipple ctx={{ page: "lesson", module: "Inflation Time Machine", inputs: { item: item?.label ?? "custom item", priceToday: s.price, inflationRate: s.rate + "%", years: s.years }, results: { futurePrice: Math.round(fut), hundredDollarsWorthInTodaysDollars: Math.round(pp), yearsToDouble: isFinite(doubling) ? Math.round(doubling) : null }, insights }}
+      <Section n={3} kicker="What it means" title="What does this mean for you?">
+        <WhatItMeans ctx={{ page: "lesson", module: "Inflation Time Machine", inputs: { item: item?.label ?? "custom item", priceToday: s.price, inflationRate: s.rate + "%", years: s.years }, results: { futurePrice: Math.round(fut), hundredDollarsWorthInTodaysDollars: Math.round(pp), yearsToDouble: isFinite(doubling) ? Math.round(doubling) : null }, insights }}
           prompts={["Why does inflation compound?", "How can I protect my savings from inflation?", "Is some inflation normal?"]} />
       </Section>
       <Section n={4} kicker="Quick check" title="Test yourself">

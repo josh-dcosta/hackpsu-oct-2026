@@ -4,7 +4,7 @@ import { useSim, useStore } from "../lib/store";
 import { simulate401k } from "../lib/calc";
 import { RULES } from "../lib/rules";
 import { money, compact, axisMoney } from "../lib/format";
-import { AskRipple, Card, Quiz, Section, Slider, tooltipStyle } from "../components/ui";
+import { WhatItMeans, Card, Quiz, Section, Slider, tooltipStyle } from "../components/ui";
 import { Idea, Simulator, axis } from "../components/Lesson";
 import { useFinish } from "../pages/ModuleFrame";
 
@@ -104,8 +104,8 @@ export default function K401() {
         </Card>
       </div>
 
-      <Section n={3} kicker="Next Step explains" title="Why do small changes matter so much?">
-        <AskRipple ctx={{ page: "lesson", module: "401(k) Growth Simulator", inputs: { ...s, contribPct: s.contrib + "%", match: `${s.matchRate}% up to ${s.matchCap}% of pay` }, results: { projected: Math.round(r.final), todaysDollars: Math.round(r.finalReal), yourContributions: Math.round(r.totalEmployee), employerMatch: Math.round(r.totalEmployer), growth: Math.round(r.totalGrowth), byContribution: Object.fromEntries(compare.map((c) => [c.label, Math.round(c.final)])), startNow: Math.round(early.final), startIn10Years: Math.round(late.final), missedMatchThisYear: Math.round(missing) }, insights }}
+      <Section n={3} kicker="What it means" title="Why do small changes matter so much?">
+        <WhatItMeans ctx={{ page: "lesson", module: "401(k) Growth Simulator", inputs: { ...s, contribPct: s.contrib + "%", match: `${s.matchRate}% up to ${s.matchCap}% of pay` }, results: { projected: Math.round(r.final), todaysDollars: Math.round(r.finalReal), yourContributions: Math.round(r.totalEmployee), employerMatch: Math.round(r.totalEmployer), growth: Math.round(r.totalGrowth), byContribution: Object.fromEntries(compare.map((c) => [c.label, Math.round(c.final)])), startNow: Math.round(early.final), startIn10Years: Math.round(late.final), missedMatchThisYear: Math.round(missing) }, insights }}
           prompts={["Why does going from 5% to 10% make such a big difference?", "What is an employer match, really?", "Why does starting early matter?"]} />
       </Section>
       <Section n={4} kicker="Quick check" title="Test yourself">

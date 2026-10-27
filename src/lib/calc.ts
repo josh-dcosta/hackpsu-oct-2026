@@ -1,5 +1,5 @@
-// Deterministic financial calculators. Every number shown in Next Step (and every number
-// the AI coach explains) comes from these functions. Pure functions, no side effects.
+// Deterministic financial calculators. Every number shown in Next Step
+// comes from these functions. Pure functions, no side effects.
 import { k401Limit, RULES } from "./rules";
 
 const pw = Math.pow;

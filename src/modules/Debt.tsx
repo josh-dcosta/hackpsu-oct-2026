@@ -2,7 +2,7 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { useSim } from "../lib/store";
 import { multiDebt, type Debt as D } from "../lib/calc";
 import { money, compact, axisMoney, months } from "../lib/format";
-import { AskRipple, Quiz, Section, Slider, tooltipStyle } from "../components/ui";
+import { WhatItMeans, Quiz, Section, Slider, tooltipStyle } from "../components/ui";
 import { Idea, Simulator, axis } from "../components/Lesson";
 import { useFinish } from "../pages/ModuleFrame";
 
@@ -67,8 +67,8 @@ export default function Debt() {
           </ResponsiveContainer>
         </div>} />
 
-      <Section n={3} kicker="Next Step explains" title="Make a plan">
-        <AskRipple ctx={{ page: "lesson", module: "Debt Payoff Simulator", inputs: s, results: { totalDebt: total, monthlyPayment: pay, minimums: Math.round(mins), debtFreeMonths: mine.months, interest: Math.round(mine.totalInterest), withExtra100Months: more.months, withExtra100Interest: Math.round(more.totalInterest), minimumsOnlyMonths: isFinite(minOnly.months) ? minOnly.months : "never", payoffOrder: mine.order }, insights }}
+      <Section n={3} kicker="What it means" title="Make a plan">
+        <WhatItMeans ctx={{ page: "lesson", module: "Debt Payoff Simulator", inputs: s, results: { totalDebt: total, monthlyPayment: pay, minimums: Math.round(mins), debtFreeMonths: mine.months, interest: Math.round(mine.totalInterest), withExtra100Months: more.months, withExtra100Interest: Math.round(more.totalInterest), minimumsOnlyMonths: isFinite(minOnly.months) ? minOnly.months : "never", payoffOrder: mine.order }, insights }}
           prompts={["Which debt should I pay first?", "Why is the minimum payment a trap?", "Should I save or pay off debt first?"]} />
       </Section>
       <Section n={4} kicker="Quick check" title="Test yourself">

@@ -3,7 +3,7 @@ import { Shuffle } from "lucide-react";
 import { useSim, useStore } from "../lib/store";
 import { runPortfolio, MARKETS, type MarketKey } from "../lib/calc";
 import { money, compact, axisMoney, pct } from "../lib/format";
-import { AskRipple, Button, Quiz, Section, Slider, tooltipStyle, cx } from "../components/ui";
+import { WhatItMeans, Button, Quiz, Section, Slider, tooltipStyle, cx } from "../components/ui";
 import { Idea, Simulator, endLabel, axis } from "../components/Lesson";
 import { useFinish } from "../pages/ModuleFrame";
 
@@ -82,8 +82,8 @@ export default function Invest() {
           </ResponsiveContainer>
         } />
 
-      <Section n={3} kicker="Next Step explains" title="Risk and reward">
-        <AskRipple ctx={{ page: "lesson", module: "One stock vs index funds", inputs: { allocationPct: Object.fromEntries(Object.entries(alloc).map(([k, v]) => [k, Math.round((v / total) * 100)])), market: MARKETS[s.market].label, startingAmount: s.amount }, results: { yourMixFinal: Math.round(r.mine.final), yourWorstDropPct: Math.round(r.mine.maxDD * 100), oneStock: Math.round(r.comps.single.final), indexFund: Math.round(r.comps.index.final), sixtyForty: Math.round(r.comps.mix.final) }, insights }}
+      <Section n={3} kicker="What it means" title="Risk and reward">
+        <WhatItMeans ctx={{ page: "lesson", module: "One stock vs index funds", inputs: { allocationPct: Object.fromEntries(Object.entries(alloc).map(([k, v]) => [k, Math.round((v / total) * 100)])), market: MARKETS[s.market].label, startingAmount: s.amount }, results: { yourMixFinal: Math.round(r.mine.final), yourWorstDropPct: Math.round(r.mine.maxDD * 100), oneStock: Math.round(r.comps.single.final), indexFund: Math.round(r.comps.index.final), sixtyForty: Math.round(r.comps.mix.final) }, insights }}
           prompts={["Why is one stock so risky?", "Why hold bonds at all?", "What is dollar-cost averaging?"]} />
       </Section>
       <Section n={4} kicker="Quick check" title="Test yourself">

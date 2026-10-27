@@ -6,7 +6,6 @@ import Welcome from "./pages/Welcome";
 import Dashboard from "./pages/Dashboard";
 import Learn from "./pages/Learn";
 import Bank from "./pages/Bank";
-import Coach from "./pages/Coach";
 import Progress from "./pages/Progress";
 import { AboutApp, AboutMe, Mission } from "./pages/About";
 import ModuleFrame from "./pages/ModuleFrame";
@@ -48,7 +47,6 @@ export default function App() {
   else if (route === "/try") page = <Dashboard />;
   else if (route === "/learn" || route === "/sims" || route === "/future") page = <Learn />;
   else if (route === "/bank") page = <ModuleFrame id="bank"><Bank /></ModuleFrame>;
-  else if (route === "/coach") page = <Coach />;
   else if (route === "/progress") page = <Progress />;
   else if (route.startsWith("/learn/")) {
     const id = route.split("/")[2];

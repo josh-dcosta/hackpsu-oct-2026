@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, MessageCircle, CheckCircle2, Rocket, Info } from "lucide-react";
+import { BookOpen, CheckCircle2, Rocket, Info } from "lucide-react";
 import { ABOUT_NAV } from "./SiteMenu";
 import { useStore } from "../lib/store";
 import { cx } from "./ui";
@@ -10,7 +10,6 @@ import { MODULES } from "../data/modules";
 export const NAV = [
   { href: "#/try", label: "Try it now", short: "Try it", icon: Rocket },
   { href: "#/learn", label: "Learn", short: "Learn", icon: BookOpen },
-  { href: "#/coach", label: "Ask Next Step", short: "Ask", icon: MessageCircle },
 ];
 
 
@@ -76,7 +75,7 @@ export function Layout({ route, children }: { route: string; children: ReactNode
 
       {/* Mobile bottom tabs */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur safe-bottom lg:hidden" aria-label="Main">
-        <div className="mx-auto grid max-w-md grid-cols-4">
+        <div className="mx-auto grid max-w-md grid-cols-3">
           {[{ href: "#/about", short: "About", icon: Info }, ...NAV].map((n) => (
             <a key={n.href} href={n.href} aria-current={(n.href === "#/about" ? inAbout : active(n.href)) ? "page" : undefined}
               className={cx("flex flex-col items-center gap-1 pt-2.5 pb-1 text-[11px] font-semibold", (n.href === "#/about" ? inAbout : active(n.href)) ? "text-emerald-600" : "text-slate-500")}>

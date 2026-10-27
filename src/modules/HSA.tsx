@@ -3,7 +3,7 @@ import { useSim } from "../lib/store";
 import { simulateHSA } from "../lib/calc";
 import { RULES } from "../lib/rules";
 import { money, compact, axisMoney } from "../lib/format";
-import { AskRipple, Quiz, Section, Slider, tooltipStyle } from "../components/ui";
+import { WhatItMeans, Quiz, Section, Slider, tooltipStyle } from "../components/ui";
 import { Idea, Simulator, axis } from "../components/Lesson";
 import { useFinish } from "../pages/ModuleFrame";
 
@@ -54,8 +54,8 @@ export default function HSA() {
           </div>
         </div>} />
 
-      <Section n={3} kicker="Next Step explains" title="Where does the advantage come from?">
-        <AskRipple ctx={{ page: "lesson", module: "HSA Simulator", inputs: s, results: { taxSavedPerYear: Math.round(r.taxSavedPerYear), totalTaxSaved: Math.round(r.totalTaxSaved), hsaBalance: Math.round(r.hsaFinal), regularSavingsBalance: Math.round(r.savingsFinal) }, insights }}
+      <Section n={3} kicker="What it means" title="Where does the advantage come from?">
+        <WhatItMeans ctx={{ page: "lesson", module: "HSA Simulator", inputs: s, results: { taxSavedPerYear: Math.round(r.taxSavedPerYear), totalTaxSaved: Math.round(r.totalTaxSaved), hsaBalance: Math.round(r.hsaFinal), regularSavingsBalance: Math.round(r.savingsFinal) }, insights }}
           prompts={["Explain the triple tax advantage simply", "Who is eligible for an HSA?", "What counts as a qualified expense?"]} />
       </Section>
       <Section n={4} kicker="Quick check" title="Test yourself">

@@ -54,7 +54,7 @@ export default function Progress() {
 
       <Card className="mt-5">
         <div className="font-semibold">About the numbers</div>
-        <p className="mt-2 text-[15px] text-slate-600">Next Step is an educational tool. All simulations use hypothetical inputs and fictional money, and every calculation is done by fixed formulas. The AI coach explains those results but never invents its own. Projections can't predict the future: markets, inflation, taxes, and laws change. This is not financial, tax, legal, or investment advice.</p>
+        <p className="mt-2 text-[15px] text-slate-600">Next Step is an educational tool. All simulations use hypothetical inputs and fictional money, and every calculation is done by fixed formulas. Nothing you enter leaves your device. Projections can't predict the future: markets, inflation, taxes, and laws change. This is not financial, tax, legal, or investment advice.</p>
         <p className="mt-3 text-[13px] font-semibold text-slate-500">{RULES.year} limits verified {RULES.verifiedOn} from:</p>
         <ul className="mt-1 space-y-1">
           {RULES.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[14px] font-medium text-emerald-700 hover:underline">{s.label} <ExternalLink size={12} /></a></li>)}

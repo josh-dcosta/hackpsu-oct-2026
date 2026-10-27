@@ -2,9 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Check, X, Lightbulb, RotateCcw, Info, Loader2 } from "lucide-react";
 import { useStore } from "../lib/store";
-import { askRipple, type RippleContext } from "../lib/ripple";
 import { money } from "../lib/format";
-import { CoachIcon } from "./Brand";
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(" ");
 
@@ -158,61 +156,17 @@ export function RichText({ text }: { text: string }) {
   );
 }
 
-/** "Next Step explains" card: grounded in the current simulation's numbers. */
-export function AskRipple({ ctx, prompts, title = "Ask Next Step about your numbers" }: { ctx: RippleContext; prompts: string[]; title?: string }) {
-  const { profile, award, badge, asked, set, setContext } = useStore();
-  const [answer, setAnswer] = useState<{ q: string; text: string; source: string } | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [custom, setCustom] = useState("");
-  // keep the global context fresh for the floating coach
-  useEffect(() => { setContext(ctx as Record<string, unknown>); }, [JSON.stringify(ctx)]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const ask = async (q: string) => {
-    if (!q.trim() || loading) return;
-    setLoading(true); setAnswer({ q, text: "", source: "" });
-    const r = await askRipple(q, ctx, profile);
-    setAnswer({ q, text: r.text, source: r.source }); setLoading(false); setCustom("");
-    award(10, "Asked Next Step a question", "ask-" + q.slice(0, 40));
-    set((s) => ({ asked: s.asked + 1 }));
-    if (asked + 1 >= 3) badge("curious");
-  };
+/** "What it means": plain-English takeaways computed from the simulator's numbers (no AI). */
+export type InsightContext = { insights?: string[]; [k: string]: unknown };
+export function WhatItMeans({ ctx }: { ctx: InsightContext; prompts?: string[] }) {
   return (
     <Card className="bg-gradient-to-br from-white to-emerald-50/60">
-      <div className="flex items-center gap-3">
-        <CoachIcon />
-        <div>
-          <div className="font-semibold">{title}</div>
-          <div className="text-[13px] text-slate-500">Next Step uses the results above. It never makes up its own math.</div>
-        </div>
-      </div>
-      {ctx.insights && ctx.insights.length > 0 && (
-        <ul className="mt-4 space-y-2">
-          {ctx.insights.slice(0, 3).map((t, i) => (
-            <li key={i} className="flex gap-2 text-[15px] text-slate-700"><Sparkles size={16} className="mt-1 shrink-0 text-emerald-500" />{t}</li>
-          ))}
-        </ul>
-      )}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {prompts.map((p) => (
-          <button key={p} onClick={() => ask(p)} disabled={loading} className="rounded-full bg-white px-3.5 py-2 text-left text-sm font-semibold text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50 disabled:opacity-50">{p}</button>
+      <ul className="space-y-2.5">
+        {(ctx.insights || []).map((t, i) => (
+          <li key={i} className="flex gap-2.5 text-[16px] text-slate-700"><Lightbulb size={18} className="mt-0.5 shrink-0 text-emerald-500" />{t}</li>
         ))}
-      </div>
-      <form className="mt-3 flex gap-2" onSubmit={(e) => { e.preventDefault(); ask(custom); }}>
-        <label htmlFor={"ask-" + (ctx.module || "x")} className="sr-only">Ask your own question</label>
-        <input id={"ask-" + (ctx.module || "x")} value={custom} onChange={(e) => setCustom(e.target.value)} placeholder="Or ask your own question…" className="min-h-[48px] flex-1 rounded-2xl bg-white px-4 ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" />
-        <Button type="submit" disabled={loading || !custom.trim()}>Ask</Button>
-      </form>
-      <AnimatePresence>
-        {answer && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-slate-200" aria-live="polite">
-            <div className="text-[13px] font-semibold text-slate-500">You asked: {answer.q}</div>
-            {loading ? <div className="mt-3 flex items-center gap-2 text-slate-500"><Loader2 className="animate-spin" size={18} /> Next Step is thinking…</div>
-              : <div className="mt-2 text-[15px] leading-relaxed text-slate-700"><RichText text={answer.text} /></div>}
-            {!loading && answer.source === "built-in" && <div className="mt-2 text-[12px] text-slate-400">Answered with Next Step's built-in explainer (AI is offline right now).</div>}
-            {!loading && <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-slate-100 pt-2 text-[12px] font-semibold text-emerald-700"><span>✓ Uses only the numbers calculated on this page</span><a href="https://www.irs.gov/newsroom/401k-limit-increases-to-24500-for-2026-ira-limit-increases-to-7500" target="_blank" rel="noreferrer" className="text-slate-500 hover:underline">Tax limits: IRS 2026</a><span className="text-slate-400">Educational, not advice</span></div>}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </ul>
+      <div className="mt-3 border-t border-slate-100 pt-2 text-[12px] font-semibold text-emerald-700">✓ Calculated from the numbers above · educational, not advice</div>
     </Card>
   );
 }

@@ -2,7 +2,7 @@ import { Bar, BarChart, CartesianGrid, LabelList, Legend, ResponsiveContainer, T
 import { useSim, useStore } from "../lib/store";
 import { lifeExpenses, EXPENSE_CATS } from "../lib/calc";
 import { money, axisMoney } from "../lib/format";
-import { AskRipple, Quiz, Section, Segmented, Slider, tooltipStyle } from "../components/ui";
+import { WhatItMeans, Quiz, Section, Segmented, Slider, tooltipStyle } from "../components/ui";
 import { Idea, Simulator, axis } from "../components/Lesson";
 import { useFinish } from "../pages/ModuleFrame";
 
@@ -55,8 +55,8 @@ export default function LifeStages() {
           </ResponsiveContainer>
         } />
 
-      <Section n={3} kicker="Next Step explains" title="Lifestyle vs. inflation">
-        <AskRipple ctx={{ page: "lesson", module: "Life Expense Simulator", inputs: s, results: { stages: rows.map((r) => ({ age: r.age, totalMonthly: r.total, retired: !!r.retired })) }, insights }}
+      <Section n={3} kicker="What it means" title="Lifestyle vs. inflation">
+        <WhatItMeans ctx={{ page: "lesson", module: "Life Expense Simulator", inputs: s, results: { stages: rows.map((r) => ({ age: r.age, totalMonthly: r.total, retired: !!r.retired })) }, insights }}
           prompts={["Which costs grow the most, and why?", "Why might retirement cost less in some ways?", "How do I plan for healthcare costs?"]} />
       </Section>
       <Section n={4} kicker="Quick check" title="Test yourself">

@@ -2,7 +2,7 @@ import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Too
 import { useSim, useStore } from "../lib/store";
 import { simulate529 } from "../lib/calc";
 import { money, compact, axisMoney } from "../lib/format";
-import { AskRipple, Quiz, Section, Slider, tooltipStyle, cx } from "../components/ui";
+import { WhatItMeans, Quiz, Section, Slider, tooltipStyle, cx } from "../components/ui";
 import { Idea, Simulator, endLabel, axis } from "../components/Lesson";
 import { useFinish } from "../pages/ModuleFrame";
 
@@ -56,8 +56,8 @@ export default function College() {
           </ResponsiveContainer>
         } />
 
-      <Section n={3} kicker="Next Step explains" title="Why starting early helps">
-        <AskRipple ctx={{ page: "lesson", module: "College Savings Simulator", inputs: s, results: { yearsUntilCollege: r.years, projectedFourYearCost: Math.round(r.totalCost), projectedSaved: Math.round(r.saved), coveragePct: Math.round(r.coverage * 100), monthlyNeededStartingNow: Math.round(r.neededNow) }, insights }}
+      <Section n={3} kicker="What it means" title="Why starting early helps">
+        <WhatItMeans ctx={{ page: "lesson", module: "College Savings Simulator", inputs: s, results: { yearsUntilCollege: r.years, projectedFourYearCost: Math.round(r.totalCost), projectedSaved: Math.round(r.saved), coveragePct: Math.round(r.coverage * 100), monthlyNeededStartingNow: Math.round(r.neededNow) }, insights }}
           prompts={["What can I do with only 1–3 years left?", "How do FAFSA and the PA State Grant help?", "Should I save for college or retirement first?"]} />
       </Section>
       <Section n={4} kicker="Quick check" title="Test yourself">

@@ -95,7 +95,7 @@ const GALLERY = [
   { img: "steps", title: "Next steps at your bank", text: "Every action links to the First National Bank product that does it, with how-to steps and a calendar reminder." },
   { img: "answer", title: "The answer", text: "One graph: where your savings go without the plan, and with it. How much you'll have at retirement, and how long it lasts." },
   { img: "learn", title: "Learn by doing", text: "Short lessons with a simple simulator: sliders on the left, the answer written right on the chart." },
-  { img: "coach", title: "How AI is used", text: "Every number comes from fixed, tested formulas and official IRS, FDIC and Social Security sources. The AI coach, built on Anthropic's Claude, explains those numbers in plain English. It never invents its own." },
+  { img: "progress", title: "Numbers you can trust", text: "Every number comes from fixed, tested formulas and official IRS, FDIC and Social Security sources. No bank logins, no account numbers: everything stays on your device. Take your plan with you as a PDF." },
 ];
 
 function Gallery() {
@@ -183,7 +183,7 @@ export function Mission() {
     { icon: Church, title: "Local churches", text: "Churches are where trust already lives. I want to run simple workshops after services and at community nights, walking families through their own numbers on their own phones." },
     { icon: Users, title: "Workers' unions", text: "Union halls bring together exactly the people I built this for: tradespeople, custodians, drivers and service workers. Lunch-and-learns around open enrollment and raises, when the decisions are real." },
     { icon: Landmark, title: "Credit unions", text: "Credit unions are member-owned and community-minded. Partnering with them connects every lesson to a safe, real next step, like opening an insured savings account." },
-    { icon: Languages, title: "Multiple languages", text: "Money stress doesn't only speak English. I want Next Step, its lessons and its AI coach available in the languages people speak at home." },
+    { icon: Languages, title: "Multiple languages", text: "Money stress doesn't only speak English. I want Next Step and its lessons available in the languages people speak at home." },
   ];
   return (
     <Panels tabs={[

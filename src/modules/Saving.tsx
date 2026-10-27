@@ -2,7 +2,7 @@ import { CartesianGrid, LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YA
 import { useSim } from "../lib/store";
 import { savingsVsInvesting } from "../lib/calc";
 import { money, compact, axisMoney } from "../lib/format";
-import { AskRipple, Quiz, Section, Segmented, Slider, tooltipStyle } from "../components/ui";
+import { WhatItMeans, Quiz, Section, Segmented, Slider, tooltipStyle } from "../components/ui";
 import { Idea, Simulator, endLabel, axis } from "../components/Lesson";
 import { useFinish } from "../pages/ModuleFrame";
 
@@ -51,8 +51,8 @@ export default function Saving() {
           </ResponsiveContainer>
         } />
 
-      <Section n={3} kicker="Next Step explains" title="Which one wins?">
-        <AskRipple ctx={{ page: "lesson", module: "Savings vs Investing", inputs: s, results: { totalContributed: Math.round(last.contributed), zeroPctAccount: Math.round(last.cash), savingsAccount: Math.round(last.hysa), investing: Math.round(last.invest), investingIfLowerReturns: Math.round(last.investLow), zeroPctTodaysDollars: Math.round(last.cashReal) }, insights }}
+      <Section n={3} kicker="What it means" title="Which one wins?">
+        <WhatItMeans ctx={{ page: "lesson", module: "Savings vs Investing", inputs: s, results: { totalContributed: Math.round(last.contributed), zeroPctAccount: Math.round(last.cash), savingsAccount: Math.round(last.hysa), investing: Math.round(last.invest), investingIfLowerReturns: Math.round(last.investLow), zeroPctTodaysDollars: Math.round(last.cashReal) }, insights }}
           prompts={["Why not invest my emergency fund?", "Why does the 0% line fall in today's dollars?", "When is saving better than investing?"]} />
       </Section>
       <Section n={4} kicker="Quick check" title="Test yourself">
