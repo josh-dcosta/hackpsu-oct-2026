@@ -126,7 +126,7 @@ export function ApplyToPlan({ label, patch, summary }: { label: string; patch: P
         <div className="text-[14px] text-emerald-800">{summary}</div>
       </div>
       {done ? (
-        <a href="#/" className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-navy px-5 py-3 font-semibold text-white">✓ Added · See the impact on Home →</a>
+        <a href="#/try" className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-navy px-5 py-3 font-semibold text-white">✓ Added · See the impact on my plan →</a>
       ) : (
         <Button onClick={() => { set((s) => ({ assumptions: { ...s.assumptions, ...patch } })); setDone(true); award(15, "Added a move to your plan", "plan-" + label); }}>{label}</Button>
       )}

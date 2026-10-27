@@ -117,7 +117,7 @@ export function buildSteps(p: Profile, a: Assumptions, start: Assumptions): Step
     why: `Your plan assumes pension + Social Security replace about ${Math.round(a.ssReplacement * 100)}% of pay. Your real number makes the plan more accurate.`,
     how: ["Create a free my Social Security account at ssa.gov.", "Note your estimated benefit at 62, 67 and 70.", "On Home, adjust \"Pension + Social Security\" to match."],
     source: { label: "SSA: my Social Security", url: "https://www.ssa.gov/myaccount/" },
-    lesson: "#/", inPlan: true, when: "this year",
+    lesson: "#/try", inPlan: true, when: "this year",
   });
 
   // Plan items first, then suggestions

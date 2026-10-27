@@ -138,7 +138,7 @@ export default function Dashboard() {
     // If we've scrolled past the tabs, bring the top of the new section into view
     const mark = tabsRef.current;
     if (!mark) return;
-    const header = window.innerWidth >= 768 ? 64 : 104;
+    const header = window.innerWidth >= 1024 ? 0 : 64;
     const y = mark.getBoundingClientRect().top + window.scrollY - header;
     if (window.scrollY > y) window.scrollTo({ top: y, behavior: "smooth" });
   };
@@ -188,8 +188,8 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <a href={isDave ? "#/welcome" : "#/welcome?edit"} className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> {isDave ? "Use my own numbers" : "Edit my numbers"}</a>
-            {!isDave && <a href="#/welcome" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"><UserRound size={14} /> Try the demo</a>}
+            <a href={isDave ? "#/try?pick" : "#/try?walk=mine"} className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> {isDave ? "Use my own numbers" : "Edit my numbers"}</a>
+            {!isDave && <a href="#/try?pick" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"><UserRound size={14} /> Try the demo</a>}
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -208,7 +208,7 @@ export default function Dashboard() {
 
       {/* Section tabs */}
       <div ref={tabsRef} />
-      <div className="sticky top-[104px] md:top-16 z-20 -mx-4 mb-4 scroll-mt-28 bg-paper/90 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6">
+      <div className="sticky top-16 lg:top-0 z-20 -mx-4 mb-4 scroll-mt-28 bg-paper/90 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6">
         <div role="tablist" aria-label="Dashboard sections" className="flex gap-1.5 overflow-x-auto rounded-2xl bg-white p-1.5 shadow-card ring-1 ring-slate-200 [scrollbar-width:none]">
           {TABS.map((t) => (
             <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => go(t.id)}

@@ -131,7 +131,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const resetAll = useCallback(() => {
     localStorage.removeItem(KEY); localStorage.removeItem(KEY + "-once"); clearMine(); onceRef.current = new Set();
-    setS(DEFAULT); window.location.hash = "#/welcome";
+    setS(DEFAULT); setEntered(false); window.location.hash = "#/try";
   }, []);
 
   const value = useMemo<Ctx>(() => ({ ...s, entered, setEntered, highlight, flash, set, award, badge, touch, finishModule, resetAll, toasts, context, setContext, saveSim }),

@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Home, BookOpen, MessageCircle, CheckCircle2, X } from "lucide-react";
-import { SiteMenu } from "./SiteMenu";
+import { BookOpen, MessageCircle, CheckCircle2, X, Rocket, Info } from "lucide-react";
+import { ABOUT_NAV } from "./SiteMenu";
 import { useStore } from "../lib/store";
 import { Chat } from "./Chat";
 import { cx } from "./ui";
@@ -9,28 +9,37 @@ import { Logo, Wordmark, CoachIcon } from "./Brand";
 import { MODULES } from "../data/modules";
 
 export const NAV = [
-  { href: "#/", label: "Dashboard", short: "Home", icon: Home },
+  { href: "#/try", label: "Try it now", short: "Try it", icon: Rocket },
   { href: "#/learn", label: "Learn", short: "Learn", icon: BookOpen },
   { href: "#/coach", label: "Ask Next Step", short: "Next Step", icon: MessageCircle },
   { href: "#/progress", label: "Progress", short: "Progress", icon: CheckCircle2 },
 ];
-const MOBILE = ["#/", "#/learn", "#/coach", "#/progress"];
+
 
 export function Layout({ route, children }: { route: string; children: ReactNode }) {
-  const { done, simple, set, toasts } = useStore();
+  const { done, toasts } = useStore();
   const [coach, setCoach] = useState(false);
-  const active = (href: string) => (href === "#/" ? route === "/" : ("#" + route).startsWith(href));
+  const active = (href: string) => (href === "#/about" ? route === "/" || route === "/about" : ("#" + route).startsWith(href));
+  const inAbout = ABOUT_NAV.some((n) => active(n.href));
 
   return (
     <div className="min-h-screen ripple-bg">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 z-50 bg-white px-3 py-2 rounded-lg">Skip to content</a>
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-navy px-4 py-6 text-white lg:flex">
-        <a href="#/" className="flex items-center gap-3 px-2">
+        <a href="#/about" className="flex items-center gap-3 px-2">
           <Logo size={42} />
           <Wordmark dark />
         </a>
         <nav className="mt-8 space-y-1" aria-label="Main">
+          <div className="flex items-center gap-3 px-3 pb-1 pt-1 text-[15px] font-semibold text-slate-300"><Info size={20} className={inAbout ? "text-emerald-400" : ""} />About</div>
+          <div className="ml-[22px] space-y-0.5 border-l border-white/10 pl-3">
+            {ABOUT_NAV.map((n) => (
+              <a key={n.href} href={n.href} aria-current={active(n.href) ? "page" : undefined}
+                className={cx("block rounded-xl px-3 py-2 text-[14px] font-semibold transition", active(n.href) ? "bg-white/10 text-white" : "text-slate-400 hover:bg-white/5 hover:text-white")}>{n.label}</a>
+            ))}
+          </div>
+          <div className="!mt-4" />
           {NAV.map((n) => (
             <a key={n.href} href={n.href} aria-current={active(n.href) ? "page" : undefined}
               className={cx("flex items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-semibold transition", active(n.href) ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white")}>
@@ -45,33 +54,20 @@ export function Layout({ route, children }: { route: string; children: ReactNode
         </div>
       </aside>
 
-      {/* Top bar */}
-      <header className="sticky top-0 z-30 border-b border-slate-200/60 bg-paper/80 backdrop-blur lg:ml-64">
+      {/* Top bar (phones and tablets) */}
+      <header className="sticky top-0 z-30 border-b border-slate-200/60 bg-paper/80 backdrop-blur lg:hidden">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-          <a href="#/" className="flex items-center gap-2 lg:hidden"><Logo size={36} /><Wordmark sub={false} /></a>
-          <SiteMenu route={route} className="hidden md:flex" />
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2" title="Changes how lessons are worded: Simple uses plain words; Detailed adds terms and formulas.">
-              <span className="hidden text-[13px] font-medium text-slate-500 xl:inline">Lesson wording</span>
-              <div role="group" aria-label="Lesson wording" className="flex rounded-xl bg-white p-0.5 ring-1 ring-slate-200">
-                {[true, false].map((v) => (
-                  <button key={String(v)} onClick={() => set({ simple: v })} aria-pressed={simple === v}
-                    className={cx("rounded-lg px-2.5 py-1.5 text-[13px] font-semibold", simple === v ? "bg-navy text-white" : "text-slate-500 hover:text-navy")}>{v ? "Simple" : "Detailed"}</button>
-                ))}
-              </div>
-            </div>
-            <a href="#/progress" className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700 lg:hidden num" aria-label="Lessons completed"><CheckCircle2 size={15} />{done.length}/{MODULES.length}</a>
-          </div>
+          <a href="#/about" className="flex items-center gap-2"><Logo size={36} /><Wordmark sub={false} /></a>
+          <a href="#/progress" className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700 num" aria-label="Lessons completed"><CheckCircle2 size={15} />{done.length}/{MODULES.length}</a>
         </div>
-        <div className="border-t border-slate-200/60 px-3 py-1 md:hidden"><SiteMenu route={route} className="justify-center" /></div>
       </header>
 
       <main id="main" className="lg:ml-64">
-        <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6 lg:pb-16">{children}</div>
+        <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6 lg:pb-10 lg:pt-8">{children}</div>
       </main>
 
       {/* Floating coach */}
-      {route !== "/coach" && (
+      {route !== "/coach" && !inAbout && (
         <button onClick={() => setCoach(true)} className="fixed bottom-24 right-4 z-30 flex items-center gap-2 rounded-full bg-navy p-1.5 text-white shadow-xl shadow-navy/30 hover:scale-[1.02] transition lg:bottom-6 lg:right-6 lg:py-2 lg:pl-2 lg:pr-5" aria-label="Ask Next Step">
           <CoachIcon size={44} /><span className="hidden font-semibold lg:inline">Ask Next Step</span>
         </button>
@@ -92,10 +88,10 @@ export function Layout({ route, children }: { route: string; children: ReactNode
 
       {/* Mobile bottom tabs */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur safe-bottom lg:hidden" aria-label="Main">
-        <div className="mx-auto grid max-w-md grid-cols-4">
-          {NAV.filter((n) => MOBILE.includes(n.href)).map((n) => (
-            <a key={n.href} href={n.href} aria-current={active(n.href) ? "page" : undefined}
-              className={cx("flex flex-col items-center gap-1 pt-2.5 pb-1 text-[11px] font-semibold", active(n.href) ? "text-emerald-600" : "text-slate-500")}>
+        <div className="mx-auto grid max-w-md grid-cols-5">
+          {[{ href: "#/about", short: "About", icon: Info }, ...NAV].map((n) => (
+            <a key={n.href} href={n.href} aria-current={(n.href === "#/about" ? inAbout : active(n.href)) ? "page" : undefined}
+              className={cx("flex flex-col items-center gap-1 pt-2.5 pb-1 text-[11px] font-semibold", (n.href === "#/about" ? inAbout : active(n.href)) ? "text-emerald-600" : "text-slate-500")}>
               <n.icon size={22} />{n.short}
             </a>
           ))}
