@@ -68,7 +68,7 @@ export const JOURNEY = [
   { icon: BookOpen, word: "Information", text: "There's more money advice out there than ever. Most of it is confusing, and some of it is wrong." },
   { icon: Lightbulb, word: "Understanding", text: "One honest answer with your own numbers: will you have enough to pay the bills after you retire?" },
   { icon: ShieldCheck, word: "Confidence", text: "Short lessons, life moments and a plan builder show exactly what each smart move changes." },
-  { icon: ListChecks, word: "Action", text: "A checklist of real next steps with exact amounts, how-to, reminders and links to verify." },
+  { icon: ListChecks, word: "Action", text: "Real next steps with exact amounts, and we connect you to the First National Bank products that suit your plan." },
 ];
 
 function Journey() {
