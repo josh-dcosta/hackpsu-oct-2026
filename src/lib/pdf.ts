@@ -6,7 +6,7 @@ import { RULES } from "./rules";
 import { money } from "./format";
 import { MODULES } from "../data/modules";
 
-const NAVY: [number, number, number] = [15, 23, 42];
+const NAVY: [number, number, number] = [0, 55, 123];
 const MINT: [number, number, number] = [16, 185, 129];
 const SLATE: [number, number, number] = [100, 116, 139];
 

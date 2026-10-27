@@ -132,7 +132,7 @@ export function buildPlan(p: Profile, a: Assumptions, moments: MomentId[]) {
     when: "This month", products: has("retire") ? [FNB.ira, FNB.planning] : [FNB.ira], also: has("retire") ? [{ name: "My Social Security estimate (ssa.gov)", url: "https://www.ssa.gov/myaccount/" }] : undefined,
   });
   if (has("market") || has("retire")) items.push({
-    id: "invest", emoji: "📈", color: "#0F172A", title: "Stay invested in index funds", where: "A balanced mix: about 60% stock index funds, 40% bonds",
+    id: "invest", emoji: "📈", color: "#00377B", title: "Stay invested in index funds", where: "A balanced mix: about 60% stock index funds, 40% bonds",
     monthly: 0, amount: "No new money: just don't sell",
     why: has("market") ? `Selling after a 25% drop locks in the loss and misses the recovery. Staying invested is the single biggest difference in ${his} plan.` : "A balanced, low-cost mix keeps risk in check as retirement gets close.",
     moment: has("market") ? "market" : undefined,
