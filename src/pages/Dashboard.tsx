@@ -176,8 +176,8 @@ function StepsStep({ items }: { items: PlanItem[] }) {
                   <ol className="list-decimal space-y-1 pl-5 text-[15px] text-slate-700">{i.how.map((h) => <li key={h}>{h}</li>)}</ol>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {i.products.map((pr) => (
-                      <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#00377B] px-3.5 py-2.5 text-sm font-semibold text-white hover:opacity-90">
-                        <span className="rounded bg-white px-1 text-[10px] font-extrabold text-[#00377B]">FNB</span>{pr.name.replace("FNB ", "")}<ExternalLink size={14} />
+                      <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#0B2A5B] px-3.5 py-2.5 text-sm font-semibold text-white hover:opacity-90">
+                        <span className="rounded bg-white px-1 text-[10px] font-extrabold text-[#0B2A5B]">FNB</span>{pr.name.replace("FNB ", "")}<ExternalLink size={14} />
                       </a>
                     ))}
                     {(i.also || []).map((pr) => (

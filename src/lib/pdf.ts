@@ -6,7 +6,7 @@ import { RULES } from "./rules";
 import { money } from "./format";
 import { MODULES } from "../data/modules";
 
-const NAVY: [number, number, number] = [0, 55, 123];
+const NAVY: [number, number, number] = [11, 42, 91];
 const MINT: [number, number, number] = [16, 185, 129];
 const SLATE: [number, number, number] = [100, 116, 139];
 
@@ -52,7 +52,7 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
   const plan = buildPlan(p, a, moments);
   const w = plan.without, wp = plan.withPlan;
   const link = (label: string, url: string) => {
-    ensure(16); doc.setFont("helvetica", "bold"); doc.setFontSize(9.5); doc.setTextColor(0, 55, 123);
+    ensure(16); doc.setFont("helvetica", "bold"); doc.setFontSize(9.5); doc.setTextColor(11, 42, 91);
     doc.textWithLink(label + "  ->", M + 18, y, { url }); y += 15;
   };
 

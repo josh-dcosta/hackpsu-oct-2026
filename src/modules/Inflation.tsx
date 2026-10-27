@@ -76,7 +76,7 @@ export default function Inflation() {
               <Area type="monotone" dataKey="price" stroke="#F97361" strokeWidth={3} fill="url(#gi)" animationDuration={500}
                 label={endLabel(data.length, (v) => `${NOW + s.years}: ${money(v)} (+${Math.round((fut / s.price - 1) * 100)}%)`, "#C2410C")} />
               <Area type="monotone" dataKey="price" stroke="none" fill="none" isAnimationActive={false} tooltipType="none" activeDot={false}
-                label={endLabel(data.length, (v) => `Today: ${money(v)}`, "#00377B", { at: "start", dy: -12 })} />
+                label={endLabel(data.length, (v) => `Today: ${money(v)}`, "#0B2A5B", { at: "start", dy: -12 })} />
             </AreaChart>
           </ResponsiveContainer>
         } />

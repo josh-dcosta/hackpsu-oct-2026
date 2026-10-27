@@ -59,7 +59,7 @@ export default function K401() {
                 <YAxis tickFormatter={axisMoney} {...axis} width={56} />
                 <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Age ${l}`} formatter={(v, n) => [money(Number(v)), n]} />
                 <Legend wrapperStyle={{ fontSize: 12 }} formatter={(v) => v === "Your money" ? `Your money ${compact(r.totalEmployee)}` : v === "Employer match" ? `Employer match ${compact(r.totalEmployer)}` : `Growth ${compact(r.totalGrowth + r.startBalance)}`} />
-                <Area type="monotone" stackId="1" dataKey="employee" name="Your money" stroke="#00377B" fill="#00377B" fillOpacity={0.85} animationDuration={500} />
+                <Area type="monotone" stackId="1" dataKey="employee" name="Your money" stroke="#0B2A5B" fill="#0B2A5B" fillOpacity={0.85} animationDuration={500} />
                 <Area type="monotone" stackId="1" dataKey="employer" name="Employer match" stroke="#38BDF8" fill="#38BDF8" fillOpacity={0.85} animationDuration={500} />
                 <Area type="monotone" stackId="1" dataKey="growth" name="Growth" stroke="#10B981" fill="#10B981" fillOpacity={0.75} animationDuration={500} />
               </AreaChart>
@@ -79,7 +79,7 @@ export default function K401() {
                 <Tooltip contentStyle={tooltipStyle} formatter={(v) => [money(Number(v)), "At retirement"]} />
                 <Bar dataKey="final" radius={[10, 10, 4, 4]} animationDuration={500}>
                   {compare.map((c) => <Cell key={c.label} fill={c.mine ? "#10B981" : "#CBD5E1"} />)}
-                  <LabelList dataKey="final" position="top" formatter={(v: unknown) => compact(Number(v))} style={{ fontSize: 13, fontWeight: 700, fill: "#00377B" }} />
+                  <LabelList dataKey="final" position="top" formatter={(v: unknown) => compact(Number(v))} style={{ fontSize: 13, fontWeight: 700, fill: "#0B2A5B" }} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -96,7 +96,7 @@ export default function K401() {
                 <Tooltip contentStyle={tooltipStyle} formatter={(v) => [money(Number(v)), "At retirement"]} />
                 <Bar dataKey="final" radius={[10, 10, 4, 4]} animationDuration={500}>
                   {wait.map((c) => <Cell key={c.label} fill={c.c} />)}
-                  <LabelList dataKey="final" position="top" formatter={(v: unknown) => compact(Number(v))} style={{ fontSize: 13, fontWeight: 700, fill: "#00377B" }} />
+                  <LabelList dataKey="final" position="top" formatter={(v: unknown) => compact(Number(v))} style={{ fontSize: 13, fontWeight: 700, fill: "#0B2A5B" }} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>

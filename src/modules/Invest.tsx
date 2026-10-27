@@ -77,7 +77,7 @@ export default function Invest() {
               <Line dataKey="single" name="All in one stock" stroke="#F97361" strokeWidth={2.5} dot={false} animationDuration={600} label={endLabel(n, (v) => `One stock ${compact(v)}`, "#C2410C", { dy: dy("single") })} />
               <Line dataKey="index" name="Stock index fund" stroke="#10B981" strokeWidth={2.5} dot={false} animationDuration={600} label={endLabel(n, (v) => `Index fund ${compact(v)}`, "#047857", { dy: dy("index") })} />
               <Line dataKey="mix" name="60/40 index funds" stroke="#38BDF8" strokeWidth={2.5} dot={false} animationDuration={600} label={endLabel(n, (v) => `60/40 ${compact(v)}`, "#0369A1", { dy: dy("mix") })} />
-              <Line dataKey="mine" name="Your mix" stroke="#00377B" strokeWidth={4} dot={false} animationDuration={600} label={endLabel(n, (v) => `Your mix ${compact(v)}`, "#00377B", { dy: dy("mine") })} />
+              <Line dataKey="mine" name="Your mix" stroke="#0B2A5B" strokeWidth={4} dot={false} animationDuration={600} label={endLabel(n, (v) => `Your mix ${compact(v)}`, "#0B2A5B", { dy: dy("mine") })} />
             </LineChart>
           </ResponsiveContainer>
         } />

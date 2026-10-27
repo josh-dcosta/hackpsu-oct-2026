@@ -49,7 +49,7 @@ export default function College() {
               <YAxis tickFormatter={axisMoney} {...axis} width={56} domain={[0, (max: number) => Math.max(max, r.totalCost * 1.08)]} />
               <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Child age ${l}`} formatter={(v, n) => [money(Number(v)), n]} />
               <ReferenceLine y={r.totalCost} stroke="#F97361" strokeDasharray="5 5" label={{ value: `4 years will cost ${compact(r.totalCost)}`, position: "insideTopLeft", fill: "#C2410C", fontSize: 13, fontWeight: 700 }} />
-              <Area dataKey="contributed" name="You put in" stroke="#00377B" fill="#00377B" fillOpacity={0.12} animationDuration={500} />
+              <Area dataKey="contributed" name="You put in" stroke="#0B2A5B" fill="#0B2A5B" fillOpacity={0.12} animationDuration={500} />
               <Area dataKey="saved" name="Account value" stroke="#10B981" strokeWidth={3} fill="#10B981" fillOpacity={0.2} animationDuration={500}
                 label={endLabel(rows.length, (v) => `Saved ${compact(v)} · covers ${Math.min(999, Math.round(r.coverage * 100))}%`, "#047857")} />
             </AreaChart>
