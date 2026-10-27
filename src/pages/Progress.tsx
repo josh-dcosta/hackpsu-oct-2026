@@ -20,7 +20,7 @@ export default function Progress() {
           <h1 className="font-display text-4xl font-semibold">Your progress</h1>
           <p className="mt-1 text-lg text-slate-500">Lessons you've completed and the real-world steps you've taken.</p>
         </div>
-        <Button onClick={() => downloadPlan({ profile, assumptions: st.assumptions, story: st.story, done, xp: 0, badges: [], stepsDone })}><Download size={18} /> Download my plan (PDF)</Button>
+        <Button onClick={() => downloadPlan({ profile, assumptions: st.assumptions, story: st.story, done, xp: 0, badges: [], stepsDone, moments: st.moments })}><Download size={18} /> Download my plan (PDF)</Button>
       </div>
 
       <Card className="mt-6">

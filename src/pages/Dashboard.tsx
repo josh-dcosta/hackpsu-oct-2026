@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceDot } from "recharts";
-import { ArrowRight, Check, CalendarPlus, ChevronDown, ExternalLink, Pencil, UserRound, Sparkles, Zap, Compass, ListChecks, Target } from "lucide-react";
+import { ArrowRight, Check, CalendarPlus, Download, ChevronDown, ExternalLink, Pencil, UserRound, Sparkles, Zap, Compass, ListChecks, Target } from "lucide-react";
 import { useStore } from "../lib/store";
 import { money, compact, axisMoney } from "../lib/format";
 import { Card, cx, tooltipStyle } from "../components/ui";
@@ -9,6 +9,7 @@ import { WorkerIcon } from "../components/Brand";
 import { DAVE, isDaveProfile } from "../data/dave";
 import { MOMENTS, autoMoments, whyAuto, buildPlan, PLAN_ASSUMPTIONS, type MomentId, type PlanItem } from "../lib/plan";
 import { downloadReminder } from "../lib/steps";
+import { downloadPlan } from "../lib/pdf";
 
 const TABS = [
   { id: "moments", label: "Life moments", icon: Zap },
@@ -136,7 +137,8 @@ function PlanStep({ items }: { items: PlanItem[] }) {
 
 /* 3 · Next steps, each linked to a real product */
 function StepsStep({ items }: { items: PlanItem[] }) {
-  const { stepsDone, set } = useStore();
+  const st = useStore();
+  const { stepsDone, set } = st;
   const [open, setOpen] = useState<string | null>(items[0]?.id ?? null);
   const done = items.filter((i) => stepsDone[i.id]).length;
   return (
@@ -147,7 +149,11 @@ function StepsStep({ items }: { items: PlanItem[] }) {
           <h2 className="font-display text-2xl sm:text-3xl font-semibold">Next steps</h2>
           <p className="mt-1 text-slate-500">Every action in the plan, with the First National Bank product that does it.</p>
         </div>
-        <span className="num rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">{done}/{items.length} done</span>
+        <div className="flex items-center gap-2">
+          <span className="num rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">{done}/{items.length} done</span>
+          <button onClick={() => downloadPlan({ profile: st.profile, assumptions: st.assumptions, story: st.story, done: st.done, xp: 0, badges: [], stepsDone, moments: st.moments })}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Download size={15} /> PDF</button>
+        </div>
       </div>
       <div className="mt-4 space-y-2.5">
         {items.map((i) => {
