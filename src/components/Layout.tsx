@@ -28,14 +28,6 @@ export function Layout({ route, children }: { route: string; children: ReactNode
           <Wordmark dark />
         </a>
         <nav className="mt-8 space-y-1" aria-label="Main">
-          <div className="flex items-center gap-3 px-3 pb-1 pt-1 text-[15px] font-semibold text-slate-300"><Info size={20} className={inAbout ? "text-emerald-400" : ""} />About</div>
-          <div className="ml-[22px] space-y-0.5 border-l border-white/10 pl-3">
-            {ABOUT_NAV.map((n) => (
-              <a key={n.href} href={n.href} aria-current={active(n.href) ? "page" : undefined}
-                className={cx("block rounded-xl px-3 py-2 text-[14px] font-semibold transition", active(n.href) ? "bg-white/10 text-white" : "text-slate-400 hover:bg-white/5 hover:text-white")}>{n.label}</a>
-            ))}
-          </div>
-          <div className="!mt-4" />
           {NAV.map((n) => {
             const on = n.href === "#/learn" ? active("#/learn") || active("#/progress") || active("#/bank") : active(n.href);
             return (
@@ -53,6 +45,14 @@ export function Layout({ route, children }: { route: string; children: ReactNode
               </div>
             );
           })}
+          <div className="!mt-4" />
+          <div className="flex items-center gap-3 px-3 pb-1 pt-1 text-[15px] font-semibold text-slate-300"><Info size={20} className={inAbout ? "text-emerald-400" : ""} />About</div>
+          <div className="ml-[22px] space-y-0.5 border-l border-white/10 pl-3">
+            {ABOUT_NAV.map((n) => (
+              <a key={n.href} href={n.href} aria-current={active(n.href) ? "page" : undefined}
+                className={cx("block rounded-xl px-3 py-2 text-[14px] font-semibold transition", active(n.href) ? "bg-white/10 text-white" : "text-slate-400 hover:bg-white/5 hover:text-white")}>{n.label}</a>
+            ))}
+          </div>
         </nav>
         <div className="mt-auto rounded-2xl bg-white/5 p-4">
           <div className="flex items-center justify-between text-sm"><span className="text-slate-300">Lessons completed</span><span className="num font-bold text-emerald-400">{done.length}/{MODULES.length}</span></div>
@@ -76,7 +76,7 @@ export function Layout({ route, children }: { route: string; children: ReactNode
       {/* Mobile bottom tabs */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur safe-bottom lg:hidden" aria-label="Main">
         <div className="mx-auto grid max-w-md grid-cols-3">
-          {[{ href: "#/about", short: "About", icon: Info }, ...NAV].map((n) => (
+          {[...NAV, { href: "#/about", short: "About", icon: Info }].map((n) => (
             <a key={n.href} href={n.href} aria-current={(n.href === "#/about" ? inAbout : active(n.href)) ? "page" : undefined}
               className={cx("flex flex-col items-center gap-1 pt-2.5 pb-1 text-[11px] font-semibold", (n.href === "#/about" ? inAbout : active(n.href)) ? "text-emerald-600" : "text-slate-500")}>
               <n.icon size={22} />{n.short}

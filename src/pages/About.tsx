@@ -64,11 +64,11 @@ function Fill({ className, children }: { className?: string; children: ReactNode
   return <div className={cx("h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)}><div className="flex min-h-full flex-col justify-center">{children}</div></div>;
 }
 
-export const JOURNEY = [
+export const JOURNEY: { icon: typeof BookOpen; word: string; text: React.ReactNode }[] = [
   { icon: BookOpen, word: "Information", text: "There's more money advice out there than ever. Most of it is confusing, and some of it is wrong." },
   { icon: Lightbulb, word: "Understanding", text: "One honest answer with your own numbers: will you have enough to pay the bills after you retire?" },
   { icon: ShieldCheck, word: "Confidence", text: "Short lessons, life moments and a plan builder show exactly what each smart move changes." },
-  { icon: ListChecks, word: "Action", text: "Real next steps with exact amounts, and we connect you to the First National Bank products that suit your plan." },
+  { icon: ListChecks, word: "Action", text: <>Real next steps with exact amounts, and we connect you to <span className="inline-block rounded-full bg-emerald-500 px-2.5 py-0.5 font-semibold text-white">First National Bank products</span> that suit your plan.</> },
 ];
 
 function Journey() {
