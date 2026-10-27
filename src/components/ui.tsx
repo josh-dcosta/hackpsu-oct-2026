@@ -12,7 +12,7 @@ export function Card({ children, className, ...rest }: { children: ReactNode; cl
 
 export function Button({ children, variant = "primary", className, ...rest }: { variant?: "primary" | "ghost" | "dark" | "soft" } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const v = {
-    primary: "bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm shadow-emerald-500/30",
+    primary: "bg-sun text-navy hover:bg-sun-600 shadow-sm",
     dark: "bg-navy text-white hover:bg-navy-800",
     ghost: "bg-transparent text-navy hover:bg-slate-100 ring-1 ring-slate-200",
     soft: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100",

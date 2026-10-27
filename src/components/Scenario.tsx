@@ -46,7 +46,7 @@ export function ScenarioCards({ compact = false }: { compact?: boolean }) {
           </div>
           <p className={"relative mt-4 flex-1 leading-relaxed text-emerald-50 " + (compact ? "text-[15px]" : "text-[16px]")} >Dave, 50, is a head custodian at a Pennsylvania public high school, earning about ${DAVE.hourly}/hour. With Linda's part-time job they bring in <b className="text-white">$64,000</b> a year, have <b className="text-white">$6,000</b> saved, and two kids, <b className="text-white">Emma (17)</b> and <b className="text-white">Jake (15)</b>, heading to college soon.</p>
           <button onClick={walkDave} className="relative mt-4 flex items-center justify-center gap-1.5 rounded-xl py-2 text-[15px] font-semibold text-white/90 underline-offset-4 hover:text-white hover:underline"><PlayCircle size={16} /> Walk through Dave's answers first</button>
-          <button onClick={demo} className="relative mt-1 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-lg font-semibold text-emerald-700 shadow-lg shadow-emerald-900/20 hover:bg-emerald-50"><Sparkles size={18} /> Explore Dave's scenario</button>
+          <button onClick={demo} className="relative mt-1 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-sun px-5 py-3 text-lg font-semibold text-navy shadow-lg shadow-emerald-900/20 hover:bg-sun-600"><Sparkles size={18} /> Explore Dave's scenario</button>
         </div>
         {/* Way 2: your own numbers */}
         <div className={"flex flex-col rounded-3xl bg-navy text-white shadow-card " + pad}>
@@ -63,10 +63,10 @@ export function ScenarioCards({ compact = false }: { compact?: boolean }) {
                 <button onClick={ownNumbers} className="flex items-center gap-1.5 rounded-xl py-2 text-sm font-semibold text-slate-300 hover:text-white"><Pencil size={14} /> Edit my answers</button>
                 <button onClick={freshNumbers} className="rounded-xl py-2 text-sm font-semibold text-slate-400 hover:text-white">Start fresh</button>
               </div>
-              <button onClick={continueMine} className="mt-1 flex min-h-[52px] w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-emerald-500 px-4 py-3 text-[17px] font-semibold text-white hover:bg-emerald-600"><UserRound size={18} /> Continue with my numbers</button>
+              <button onClick={continueMine} className="mt-1 flex min-h-[52px] w-full items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-sun px-4 py-3 text-[17px] font-semibold text-navy hover:bg-sun-600"><UserRound size={18} /> Continue with my numbers</button>
             </>
           ) : (
-            <button onClick={ownNumbers} className="mt-4 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-lg font-semibold text-white hover:bg-emerald-600"><UserRound size={19} /> Enter my numbers <ArrowRight size={18} /></button>
+            <button onClick={ownNumbers} className="mt-4 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-sun px-5 py-3 text-lg font-semibold text-navy hover:bg-sun-600"><UserRound size={19} /> Enter my numbers <ArrowRight size={18} /></button>
           )}
         </div>
       </div>

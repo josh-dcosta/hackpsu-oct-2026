@@ -49,9 +49,9 @@ export default function Debt() {
         </>}
         chart={<div className="relative h-full">
           <div className="pointer-events-none absolute right-3 top-1 z-10 space-y-1 rounded-xl bg-white/90 p-2.5 text-[13px] font-bold ring-1 ring-slate-200">
-            {[["#F97361", "Minimums only", minOnly], ["#0B2A5B", `${money(pay)}/mo`, mine], ["#10B981", `${money(pay + 100)}/mo`, more]].map(([c, l, x]) => {
+            {[["#F97361", "Minimums only", minOnly], ["#0B2A45", `${money(pay)}/mo`, mine], ["#10B981", `${money(pay + 100)}/mo`, more]].map(([c, l, x]) => {
               const r = x as typeof mine;
-              return <div key={l as string} className="flex items-center gap-2"><i className="h-1 w-5 rounded" style={{ background: c as string }} /><span style={{ color: c === "#0B2A5B" ? "#0B2A5B" : c === "#10B981" ? "#047857" : "#C2410C" }}>{l as string}: {isFinite(r.months) ? `debt-free in ${months(r.months)}, ${money(r.totalInterest)} interest` : "never paid off"}</span></div>;
+              return <div key={l as string} className="flex items-center gap-2"><i className="h-1 w-5 rounded" style={{ background: c as string }} /><span style={{ color: c === "#0B2A45" ? "#0B2A45" : c === "#10B981" ? "#047857" : "#C2410C" }}>{l as string}: {isFinite(r.months) ? `debt-free in ${months(r.months)}, ${money(r.totalInterest)} interest` : "never paid off"}</span></div>;
             })}
           </div>
           <ResponsiveContainer>
@@ -61,7 +61,7 @@ export default function Debt() {
               <YAxis tickFormatter={axisMoney} {...axis} width={56} />
               <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Month ${l}`} formatter={(v, n) => [money(Number(v)), n]} />
               <Line dataKey="min" name="Minimums only" stroke="#F97361" strokeWidth={2.5} dot={false} animationDuration={500} />
-              <Line dataKey="mine" name={`${money(pay)}/mo`} stroke="#0B2A5B" strokeWidth={3.5} dot={false} animationDuration={500} />
+              <Line dataKey="mine" name={`${money(pay)}/mo`} stroke="#0B2A45" strokeWidth={3.5} dot={false} animationDuration={500} />
               <Line dataKey="more" name={`${money(pay + 100)}/mo`} stroke="#10B981" strokeWidth={3} dot={false} animationDuration={500} />
             </LineChart>
           </ResponsiveContainer>

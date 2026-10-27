@@ -48,7 +48,7 @@ export default function LifeStages() {
               <Legend wrapperStyle={{ fontSize: 12 }} />
               {EXPENSE_CATS.map((c, i) => (
                 <Bar key={c.key} dataKey={c.key} name={c.label} stackId="a" fill={c.color} radius={i === EXPENSE_CATS.length - 1 ? [8, 8, 0, 0] : 0} animationDuration={500}>
-                  {c.key === lastKey && <LabelList dataKey="total" position="top" formatter={(v: unknown) => money(Number(v))} style={{ fontSize: 12, fontWeight: 700, fill: "#0B2A5B" }} />}
+                  {c.key === lastKey && <LabelList dataKey="total" position="top" formatter={(v: unknown) => money(Number(v))} style={{ fontSize: 12, fontWeight: 700, fill: "#0B2A45" }} />}
                 </Bar>
               ))}
             </BarChart>

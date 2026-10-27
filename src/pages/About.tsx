@@ -52,7 +52,7 @@ function Panels({ tabs, start = 0 }: { tabs: { id: string; label: string; body: 
         <div className="mt-4 flex items-center justify-between">
           <button onClick={() => setI(i - 1)} disabled={i === 0} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2.5 font-semibold text-slate-500 hover:text-navy disabled:invisible"><ArrowLeft size={17} /> {tabs[i - 1]?.label}</button>
           <div className="flex gap-1.5">{tabs.map((t, n) => <span key={t.id} className={cx("h-2 rounded-full transition-all", n === i ? "w-6 bg-emerald-500" : "w-2 bg-slate-300")} />)}</div>
-          <button onClick={() => setI(i + 1)} disabled={i === tabs.length - 1} className="inline-flex items-center gap-1.5 rounded-xl bg-navy px-4 py-2.5 font-semibold text-white disabled:invisible">{tabs[i + 1]?.label} <ArrowRight size={17} /></button>
+          <button onClick={() => setI(i + 1)} disabled={i === tabs.length - 1} className="inline-flex items-center gap-1.5 rounded-xl bg-sun px-4 py-2.5 font-semibold text-navy hover:bg-sun-600 disabled:invisible">{tabs[i + 1]?.label} <ArrowRight size={17} /></button>
         </div>
       )}
     </div>
@@ -68,7 +68,7 @@ export const JOURNEY: { icon: typeof BookOpen; word: string; text: React.ReactNo
   { icon: BookOpen, word: "Information", text: "There's more money advice out there than ever. Most of it is confusing, and some of it is wrong." },
   { icon: Lightbulb, word: "Understanding", text: "One honest answer with your own numbers: will you have enough to pay the bills after you retire?" },
   { icon: ShieldCheck, word: "Confidence", text: "Short lessons, life moments and a plan builder show exactly what each smart move changes." },
-  { icon: ListChecks, word: "Action", text: <>Real next steps with exact amounts, and we connect you to <span className="inline-block rounded-full bg-emerald-500 px-2.5 py-0.5 font-semibold text-white">First National Bank products</span> that suit your plan.</> },
+  { icon: ListChecks, word: "Action", text: <>Real next steps with exact amounts, and we connect you to <span className="inline-block rounded-full bg-sun px-2.5 py-0.5 font-semibold text-navy">Valley Bank products</span> that suit your plan.</> },
 ];
 
 function Journey() {
@@ -92,7 +92,7 @@ function Journey() {
 const GALLERY = [
   { img: "moments", title: "Pick your life moments", text: "Start with Dave's scenario or your own numbers, then pick what's happening: a surprise bill, higher medical costs, college, a market drop, retiring soon." },
   { img: "plan", title: "A plan, built for you", text: "Next Step builds the plan automatically and shows where every dollar should live: emergency fund, HSA, college fund, retirement." },
-  { img: "steps", title: "Next steps at your bank", text: "Every action links to the First National Bank product that does it, with how-to steps and a calendar reminder." },
+  { img: "steps", title: "Next steps at your bank", text: "Every action links to the Valley Bank product that does it, with how-to steps and a calendar reminder." },
   { img: "answer", title: "The answer", text: "One graph: where your savings go without the plan, and with it. How much you'll have at retirement, and how long it lasts." },
   { img: "learn", title: "Learn by doing", text: "Short lessons with a simple simulator: sliders on the left, the answer written right on the chart." },
   { img: "progress", title: "Numbers you can trust", text: "Every number comes from fixed, tested formulas and official IRS, FDIC and Social Security sources. No bank logins, no account numbers: everything stays on your device. Take your plan with you as a PDF." },
@@ -158,7 +158,7 @@ export function AboutApp() {
               It answers one honest question, <i className="text-white">"Will I have enough money to pay my bills after I retire?"</i>, then shows the small, safe moves that make the biggest difference and turns them into real next steps.
             </p>
             <div className="mt-6"><Journey /></div>
-            <div className="mt-7"><button onClick={() => go("try")} className="inline-flex min-h-[52px] items-center gap-2 rounded-2xl bg-emerald-500 px-6 py-3 text-lg font-semibold text-white hover:bg-emerald-600">Try it now <ArrowRight size={19} /></button></div>
+            <div className="mt-7"><button onClick={() => go("try")} className="inline-flex min-h-[52px] items-center gap-2 rounded-2xl bg-sun px-6 py-3 text-lg font-semibold text-navy hover:bg-sun-600">Try it now <ArrowRight size={19} /></button></div>
           </Fill>
         ),
       },

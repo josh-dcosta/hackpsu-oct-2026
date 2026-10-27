@@ -147,7 +147,7 @@ function StepsStep({ items }: { items: PlanItem[] }) {
         <div>
           <Kicker>Step 3</Kicker>
           <h2 className="font-display text-2xl sm:text-3xl font-semibold">Next steps</h2>
-          <p className="mt-1 text-slate-500">Every action in the plan, with the First National Bank product that does it.</p>
+          <p className="mt-1 text-slate-500">Every action in the plan, with the Valley Bank product that does it.</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="num rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">{done}/{items.length} done</span>
@@ -176,8 +176,8 @@ function StepsStep({ items }: { items: PlanItem[] }) {
                   <ol className="list-decimal space-y-1 pl-5 text-[15px] text-slate-700">{i.how.map((h) => <li key={h}>{h}</li>)}</ol>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {i.products.map((pr) => (
-                      <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#0B2A5B] px-3.5 py-2.5 text-sm font-semibold text-white hover:opacity-90">
-                        <span className="rounded bg-white px-1 text-[10px] font-extrabold text-[#0B2A5B]">FNB</span>{pr.name.replace("FNB ", "")}<ExternalLink size={14} />
+                      <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-sun px-3.5 py-2.5 text-sm font-semibold text-navy hover:bg-sun-600">
+                        <span className="rounded bg-navy px-1 text-[10px] font-extrabold text-sun">VALLEY</span>{pr.name.replace("Valley ", "")}<ExternalLink size={14} />
                       </a>
                     ))}
                     {(i.also || []).map((pr) => (
@@ -192,7 +192,7 @@ function StepsStep({ items }: { items: PlanItem[] }) {
           );
         })}
       </div>
-      <p className="mt-4 text-[12px] text-slate-500">Product links go to First National Bank's personal banking pages at fnb-online.com. Check current rates, fees and eligibility with the bank.</p>
+      <p className="mt-4 text-[12px] text-slate-500">Product links go to Valley Bank's personal banking pages at valley.com. Check current rates, fees and eligibility with the bank.</p>
     </Card>
   );
 }
@@ -316,7 +316,7 @@ export default function Dashboard() {
 
       {nextTab && (
         <div className="mt-5 flex justify-center">
-          <button onClick={() => go(nextTab.id)} className="inline-flex items-center gap-2 rounded-2xl bg-navy px-6 py-3.5 text-[17px] font-semibold text-white hover:bg-navy-800">
+          <button onClick={() => go(nextTab.id)} className="inline-flex items-center gap-2 rounded-2xl bg-sun px-6 py-3.5 text-[17px] font-semibold text-navy hover:bg-sun-600">
             {tab === "moments" ? "Build my plan" : `Next: ${nextTab.label}`} <ArrowRight size={18} />
           </button>
         </div>

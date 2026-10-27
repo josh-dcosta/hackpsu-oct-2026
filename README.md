@@ -22,7 +22,7 @@ Three simple sections: **About · Try it now · Learn** (with Progress under Lea
 - **Try it now:** pick **Dave's scenario** (PA school custodian, 50, two teens) or **your own numbers**, then:
   1. **Life moments:** surprise bill · medical insurance going up · kid heading to college · the market dropped · retiring soon. Pick any; college and retiring soon are picked automatically from the scenario.
   2. **Your plan:** built automatically: where each month's savings should live (emergency fund, HSA, college fund, retirement, a balanced index-fund mix).
-  3. **Next steps:** each action with how-to steps, a calendar reminder and a link to the matching First National Bank product.
+  3. **Next steps:** each action with how-to steps, a calendar reminder and a link to the matching Valley Bank product.
   4. **The answer:** one graph of savings by age without vs. with the plan, then how long the money lasts.
   Download the whole plan as a PDF.
 - **Learn:** ten short lessons, each in four parts: the idea · a simulator (sliders left, numbers written on the chart) · what it means · a 3-question check.
@@ -31,7 +31,7 @@ Three simple sections: **About · Try it now · Learn** (with Progress under Lea
 1. Open the site → About the app → **Try it now** → **Explore Dave's scenario**.
 2. Life moments: college and retiring soon are already picked. Add **Medical insurance going up**.
 3. **Build my plan** → see where the money lives.
-4. **Next steps** → open a step → FNB product link, reminder. Download the PDF.
+4. **Next steps** → open a step → Valley Bank product link, reminder. Download the PDF.
 5. **The answer** → without the plan vs. with it.
 6. **Learn** → the 401(k) lesson simulator.
 

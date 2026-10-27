@@ -36,9 +36,9 @@ export function WorkerIcon({ size = 48, className = "" }: { size?: number; class
         <rect x="28.5" y="38" width="5" height="8" rx="1" fill="#F59E0B" opacity=".9" />
         {/* face */}
         <circle cx="24" cy="22" r="8.2" fill="#E8B48A" />
-        <circle cx="21" cy="22.5" r="1" fill="#0B2A5B" />
-        <circle cx="27" cy="22.5" r="1" fill="#0B2A5B" />
-        <path d="M21.3 25.8q2.7 2 5.4 0" fill="none" stroke="#0B2A5B" strokeWidth="1.2" strokeLinecap="round" />
+        <circle cx="21" cy="22.5" r="1" fill="#0B2A45" />
+        <circle cx="27" cy="22.5" r="1" fill="#0B2A45" />
+        <path d="M21.3 25.8q2.7 2 5.4 0" fill="none" stroke="#0B2A45" strokeWidth="1.2" strokeLinecap="round" />
         {/* hard hat */}
         <path d="M14.5 17.5a9.5 9 0 0 1 19 0z" fill="#F59E0B" />
         <rect x="12" y="16.6" width="24" height="3" rx="1.5" fill="#D97706" />

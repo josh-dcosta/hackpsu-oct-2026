@@ -222,7 +222,7 @@ export function runPortfolio(alloc: Alloc, amount: number, market: MarketKey, se
 
 /* ---------------- Life expenses ---------------- */
 export const EXPENSE_CATS = [
-  { key: "housing", label: "Housing", color: "#0B2A5B" },
+  { key: "housing", label: "Housing", color: "#0B2A45" },
   { key: "food", label: "Food & utilities", color: "#10B981" },
   { key: "family", label: "Childcare & family", color: "#F59E0B" },
   { key: "health", label: "Healthcare", color: "#F97361" },

@@ -1,4 +1,4 @@
-// Life moments → an automatic plan → next steps (with First National Bank products) → the answer.
+// Life moments → an automatic plan → next steps (with Valley Bank products) → the answer.
 // Every number here comes from fixed formulas in calc.ts. Assumptions are listed in PLAN_ASSUMPTIONS.
 import { projectLife, type Assumptions, type LifeEvents, type Profile } from "./calc";
 
@@ -25,16 +25,13 @@ export function whyAuto(p: Profile, id: MomentId) {
   return "";
 }
 
-export const FNB = {
-  moneyMarket: { name: "FNB FirstRate Money Market", url: "https://www.fnb-online.com/personal/checking-savings/savings/firstrate-money-market" },
-  savings: { name: "FNB FirstRate Savings", url: "https://www.fnb-online.com/personal/checking-savings/savings/firstrate-savings" },
-  hsa: { name: "FNB Health Savings Account", url: "https://www.fnb-online.com/personal/checking-savings/savings/health-savings" },
-  ira: { name: "FNB IRA Savings", url: "https://www.fnb-online.com/personal/checking-savings/savings/ira-savings" },
-  iraCd: { name: "FNB IRA Certificates of Deposit", url: "https://www.fnb-online.com/personal/checking-savings/savings/ira-certificates-of-deposit" },
-  goalCd: { name: "FNB Savers Goal CD", url: "https://www.fnb-online.com/personal/checking-savings/savings/savers-goal-certificate-of-deposit" },
-  invest: { name: "FNB Investment Services", url: "https://www.fnb-online.com/personal/investing-retirement/investment-services" },
-  portfolio: { name: "FNB Portfolio Management", url: "https://www.fnb-online.com/personal/investing-retirement/investment-services/portfolio-management" },
-  planning: { name: "FNB Financial Planning", url: "https://www.fnb-online.com/personal/investing-retirement/investment-services/financial-planning" },
+export const BANK = {
+  moneyMarket: { name: "Valley Tiered Money Market", url: "https://www.valley.com/personal/savings/tiered-money-market" },
+  savings: { name: "Valley All Access Savings", url: "https://www.valley.com/personal/savings/all-access-savings" },
+  cds: { name: "Valley CDs", url: "https://www.valley.com/personal/savings/cds" },
+  ira: { name: "Valley IRAs", url: "https://www.valley.com/personal/savings/IRAs" },
+  planning: { name: "Valley Wealth Management", url: "https://www.valley.com/personal/financial-services" },
+  wealth: { name: "Valley Wealth Management", url: "https://www.valley.com/wealth" },
 };
 type Link = { name: string; url: string };
 
@@ -106,21 +103,21 @@ export function buildPlan(p: Profile, a: Assumptions, moments: MomentId[]) {
     why: has("surprise") ? `Covers the ${money0(A.surpriseBill)} surprise bill without a credit card, then refills to 3 months of essential bills (${money0(efTarget)}).` : `3 months of ${his} essential bills (${money0(essentials)}/mo) for surprises.`,
     moment: has("surprise") ? "surprise" : undefined,
     how: ["Open the account and move the emergency money out of checking.", `Set an automatic transfer of ${money0(efMonthly || 50)} the day after each payday.`, "Use it only for true surprises, then refill it."],
-    when: "This week", products: [FNB.moneyMarket, FNB.savings],
+    when: "This week", products: [BANK.moneyMarket, BANK.savings],
   });
   if (has("medical")) items.push({
     id: "hsa", emoji: "🩺", color: "#F97361", title: "Health Savings Account", where: "An HSA, paid through payroll before taxes",
     monthly: hsaMonthly, amount: `${money0(hsaMonthly)}/mo (${money0(planA.hsaAnnual ?? 0)}/yr)`,
     why: `Pays the higher medical costs with pre-tax money, saving about ${money0((planA.hsaAnnual ?? 0) * (tax + 0.0765))} a year in taxes.`,
-    moment: "medical", how: ["At open enrollment, check whether an HSA-qualifying high-deductible plan costs less overall.", "If it does, open an HSA and contribute through payroll.", "Pay medical bills from the HSA card."],
-    when: "Next open enrollment", products: [FNB.hsa],
+    moment: "medical", how: ["At open enrollment, check whether an HSA-qualifying high-deductible plan costs less overall.", "If it does, open the HSA offered with that health plan and contribute through payroll.", "Pay medical bills from the HSA card."],
+    when: "Next open enrollment", products: [], also: [{ name: "HSA rules (IRS Publication 969)", url: "https://www.irs.gov/publications/p969" }],
   });
   if (kids.length) items.push({
     id: "college", emoji: "🎓", color: "#8B5CF6", title: "College fund + FAFSA", where: "A savings CD for near-term college bills",
     monthly: collegeMonthly, amount: `${money0(collegeMonthly)}/mo, plus file the FAFSA every year`,
     why: `The FAFSA unlocks grants like Pell and the PA State Grant, cutting the family's share from about ${money0(A.collegeShareNoAid)} to ${money0(A.collegeShareWithAid)} a year per student in this estimate.`,
     moment: "college", how: [`File the FAFSA for ${kids.map((k) => k.name).join(" and ")} at studentaid.gov (it opens Oct 1).`, "Put college savings in a CD timed to each tuition bill: money needed in 1–3 years shouldn't be in stocks.", "Compare aid offers before choosing a school."],
-    when: "This fall", products: [FNB.goalCd], also: [{ name: "File the FAFSA (studentaid.gov)", url: "https://studentaid.gov/h/apply-for-aid/fafsa" }],
+    when: "This fall", products: [BANK.cds], also: [{ name: "File the FAFSA (studentaid.gov)", url: "https://studentaid.gov/h/apply-for-aid/fafsa" }],
   });
   items.push({
     id: "retire", emoji: "🧭", color: "#10B981", title: "Retirement savings", where: has("retire") ? "Workplace plan + an IRA for the extra" : "Workplace retirement plan",
@@ -129,15 +126,15 @@ export function buildPlan(p: Profile, a: Assumptions, moments: MomentId[]) {
     why: has("retire") ? `Retirement is close, so every extra dollar counts: ${Math.round(A.extraRetirementPct * 100)}% more of pay goes toward retirement, about ${money0((p.income * A.extraRetirementPct) / 12)} a month.` : "Keeps the full employer match and steady growth.",
     moment: has("retire") ? "retire" : undefined,
     how: has("retire") ? [`Raise retirement savings by ${Math.round(A.extraRetirementPct * 100)}% of pay (workplace plan, or an IRA if the plan is capped).`, "Check the real Social Security estimate at ssa.gov.", "Meet with a planner about a retirement income plan."] : ["Contribute at least enough to get the full employer match.", "Turn on automatic yearly increases if offered."],
-    when: "This month", products: has("retire") ? [FNB.ira, FNB.planning] : [FNB.ira], also: has("retire") ? [{ name: "My Social Security estimate (ssa.gov)", url: "https://www.ssa.gov/myaccount/" }] : undefined,
+    when: "This month", products: has("retire") ? [BANK.ira, BANK.planning] : [BANK.ira], also: has("retire") ? [{ name: "My Social Security estimate (ssa.gov)", url: "https://www.ssa.gov/myaccount/" }] : undefined,
   });
   if (has("market") || has("retire")) items.push({
-    id: "invest", emoji: "📈", color: "#0B2A5B", title: "Stay invested in index funds", where: "A balanced mix: about 60% stock index funds, 40% bonds",
+    id: "invest", emoji: "📈", color: "#0B2A45", title: "Stay invested in index funds", where: "A balanced mix: about 60% stock index funds, 40% bonds",
     monthly: 0, amount: "No new money: just don't sell",
     why: has("market") ? `Selling after a 25% drop locks in the loss and misses the recovery. Staying invested is the single biggest difference in ${his} plan.` : "A balanced, low-cost mix keeps risk in check as retirement gets close.",
     moment: has("market") ? "market" : undefined,
     how: ["Don't sell during a drop. Keep the regular contributions going.", "Hold a simple, low-cost mix of stock and bond index funds.", "Keep about 1 year of retirement withdrawals in CDs so you never have to sell low."],
-    when: "Before the next drop", products: [FNB.portfolio, FNB.iraCd],
+    when: "Before the next drop", products: [BANK.wealth, BANK.ira],
   });
 
   return { items, without, withPlan, planA, noPlanEv, planEv, efTarget, essentials, who };
