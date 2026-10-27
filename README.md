@@ -1,6 +1,8 @@
 # 📈 Next Step
 **See tomorrow before you spend today.**
 
+Live: https://nextstep-beta.up.railway.app
+
 Every money choice you make sends ripples into your future. Next Step shows you where they land, *before* you make them.
 
 ## Elevator pitch
