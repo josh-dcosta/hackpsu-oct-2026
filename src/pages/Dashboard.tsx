@@ -69,6 +69,18 @@ function MomentsStep({ selected, toggle, auto }: { selected: MomentId[]; toggle:
       <Kicker>Step 1</Kicker>
       <h2 className="font-display text-2xl sm:text-3xl font-semibold">What's happening in {his} life right now?</h2>
       <p className="mt-1 text-slate-500">Pick every moment that applies. Some are already picked from {his} scenario.</p>
+      <div className="mt-4 rounded-2xl bg-sky-soft/70 p-4 ring-1 ring-sky-200">
+        <div className="text-[15px] font-semibold text-navy">The moments you pick drive everything that follows</div>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-[14px] font-semibold">
+          {["Life moments", "Your plan", "Next steps", "The answer"].map((t, i) => (
+            <span key={t} className="flex items-center gap-2">
+              <span className={cx("rounded-full px-3 py-1", i === 0 ? "bg-sun text-navy" : "bg-white text-navy ring-1 ring-slate-200")}>{t}</span>
+              {i < 3 && <ArrowRight size={15} className="text-slate-400" />}
+            </span>
+          ))}
+        </div>
+        <p className="mt-2 text-[14px] text-slate-600">Next Step builds {his} plan around these moments, turns the plan into next steps with the Valley Bank products that fit, and shows how far the money goes with and without the plan. Change the moments anytime and everything updates.</p>
+      </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {MOMENTS.map((m) => {
           const on = selected.includes(m.id);
@@ -259,7 +271,7 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
         <ul className="mt-3 list-disc space-y-1 pl-5 text-[14px] text-slate-600">
           <li>Fixed formulas, not AI guesses. Bills rise {Math.round(a.inflation * 100)}% a year; investments earn about {Math.round(a.returnRate * 100)}% a year (not guaranteed).</li>
           <li>Pension + Social Security are estimated at {Math.round(a.ssReplacement * 100)}% of today's pay, rising with prices. Savings cover the rest of the bills.</li>
-          <li>Life moments: surprise bill {money(PLAN_ASSUMPTIONS.surpriseBill)}; medical costs +{money(PLAN_ASSUMPTIONS.medicalMonthly)}/mo; market drop {Math.round(PLAN_ASSUMPTIONS.marketDrop * 100)}% (without a plan: selling and sitting in cash for 3 years); college {money(PLAN_ASSUMPTIONS.collegeShareNoAid)}/yr per student without the FAFSA vs {money(PLAN_ASSUMPTIONS.collegeShareWithAid)} with typical grants, rising 4% a year.</li>
+          <li>Life moments: surprise bill {money(PLAN_ASSUMPTIONS.surpriseBill)}; medical costs +{money(PLAN_ASSUMPTIONS.medicalMonthly)}/mo; market drop {Math.round(PLAN_ASSUMPTIONS.marketDrop * 100)}% (without a plan: selling and sitting in cash for 3 years); college {money(PLAN_ASSUMPTIONS.collegeShareNoAid)}/yr per student without the FAFSA vs {money(PLAN_ASSUMPTIONS.collegeShareWithAid)} with typical grants, rising 4% a year; vacation {money(PLAN_ASSUMPTIONS.vacationCost)} (without a plan, on a 22% credit card); car {money(PLAN_ASSUMPTIONS.carPrice)} (without a plan: $0 down, 9% for 6 years; with the plan: 10% down, 6.5% for 5 years).</li>
           <li>The plan: automatic payday transfers save most of what's left after bills, emergency money earns about {Math.round(PLAN_ASSUMPTIONS.savingsRateWithPlan * 100)}% in a money market (rates vary), plus the items in step 2.</li>
           <li>Educational estimates, not financial advice.</li>
         </ul>

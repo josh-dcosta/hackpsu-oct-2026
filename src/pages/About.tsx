@@ -90,7 +90,7 @@ function Journey() {
 }
 
 const GALLERY = [
-  { img: "moments", title: "Pick your life moments", text: "Start with Dave's scenario or your own numbers, then pick what's happening: a surprise bill, higher medical costs, college, a market drop, retiring soon." },
+  { img: "moments", title: "Pick your life moments", text: "Start with Dave's scenario or your own numbers, then pick what's happening: a surprise bill, higher medical costs, college, a market drop, retiring soon, a vacation, buying a car. Your moments drive the plan and the actions." },
   { img: "plan", title: "A plan, built for you", text: "Next Step builds the plan automatically and shows where every dollar should live: emergency fund, HSA, college fund, retirement." },
   { img: "steps", title: "Next steps at your bank", text: "Every action links to the Valley Bank product that does it, with how-to steps and a calendar reminder." },
   { img: "answer", title: "The answer", text: "One graph: where your savings go without the plan, and with it. How much you'll have at retirement, and how long it lasts." },

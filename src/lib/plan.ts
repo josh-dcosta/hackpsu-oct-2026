@@ -2,13 +2,15 @@
 // Every number here comes from fixed formulas in calc.ts. Assumptions are listed in PLAN_ASSUMPTIONS.
 import { projectLife, type Assumptions, type LifeEvents, type Profile } from "./calc";
 
-export type MomentId = "surprise" | "college" | "market" | "retire" | "medical";
+export type MomentId = "surprise" | "college" | "market" | "retire" | "medical" | "vacation" | "car";
 export const MOMENTS: { id: MomentId; emoji: string; title: string; sub: string }[] = [
   { id: "surprise", emoji: "🔧", title: "Surprise bill", sub: "A $2,500 car or furnace repair this year" },
   { id: "medical", emoji: "🩺", title: "Medical insurance going up", sub: "Premiums and copays up about $150 a month" },
   { id: "college", emoji: "🎓", title: "Kid heading to college", sub: "Four years of college costs for each teen" },
   { id: "market", emoji: "📉", title: "The market dropped", sub: "Investments fall 25% this year" },
-  { id: "retire", emoji: "🏖️", title: "Retiring soon", sub: "The last working years before retirement" },
+  { id: "retire", emoji: "🧭", title: "Retiring soon", sub: "The last working years before retirement" },
+  { id: "vacation", emoji: "🏖️", title: "Family vacation", sub: "A $3,000 trip next year" },
+  { id: "car", emoji: "🚗", title: "Buying a car", sub: "A $25,000 car this year" },
 ];
 
 const kidsForCollege = (p: Profile) => (p.kids || []).filter((k) => k.age >= 13 && k.age < 18);
@@ -29,6 +31,7 @@ export const BANK = {
   moneyMarket: { name: "Valley Tiered Money Market", url: "https://www.valley.com/personal/savings/tiered-money-market" },
   savings: { name: "Valley All Access Savings", url: "https://www.valley.com/personal/savings/all-access-savings" },
   cds: { name: "Valley CDs", url: "https://www.valley.com/personal/savings/cds" },
+  auto: { name: "Valley Auto Loans", url: "https://www.valley.com/personal/loans/auto-loans" },
   ira: { name: "Valley IRAs", url: "https://www.valley.com/personal/savings/IRAs" },
   planning: { name: "Valley Wealth Management", url: "https://www.valley.com/personal/financial-services" },
   wealth: { name: "Valley Wealth Management", url: "https://www.valley.com/wealth" },
@@ -50,10 +53,27 @@ export const PLAN_ASSUMPTIONS = {
   collegeInflation: 0.04,
   savingsRateWithPlan: 0.03, // a higher-rate money market instead of a 0.5% account (rates vary; check the bank)
   extraRetirementPct: 0.02,
+  vacationCost: 3_000,
+  vacationCardInterest: 360, // paying a $3,000 trip off over a year on a 22% credit card
+  carPrice: 25_000,
+  carNoPlan: { down: 0, apr: 0.09, months: 72 }, // 0-down dealer financing
+  carPlan: { down: 2_500, apr: 0.065, months: 60 }, // 10% down, bank auto loan, shorter term
   leftoverSavedWithPlan: 0.9, // automatic payday transfers save 90% of what's left after bills (vs. about half without a plan)
 };
 
 const r25 = (v: number) => Math.max(25, Math.round(v / 25) * 25);
+export function carLoan(price: number, o: { down: number; apr: number; months: number }) {
+  const P = price - o.down, r = o.apr / 12;
+  const pmt = r ? (P * r) / (1 - Math.pow(1 + r, -o.months)) : P / o.months;
+  return { pmt, total: pmt * o.months + o.down, interest: pmt * o.months - P };
+}
+// Down payment now, then a year of loan payments at each age until it's paid off
+const carCosts = (age: number, price: number, o: { down: number; apr: number; months: number }) => {
+  const { pmt } = carLoan(price, o);
+  const out = o.down ? [{ age, amount: o.down }] : [];
+  for (let m = 0, y = 0; m < o.months; m += 12, y++) out.push({ age: age + y, amount: pmt * Math.min(12, o.months - m) });
+  return out;
+};
 
 export function buildPlan(p: Profile, a: Assumptions, moments: MomentId[]) {
   const has = (m: MomentId) => moments.includes(m);
@@ -69,8 +89,10 @@ export function buildPlan(p: Profile, a: Assumptions, moments: MomentId[]) {
     costs: [...(has("surprise") ? [{ age: p.age, amount: A.surpriseBill }] : [])],
     extraMonthly: has("medical") ? A.medicalMonthly : 0,
   };
-  const noPlanEv: LifeEvents = { ...base, costs: [...(base.costs ?? []), ...collegeCosts(A.collegeShareNoAid)], marketDrop: has("market") ? { drop: A.marketDrop, panic: true } : undefined };
-  const planEv: LifeEvents = { ...base, costs: [...(base.costs ?? []), ...collegeCosts(A.collegeShareWithAid)], marketDrop: has("market") ? { drop: A.marketDrop, panic: false } : undefined };
+  const extraNo = [...(has("vacation") ? [{ age: p.age + 1, amount: A.vacationCost + A.vacationCardInterest }] : []), ...(has("car") ? carCosts(p.age, A.carPrice, A.carNoPlan) : [])];
+  const extraPlan = [...(has("vacation") ? [{ age: p.age + 1, amount: A.vacationCost }] : []), ...(has("car") ? carCosts(p.age, A.carPrice, A.carPlan) : [])];
+  const noPlanEv: LifeEvents = { ...base, costs: [...(base.costs ?? []), ...extraNo, ...collegeCosts(A.collegeShareNoAid)], marketDrop: has("market") ? { drop: A.marketDrop, panic: true } : undefined };
+  const planEv: LifeEvents = { ...base, costs: [...(base.costs ?? []), ...extraPlan, ...collegeCosts(A.collegeShareWithAid)], marketDrop: has("market") ? { drop: A.marketDrop, panic: false } : undefined };
 
   // The plan's changes to the numbers
   // Automating transfers on payday saves most of the leftover instead of about half of it
@@ -119,6 +141,23 @@ export function buildPlan(p: Profile, a: Assumptions, moments: MomentId[]) {
     moment: "college", how: [`File the FAFSA for ${kids.map((k) => k.name).join(" and ")} at studentaid.gov (it opens Oct 1).`, "Put college savings in a CD timed to each tuition bill: money needed in 1–3 years shouldn't be in stocks.", "Compare aid offers before choosing a school."],
     when: "This fall", products: [BANK.cds], also: [{ name: "File the FAFSA (studentaid.gov)", url: "https://studentaid.gov/h/apply-for-aid/fafsa" }],
   });
+  if (has("vacation")) items.push({
+    id: "vacation", emoji: "🏖️", color: "#F59E0B", title: "Vacation fund", where: "A separate savings account, just for the trip",
+    monthly: A.vacationCost / 12, amount: `${money0(A.vacationCost / 12)}/mo for 12 months`,
+    why: `Pays cash for the ${money0(A.vacationCost)} trip instead of putting it on a 22% credit card, which would add about ${money0(A.vacationCardInterest)} in interest.`,
+    moment: "vacation", how: ["Open a separate savings account and name it \"Vacation\".", `Set an automatic transfer of ${money0(A.vacationCost / 12)} each month.`, "Book the trip when the fund is full, not before."],
+    when: "This month", products: [BANK.savings],
+  });
+  if (has("car")) {
+    const bad = carLoan(A.carPrice, A.carNoPlan), good = carLoan(A.carPrice, A.carPlan);
+    items.push({
+      id: "car", emoji: "🚗", color: "#64748B", title: "Car loan, shopped smart", where: "A bank auto loan with a down payment and a shorter term",
+      monthly: 0, amount: `${money0(A.carPlan.down)} down + about ${money0(good.pmt)}/mo for ${A.carPlan.months / 12} years`,
+      why: `Compared with $0 down at ${Math.round(A.carNoPlan.apr * 100)}% for ${A.carNoPlan.months / 12} years at the dealer, this saves about ${money0(bad.total - good.total)} and is paid off a year sooner.`,
+      moment: "car", how: ["Get pre-approved by a bank before visiting the dealer.", "Compare the APR and total cost, not just the monthly payment.", `Put about 10% down and keep the loan to ${A.carPlan.months / 12} years or less.`],
+      when: "Before you shop", products: [BANK.auto],
+    });
+  }
   items.push({
     id: "retire", emoji: "🧭", color: "#10B981", title: "Retirement savings", where: has("retire") ? "Workplace plan + an IRA for the extra" : "Workplace retirement plan",
     monthly: retireMonthly + matchMonthly,
