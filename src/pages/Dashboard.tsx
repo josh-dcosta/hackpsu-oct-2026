@@ -139,6 +139,20 @@ function PlanStep({ items }: { items: PlanItem[] }) {
               <div className="mt-1 text-[14px] text-slate-500">{i.where}</div>
               <div className="num mt-2 text-[17px] font-bold text-navy">{i.amount}</div>
               <p className="mt-1 text-[14px] text-slate-600">{i.why}</p>
+              <div className="mt-3 rounded-xl bg-white p-3 ring-1 ring-slate-200">
+                <div className="text-[12px] font-bold uppercase tracking-wider text-slate-500">{i.products.length ? "Valley Bank options" : "Learn more"}</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {i.products.map((pr) => (
+                    <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-sun px-3 py-2 text-[13px] font-semibold text-navy hover:bg-sun-600">
+                      <span className="rounded bg-navy px-1 text-[10px] font-extrabold text-sun">VALLEY</span>{pr.name.replace("Valley ", "")}<ExternalLink size={13} />
+                    </a>
+                  ))}
+                  {(i.also || []).map((pr) => (
+                    <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-[13px] font-semibold ring-1 ring-slate-200 hover:bg-slate-50">{pr.name}<ExternalLink size={13} /></a>
+                  ))}
+                  {!i.products.length && !(i.also || []).length && <span className="text-[13px] text-slate-500">No new account needed.</span>}
+                </div>
+              </div>
             </div>
           );
         })}
@@ -151,7 +165,7 @@ function PlanStep({ items }: { items: PlanItem[] }) {
 function StepsStep({ items }: { items: PlanItem[] }) {
   const st = useStore();
   const { stepsDone, set } = st;
-  const [open, setOpen] = useState<string | null>(items[0]?.id ?? null);
+  const [closed, setClosed] = useState<Record<string, boolean>>({});
   const done = items.filter((i) => stepsDone[i.id]).length;
   return (
     <Card>
@@ -169,13 +183,13 @@ function StepsStep({ items }: { items: PlanItem[] }) {
       </div>
       <div className="mt-4 space-y-2.5">
         {items.map((i) => {
-          const isOpen = open === i.id, isDone = !!stepsDone[i.id];
+          const isOpen = !closed[i.id], isDone = !!stepsDone[i.id];
           return (
             <div key={i.id} className={cx("rounded-2xl ring-1", isDone ? "bg-emerald-50/60 ring-emerald-200" : "bg-white ring-slate-200")}>
               <div className="flex items-start gap-3 p-4">
                 <button onClick={() => set((s) => ({ stepsDone: { ...s.stepsDone, [i.id]: !isDone } }))} aria-pressed={isDone} aria-label={`Mark ${i.title} done`}
                   className={cx("mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg ring-2", isDone ? "bg-emerald-500 text-white ring-emerald-500" : "bg-white ring-slate-300")}>{isDone && <Check size={18} />}</button>
-                <button onClick={() => setOpen(isOpen ? null : i.id)} className="flex flex-1 items-start justify-between gap-2 text-left" aria-expanded={isOpen}>
+                <button onClick={() => setClosed((c) => ({ ...c, [i.id]: isOpen }))} className="flex flex-1 items-start justify-between gap-2 text-left" aria-expanded={isOpen}>
                   <span>
                     <span className="flex flex-wrap items-center gap-2"><span className={cx("text-[17px] font-semibold", isDone && "text-slate-400 line-through")}>{i.emoji} {i.title}</span><span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold uppercase text-slate-500">{i.when}</span></span>
                     <span className="mt-0.5 block text-[14px] text-slate-600">{i.amount}</span>
