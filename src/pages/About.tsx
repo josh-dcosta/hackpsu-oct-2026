@@ -107,19 +107,39 @@ function Gallery() {
 }
 
 /* ---------------- About the app ---------------- */
+// Why Next Step exists: share of private-industry workers NOT participating in a workplace retirement plan
+// (100% minus participation rate). BLS, Employee Benefits in the United States, March 2025, Table 1:
+// lowest-paid 25% participate 23% · establishments with 1-49 workers 38% · service occupations 25%.
+const BLS_BENEFITS = "https://www.bls.gov/news.release/archives/ebs2_09252025.htm";
+function WhyStats() {
+  return (
+    <div className="mt-4 flex flex-col gap-2 rounded-2xl bg-white/5 px-4 py-3 ring-1 ring-white/10 lg:flex-row lg:items-center lg:gap-5">
+      <div className="flex items-center gap-3">
+        <span className="num font-display text-4xl font-semibold text-sun">77%</span>
+        <span className="max-w-[17rem] text-[14px] leading-snug text-slate-200">of the lowest-paid workers aren't saving in a retirement plan through work.</span>
+      </div>
+      <div className="text-[13px] leading-snug text-slate-300">
+        <span className="whitespace-nowrap"><b className="num text-white">75%</b> of service workers</span> · <span className="whitespace-nowrap"><b className="num text-white">62%</b> at small businesses</span>
+        <a href={BLS_BENEFITS} target="_blank" rel="noreferrer" className="block text-[12px] text-slate-400 hover:text-white hover:underline">Source: U.S. Bureau of Labor Statistics, March 2025 ↗</a>
+      </div>
+    </div>
+  );
+}
+
 export function AboutApp() {
   return (
     <Panels tabs={[
       {
         id: "see", label: "See tomorrow", body: (go) => (
-          <Fill className="hero-dark rounded-[2rem] p-5 sm:p-8 text-white">
+          <Fill className="hero-dark rounded-[2rem] p-5 sm:p-8 [@media(min-width:640px)_and_(max-height:800px)]:p-6 text-white">
             <div className="flex items-center gap-3"><Logo size={40} /><Kicker dark>The App</Kicker></div>
-            <h1 className="mt-3 font-display text-3xl sm:text-5xl font-semibold leading-tight">See tomorrow before you spend today.</h1>
+            <h1 className="mt-3 font-display text-3xl sm:text-5xl [@media(min-width:640px)_and_(max-height:800px)]:text-4xl font-semibold leading-tight">See tomorrow before you spend today.</h1>
             <p className="mt-3 max-w-3xl text-[16px] sm:text-lg leading-relaxed text-slate-300">
               <b className="text-white">Next Step</b> is a free, simple money planner for everyday working people, built for <b className="text-white">HackPSU</b>. It answers one honest question, <i className="text-white">"Will I have enough to pay my bills after I retire?"</i>, then gives you a plan and real next steps.
             </p>
-            <div className="mt-5"><Journey /></div>
-            <div className="mt-5"><button onClick={() => go("try")} className="inline-flex min-h-[52px] items-center gap-2 rounded-2xl bg-sun px-6 py-3 text-lg font-semibold text-navy hover:bg-sun-600">Try it now <ArrowRight size={19} /></button></div>
+            <WhyStats />
+            <div className="mt-5 [@media(min-width:640px)_and_(max-height:800px)]:mt-3"><Journey /></div>
+            <div className="mt-5 [@media(min-width:640px)_and_(max-height:800px)]:mt-3"><button onClick={() => go("try")} className="inline-flex min-h-[52px] items-center gap-2 rounded-2xl bg-sun px-6 py-3 text-lg font-semibold text-navy hover:bg-sun-600">Try it now <ArrowRight size={19} /></button></div>
           </Fill>
         ),
       },
