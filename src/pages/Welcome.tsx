@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Lock, Sparkles } from "lucide-react";
 import { useStore, SAMPLE_PROFILES, loadMine, clearMine } from "../lib/store";
-import { Button, Slider, cx } from "../components/ui";
+import { Button, MoneyInput, Slider, cx } from "../components/ui";
+import { AGE_BANDS, ALL_JOBS, JOBS, STATES, matchJob, stateByCode, stateTaxLabel, taxes, type Filing } from "../data/grounding";
 import { Logo } from "../components/Brand";
 import { ScenarioCards, useScenario } from "../components/Scenario";
 import { money } from "../lib/format";
@@ -16,12 +17,9 @@ const LEVELS: { id: Profile["level"]; emoji: string; text: string }[] = [
   { id: "Intermediate", emoji: "🌿", text: "I know the basics and want to go deeper." },
   { id: "Advanced", emoji: "🌳", text: "Give me the details and the formulas." },
 ];
-const AGES = [
-  { id: "25–35", text: "Building a foundation" },
-  { id: "35–45", text: "Growing family & career" },
-  { id: "45–55", text: "Peak saving years" },
-  { id: "55–65", text: "Getting ready to retire" },
-];
+const AGES = AGE_BANDS; // Federal Reserve SCF age groups
+const FILINGS: { id: Filing; label: string }[] = [{ id: "single", label: "Single" }, { id: "married", label: "Married, filing together" }, { id: "head", label: "Head of household" }];
+const Src = ({ children }: { children: React.ReactNode }) => <span className="text-[12px] text-slate-400">Source: {children}</span>;
 
 function Q({ title, sub, children, canSkip = true, onBack: back, onNext: next }: { title: string; sub?: string; children: React.ReactNode; canSkip?: boolean; onBack: () => void; onNext: () => void }) {
   return (
@@ -40,6 +38,16 @@ function Q({ title, sub, children, canSkip = true, onBack: back, onNext: next }:
   );
 }
 
+function Typical({ label, value, current, onUse, src }: { label: string; value: number; current: number; onUse: (v: number) => void; src: string }) {
+  return (
+    <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-emerald-50 px-4 py-3 ring-1 ring-emerald-200">
+      <div className="min-w-0"><div className="text-[14px] text-slate-700">{label}: <b className="num text-navy">{money(value)}</b></div><Src>{src}</Src></div>
+      {Math.abs(current - value) > 1 ? <button onClick={() => onUse(value)} className="rounded-xl bg-white px-3 py-1.5 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50">Use typical</button>
+        : <span className="text-[13px] font-semibold text-emerald-700">Filled in · change it to yours</span>}
+    </div>
+  );
+}
+
 export default function Welcome() {
   const { mine, finish, continueMine } = useScenario();
   // "#/try?walk=mine" (or ?edit) goes straight to the questions; otherwise returning visitors see "Welcome back"
@@ -48,8 +56,15 @@ export default function Welcome() {
   const [step, setStep] = useState(1);
   // Numbers already saved on this device? Go straight to the plan (edit them anytime from there)
   useEffect(() => { if (!walk && mine) continueMine(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const [p, setP] = useState<Profile>({ ...(mine ? mine.profile : CUSTOM_PROFILE), scenario: "custom" });
-  const total = 9;
+  const [p, setP] = useState<Profile>({ ...CUSTOM_PROFILE, ...(mine ? mine.profile : {}), scenario: "custom" });
+  // Fields the person has typed themselves; untouched ones get filled with typical values from real data
+  const [touched, setTouched] = useState<Record<string, boolean>>(mine ? { income: true, savings: true, retirement: true } : {});
+  const touch = (k: string) => setTouched((t) => ({ ...t, [k]: true }));
+  const job = matchJob(p.job);
+  const band = AGES.find((a) => a.id === p.ageRange) ?? AGES[1];
+  const st = stateByCode(p.state);
+  const tx = taxes(p.income, p.state, p.filing);
+  const total = 10;
   const next = () => setStep((s) => Math.min(total + 1, s + 1));
   const back = () => { if (step === 1) { if (mine) continueMine(); else window.location.hash = "#/about"; } else setStep((s) => Math.max(0, s - 1)); };
   const patch = (x: Partial<Profile>) => setP((v) => ({ ...v, ...x }));
@@ -67,13 +82,16 @@ export default function Welcome() {
       <input id="nm" autoFocus value={p.name || ""} onChange={(e) => patch({ name: e.target.value.slice(0, 30) })} placeholder="Your first name"
         className="w-full rounded-2xl bg-white px-5 py-4 text-xl ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" />
       <label htmlFor="job" className="mt-5 block text-[15px] font-medium text-slate-700">What do you do for work? <span className="text-slate-400">(optional)</span></label>
-      <input id="job" value={p.job || ""} onChange={(e) => patch({ job: e.target.value.slice(0, 60) })} placeholder="e.g. Plumber, nurse, teacher's aide"
+      <input id="job" list="job-list" value={p.job || ""} placeholder="e.g. Plumber, nurse, teacher's aide"
+        onChange={(e) => { const v = e.target.value.slice(0, 60); const j = matchJob(v); patch({ job: v, ...(!touched.income && j ? { income: j.median } : {}) }); }}
         className="mt-1 w-full rounded-2xl bg-white px-5 py-4 text-xl ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" />
+      <datalist id="job-list">{JOBS.map((j) => <option key={j.id} value={j.label.replace("*", "")} />)}</datalist>
+      {job && <p className="mt-2 text-[14px] text-slate-600">We'll compare you with <b>{job.label.replace("*", "")}</b>: typical pay <b className="num">{money(job.median)}</b> a year. <Src>BLS, 2025 median pay</Src></p>}
     </Q>,
     <Q onBack={back} onNext={next} key="age" title="Which age range are you in?" sub="This helps us show what matters most at your stage of life." canSkip={false}>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         {AGES.map((a) => (
-          <button key={a.id} onClick={() => { if (custom) patch({ ageRange: a.id, age: SAMPLE_PROFILES[a.id].age }); else { patch({ ...SAMPLE_PROFILES[a.id] }); setTimeout(next, 180); } }}
+          <button key={a.id} onClick={() => patch({ ageRange: a.id, age: a.age, ...(!touched.savings ? { savings: a.bank } : {}), ...(!touched.retirement ? { retirement: a.retirement } : {}) })}
             className={cx("rounded-3xl p-5 text-left ring-2 transition", p.ageRange === a.id ? "bg-emerald-50 ring-emerald-500" : "bg-white ring-slate-200 hover:ring-emerald-300")}>
             <div className="font-display text-3xl font-semibold">{a.id}</div>
             <div className="mt-1 text-slate-500">{a.text}</div>
@@ -82,9 +100,23 @@ export default function Welcome() {
       </div>
       {custom && (
         <div className="mt-5 rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-          <Slider label="Your exact age" value={p.age} min={18} max={75} onChange={(v) => patch({ age: v, ageRange: v < 35 ? "25–35" : v < 45 ? "35–45" : v < 55 ? "45–55" : "55–65" })} format={(v) => `${v} years old`} />
+          <Slider label="Your exact age" value={p.age} min={18} max={80} onChange={(v) => { const b = v < 35 ? AGES[0] : v < 45 ? AGES[1] : v < 55 ? AGES[2] : v < 65 ? AGES[3] : AGES[4]; patch({ age: v, ageRange: b.id, ...(!touched.savings ? { savings: b.bank } : {}), ...(!touched.retirement ? { retirement: b.retirement } : {}) }); }} format={(v) => `${v} years old`} />
         </div>
       )}
+    </Q>,
+    <Q onBack={back} onNext={next} key="state" title="Which state do you live in?" sub="State income tax changes how much of each paycheck you keep." canSkip={false}>
+      <label htmlFor="state" className="sr-only">Your state</label>
+      <select id="state" value={p.state || ""} onChange={(e) => patch({ state: e.target.value || undefined })}
+        className="w-full appearance-none rounded-2xl bg-white px-5 py-4 text-xl ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500">
+        <option value="">Choose your state</option>
+        {STATES.map((x) => <option key={x.code} value={x.code}>{x.name}</option>)}
+      </select>
+      {st && <div className="mt-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200"><div className="text-lg font-semibold">{st.name}: {stateTaxLabel(st)}</div><Src>Tax Foundation, 2026 state income tax rates and brackets</Src></div>}
+      <div className="mt-6 text-[15px] font-medium text-slate-700">How do you file your taxes?</div>
+      <div className="mt-2 grid gap-2 sm:grid-cols-3">
+        {FILINGS.map((f) => <button key={f.id} onClick={() => patch({ filing: f.id })} aria-pressed={(p.filing ?? "single") === f.id}
+          className={cx("rounded-2xl px-4 py-3 text-[15px] font-semibold ring-2 transition", (p.filing ?? "single") === f.id ? "bg-emerald-50 ring-emerald-500" : "bg-white ring-slate-200 hover:ring-emerald-300")}>{f.label}</button>)}
+      </div>
     </Q>,
     <Q onBack={back} onNext={next} key="kids" title="Do you have children?" sub={custom ? "Kids change budgets and bring college costs. Add each one with their age." : "Dave and Linda have two teenagers: Emma and Jake."}>
       <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
@@ -109,28 +141,31 @@ export default function Welcome() {
         </div>
       </div>
     </Q>,
-    <Q onBack={back} onNext={next} key="inc" title="About how much do you earn in a year?" sub={custom ? "Before taxes, for your whole household. A rough number is fine." : "Dave earns about $46,000 and Linda about $18,000 part-time."}>
+    <Q onBack={back} onNext={next} key="inc" title="About how much do you earn in a year?" sub="Before taxes, for your whole household. A rough number is fine.">
       <div className="rounded-3xl bg-white p-6 ring-1 ring-slate-200">
-        <div className="text-center font-display text-5xl font-semibold num">{money(p.income)}</div>
-        <Slider label="Yearly income" value={p.income} min={0} max={300000} step={1000} onChange={(v) => patch({ income: v })} format={money} />
+        <MoneyInput id="income" label="Yearly income" value={p.income} base={150000} onChange={(v) => { touch("income"); patch({ income: v }); }} />
+        <Typical label={job ? `Typical for ${job.label.replace("*", "").toLowerCase()}` : "U.S. median pay, all jobs"} value={job?.median ?? ALL_JOBS.median} current={p.income}
+          onUse={(v) => { touch("income"); patch({ income: v }); }} src={job ? "BLS Occupational Outlook Handbook, 2025 median pay" : "BLS, May 2025 median hourly wage × 2,080 hours"} />
+        {p.income > 0 && <p className="mt-3 rounded-2xl bg-slate-50 p-3 text-[14px] text-slate-600">After federal{st && st.brackets.length ? `, ${st.name}` : ""} and payroll taxes, you'd keep about <b className="num text-navy">{money(tx.takeHome)}</b> a year (<b className="num text-navy">{money(tx.takeHome / 12)}</b> a month). <Src>IRS 2026 brackets{st ? ", Tax Foundation 2026" : ""}</Src></p>}
       </div>
     </Q>,
     <Q onBack={back} onNext={next} key="exp" title="What do you spend in a typical month?" sub="Rent or mortgage, food, bills, everything.">
       <div className="rounded-3xl bg-white p-6 ring-1 ring-slate-200">
-        <div className="text-center font-display text-5xl font-semibold num">{money(p.expenses)}</div>
-        <Slider label="Monthly spending" value={p.expenses} min={500} max={15000} step={100} onChange={(v) => patch({ expenses: v })} format={money} />
+        <MoneyInput id="expenses" label="Monthly spending" value={p.expenses} base={10000} onChange={(v) => patch({ expenses: v })} />
       </div>
     </Q>,
     <Q onBack={back} onNext={next} key="sav" title="How much do you have saved?" sub="Checking and savings accounts, not counting retirement.">
       <div className="rounded-3xl bg-white p-6 ring-1 ring-slate-200">
-        <div className="text-center font-display text-5xl font-semibold num">{money(p.savings)}</div>
-        <Slider label="Savings" value={p.savings} min={0} max={200000} step={500} onChange={(v) => patch({ savings: v })} format={money} />
+        <MoneyInput id="savings" label="Savings" value={p.savings} base={50000} onChange={(v) => { touch("savings"); patch({ savings: v }); }} />
+        <Typical label={`Typical for ages ${band.id.toLowerCase()}`} value={band.bank} current={p.savings} onUse={(v) => { touch("savings"); patch({ savings: v }); }}
+          src="Federal Reserve 2025 Survey of Consumer Finances, median checking + savings" />
       </div>
     </Q>,
     <Q onBack={back} onNext={next} key="ret" title="And invested for retirement?" sub="401(k), IRA, and similar accounts. Zero is a perfectly fine answer.">
       <div className="rounded-3xl bg-white p-6 ring-1 ring-slate-200">
-        <div className="text-center font-display text-5xl font-semibold num">{money(p.retirement)}</div>
-        <Slider label="Retirement savings" value={p.retirement} min={0} max={1500000} step={1000} onChange={(v) => patch({ retirement: v })} format={money} />
+        <MoneyInput id="retirement" label="Retirement savings" value={p.retirement} base={500000} onChange={(v) => { touch("retirement"); patch({ retirement: v }); }} />
+        <Typical label={`Typical for ages ${band.id.toLowerCase()} who have an account`} value={band.retirement} current={p.retirement} onUse={(v) => { touch("retirement"); patch({ retirement: v }); }}
+          src={`Federal Reserve 2025 Survey of Consumer Finances, median balance. About ${Math.round(band.share * 100)}% of families this age have one.`} />
       </div>
     </Q>,
     <Q onBack={back} onNext={next} key="goals" title="What would you like to work on?" sub="Pick as many as you like.">

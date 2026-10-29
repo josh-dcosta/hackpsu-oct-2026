@@ -5,6 +5,18 @@ Live: https://nextstep-beta.up.railway.app
 
 Every money choice you make sends ripples into your future. Next Step shows you where they land, *before* you make them.
 
+## Grounded in real data
+
+The questions (job, age range, state, filing status) pull typical values from published sources, and the plan math uses them (`src/data/grounding.ts`):
+
+- **State income tax:** Tax Foundation, 2026 state rates and brackets (all 50 states + DC)
+- **Federal income tax:** IRS 2026 brackets and standard deduction; Social Security (2026 wage base $184,500) + Medicare
+- **Typical pay by job:** BLS Occupational Outlook Handbook, 2025 median pay (May 2025 OEWS)
+- **Typical savings by age:** Federal Reserve 2025 Survey of Consumer Finances (median checking + savings; median retirement balance)
+- **Inflation:** BLS CPI-U, 1975–2025 average ≈ 3.6% a year. The projection starts at 3% and the user can change it.
+
+Money questions have no maximum: type any amount, or slide and the scale doubles at the end.
+
 ## Elevator pitch
 People have more financial information than ever, but at the moments that matter (a raise, open enrollment, a surprise bill, a kid heading to college) they still don't know what to trust or what to do next. **Next Step** turns information into action in four moves:
 

@@ -31,7 +31,7 @@ export default function HSA() {
       <Simulator title="HSA Simulator" onReset={reset} note="Federal taxes only. Assumes withdrawals are for qualified medical expenses."
         controls={<>
           <Slider label="Yearly contribution" value={s.annual} min={500} max={9750} step={250} onChange={(v) => set({ annual: v })} format={money} />
-          <Slider label="Medical costs paid each year" value={s.medical} min={0} max={6000} step={100} onChange={(v) => set({ medical: v })} format={money} />
+          <Slider grow label="Medical costs paid each year" value={s.medical} min={0} max={6000} step={100} onChange={(v) => set({ medical: v })} format={money} />
           <Slider label="Federal tax rate" value={s.tax} min={10} max={37} onChange={(v) => set({ tax: v })} format={(v) => v + "%"} />
           <Slider label="Years" value={s.years} min={2} max={40} onChange={(v) => set({ years: v })} format={(v) => v + " years"} />
           <Slider label="Investment return" value={s.ret} min={0} max={10} step={0.5} onChange={(v) => set({ ret: v })} format={(v) => v + "%"} />

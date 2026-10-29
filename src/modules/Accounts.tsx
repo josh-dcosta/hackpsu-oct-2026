@@ -37,7 +37,7 @@ export default function Accounts() {
             ))}
           </div>
           <div className="mt-3">
-            <Slider label="Set aside each year (pre-tax)" value={s.budget} min={1000} max={20000} step={500} onChange={(v) => set({ budget: v })} format={money} />
+            <Slider grow label="Set aside each year (pre-tax)" value={s.budget} min={1000} max={20000} step={500} onChange={(v) => set({ budget: v })} format={money} />
             <Slider label="Years invested" value={s.years} min={5} max={45} onChange={(v) => set({ years: v })} format={(v) => v + " years"} />
             <Slider label="Tax rate now" value={s.now} min={0} max={37} onChange={(v) => set({ now: v })} format={(v) => v + "%"} />
             <Slider label="Tax rate in retirement" value={s.later} min={0} max={37} onChange={(v) => set({ later: v })} format={(v) => v + "%"} />

@@ -39,11 +39,11 @@ export default function K401() {
       <Simulator title="401(k) Growth Simulator" onReset={reset}
         controls={<>
           <Slider label="Your contribution" value={s.contrib} min={0} max={20} onChange={(v) => set({ contrib: v })} format={(v) => v + "% of pay"} />
-          <Slider label="Salary" value={s.salary} min={20000} max={200000} step={5000} onChange={(v) => set({ salary: v })} format={money} />
+          <Slider grow label="Salary" value={s.salary} min={20000} max={200000} step={5000} onChange={(v) => set({ salary: v })} format={money} />
           <Slider label="Employer matches 100% up to" value={s.matchCap} min={0} max={8} onChange={(v) => set({ matchCap: v })} format={(v) => v + "% of pay"} />
           <Slider label="Your age" value={s.age} min={20} max={64} onChange={(v) => set({ age: v, retireAge: Math.max(s.retireAge, v + 1) })} format={(v) => String(v)} />
           <Slider label="Retire at" value={s.retireAge} min={Math.max(55, s.age + 1)} max={75} onChange={(v) => set({ retireAge: v })} format={(v) => "Age " + v} />
-          <Slider label="Already saved" value={s.balance} min={0} max={500000} step={1000} onChange={(v) => set({ balance: v })} format={money} />
+          <Slider grow label="Already saved" value={s.balance} min={0} max={500000} step={1000} onChange={(v) => set({ balance: v })} format={money} />
         </>}
         chart={<div className="flex h-full flex-col">
           <div className="rounded-2xl bg-navy px-4 py-3 text-white">

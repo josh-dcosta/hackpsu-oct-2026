@@ -44,7 +44,7 @@ export default function TimeBuckets() {
             <div className="text-2xl">{b.emoji}</div>
             <div className="mt-1 font-semibold">{b.title}</div>
             <div className="text-[13px] text-slate-500">{b.sub}</div>
-            <Slider id={`bucket-${b.key}`} label="Amount" value={b.value} min={0} max={b.max} step={500} onChange={(v) => set({ [b.key]: v } as Partial<typeof s>)} format={money} />
+            <Slider grow id={`bucket-${b.key}`} label="Amount" value={b.value} min={0} max={b.max} step={500} onChange={(v) => set({ [b.key]: v } as Partial<typeof s>)} format={money} />
             <p className="text-[14px] text-slate-700">{b.plan}</p>
           </div>
         ))}

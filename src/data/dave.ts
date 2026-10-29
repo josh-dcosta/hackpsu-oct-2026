@@ -32,11 +32,11 @@ export const DAVE_ASSUMPTIONS: Assumptions = {
 };
 
 export const CUSTOM_PROFILE: Profile = {
-  name: "", ageRange: "35–45", age: 40, income: 60_000, expenses: 3_500, savings: 10_000, retirement: 40_000,
-  goals: [], level: "Beginner", onboarded: false, scenario: "custom", job: "", kids: [],
+  name: "", ageRange: "35–44", age: 40, income: 50_980, expenses: 3_500, savings: 6_800, retirement: 61_000,
+  goals: [], level: "Beginner", onboarded: false, scenario: "custom", job: "", kids: [], state: "PA", filing: "single",
 };
 export const CUSTOM_ASSUMPTIONS: Assumptions = {
-  returnRate: 0.06, inflation: 0.04, contribPct: 0.06, matchPct: 0.03, retireAge: 67, ssReplacement: 0.35, salaryGrowth: 0.03, leftoverSaved: 0.5, scenario: "baseline",
+  returnRate: 0.06, inflation: 0.03, contribPct: 0.06, matchPct: 0.03, retireAge: 67, ssReplacement: 0.35, salaryGrowth: 0.03, leftoverSaved: 0.5, scenario: "baseline",
   hsaAnnual: 0, cashRate: 0.005, accountType: "traditional", taxRate: 0.12,
 };
 export const isDaveProfile = (p: Profile) => p.scenario ? p.scenario === "dave" : p.name === "Dave";

@@ -1,3 +1,4 @@
+import { taxes, type Filing } from "../data/grounding";
 // Deterministic financial calculators. Every number shown in Next Step
 // comes from these functions. Pure functions, no side effects.
 import { k401Limit, RULES } from "./rules";
@@ -268,6 +269,8 @@ export type Profile = {
   scenario?: "dave" | "custom";
   job?: string;
   kids?: { name: string; age: number }[];
+  state?: string; // two-letter code, drives state income tax
+  filing?: Filing;
 };
 export type Assumptions = {
   returnRate: number; inflation: number; contribPct: number; matchPct: number; retireAge: number; ssReplacement: number; salaryGrowth: number; leftoverSaved: number; scenario: "pessimistic" | "baseline" | "optimistic";
@@ -297,10 +300,12 @@ export type LifeEvents = {
 export function projectLife(p: Profile, a: Assumptions, ev: LifeEvents = {}) {
   const adj = a.scenario === "optimistic" ? { r: 0.015, i: -0.005 } : a.scenario === "pessimistic" ? { r: -0.02, i: 0.01 } : { r: 0, i: 0 };
   const ret = a.returnRate + adj.r, inf = Math.max(0, a.inflation + adj.i), cashRate = a.cashRate ?? 0.035;
-  const tax = a.taxRate ?? 0.12, roth = a.accountType === "roth", hsa = a.hsaAnnual ?? 0;
+  // Taxes come from real 2026 federal + state brackets when we know the state (see data/grounding.ts)
+  const tx = taxes(p.income, p.state, p.filing);
+  const tax = p.state ? tx.marginal : a.taxRate ?? 0.12, roth = a.accountType === "roth", hsa = a.hsaAnnual ?? 0;
   let taxSavedTotal = 0;
   const taxSavedNow = (roth ? 0 : p.income * a.contribPct * tax) + hsa * (tax + 0.0765);
-  const takeHomeRate = 0.78; // rough after-tax share of pay (assumption)
+  const takeHomeRate = p.state ? tx.takeHomeShare : 0.78; // after federal, state and payroll taxes
   let cash = p.savings, invested = p.retirement, salary = p.income;
   let depletedAge: number | null = null;
   const rows: { age: number; nominal: number; real: number; cash: number; invested: number; expensesMonthly: number; retired: boolean }[] = [];

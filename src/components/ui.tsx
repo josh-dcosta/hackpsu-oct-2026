@@ -20,10 +20,17 @@ export function Button({ children, variant = "primary", className, ...rest }: { 
   return <button className={cx("inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-semibold transition active:scale-[.98] disabled:opacity-50 min-h-[48px]", v, className)} {...rest}>{children}</button>;
 }
 
-export function Slider({ label, value, min, max, step = 1, onChange, format = (v) => String(v), help, id }: {
+// Doubles a range until the value sits comfortably inside it (no hard ceiling on money)
+const roomFor = (m: number, v: number) => { let x = m; while (v >= x * 0.95) x *= 2; return x; };
+
+export function Slider({ label, value, min, max: max0, step = 1, onChange, format = (v) => String(v), help, id, grow = false }: {
   label: string; value: number; min: number; max: number; step?: number; onChange: (v: number) => void; format?: (v: number) => string; help?: string; id?: string;
+  grow?: boolean; // money sliders: reaching the end doubles the range, so there's no maximum
 }) {
   const sid = id || "s-" + label.replace(/\W+/g, "-").toLowerCase();
+  const [room, setRoom] = useState(() => (grow ? roomFor(max0, value) : max0));
+  const max = grow ? Math.max(room, max0) : max0;
+  useEffect(() => { if (grow && value >= max * 0.95) setRoom(roomFor(max, value)); }, [grow, value, max]);
   const p = ((value - min) / (max - min)) * 100;
   return (
     <div className="py-1">
@@ -34,6 +41,29 @@ export function Slider({ label, value, min, max, step = 1, onChange, format = (v
       <input id={sid} type="range" className="rs" min={min} max={max} step={step} value={value}
         style={{ ["--p" as string]: `${p}%` }} onChange={(e) => onChange(Number(e.target.value))} aria-valuetext={format(value)} />
       {help && <p className="-mt-1 text-[13px] text-slate-500">{help}</p>}
+    </div>
+  );
+}
+
+/** A money amount with no upper limit: type any number, or slide (the scale grows as you reach the end). */
+export function MoneyInput({ label, value, onChange, base, id, hint }: { label: string; value: number; onChange: (v: number) => void; base: number; id: string; hint?: ReactNode }) {
+  const [room, setRoom] = useState(() => roomFor(base, value));
+  useEffect(() => { if (value >= room * 0.95) setRoom(roomFor(room, value)); }, [value, room]);
+  const step = room <= 20_000 ? 100 : room <= 200_000 ? 500 : room <= 2_000_000 ? 5_000 : 50_000;
+  const p = Math.min(100, (value / room) * 100);
+  return (
+    <div>
+      <label htmlFor={id} className="sr-only">{label}</label>
+      <div className="mx-auto flex max-w-sm items-center justify-center rounded-2xl px-4 ring-1 ring-transparent focus-within:bg-slate-50 focus-within:ring-slate-200">
+        <span className="font-display text-4xl font-semibold text-slate-400">$</span>
+        <input id={id} inputMode="numeric" value={value.toLocaleString("en-US")} size={Math.max(2, value.toLocaleString("en-US").length)}
+          onFocus={(e) => e.target.select()}
+          onChange={(e) => onChange(Number(e.target.value.replace(/[^0-9]/g, "").slice(0, 10)) || 0)}
+          className="num min-w-0 max-w-full bg-transparent py-2 pl-1 font-display text-5xl font-semibold outline-none" />
+      </div>
+      <input type="range" aria-label={label} className="rs mt-3" min={0} max={room} step={step} value={Math.min(value, room)} style={{ ["--p" as string]: `${p}%` }}
+        onChange={(e) => onChange(Number(e.target.value))} aria-valuetext={money(value)} />
+      <p className="mt-1 text-center text-[13px] text-slate-500">{hint ?? "Type any amount, or slide. There's no maximum: the scale grows when you reach the end."}</p>
     </div>
   );
 }

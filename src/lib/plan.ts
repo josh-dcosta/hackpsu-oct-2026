@@ -1,6 +1,7 @@
 // Life moments → an automatic plan → next steps (with Valley Bank products) → the answer.
 // Every number here comes from fixed formulas in calc.ts. Assumptions are listed in PLAN_ASSUMPTIONS.
 import { projectLife, type Assumptions, type LifeEvents, type Profile } from "./calc";
+import { taxes } from "../data/grounding";
 
 export type MomentId = "surprise" | "college" | "market" | "retire" | "medical" | "vacation" | "car";
 export const MOMENTS: { id: MomentId; emoji: string; title: string; sub: string }[] = [
@@ -105,7 +106,7 @@ export function buildPlan(p: Profile, a: Assumptions, moments: MomentId[]) {
   const withPlan = projectLife(p, planA, planEv);
 
   // Monthly amounts: where the money lives
-  const tax = a.taxRate ?? 0.12;
+  const tax = p.state ? taxes(p.income, p.state, p.filing).marginal : a.taxRate ?? 0.12;
   const essentials = Math.round((p.expenses * 0.85) / 100) * 100;
   const efTarget = essentials * 3;
   const efGap = Math.max(0, efTarget - p.savings + (has("surprise") ? A.surpriseBill : 0));

@@ -35,8 +35,8 @@ export default function College() {
           </div>}
           <div className="mt-2">
             <Slider label="Child's age now" value={s.childAge} min={0} max={17} onChange={(v) => set({ childAge: v, collegeAge: Math.max(s.collegeAge, v + 1) })} format={(v) => (v === 0 ? "Newborn" : `${v} years`)} />
-            <Slider label="Cost per year today" value={s.cost} min={5000} max={90000} step={1000} onChange={(v) => set({ cost: v })} format={money} />
-            <Slider label="Saving each month" value={s.monthly} min={0} max={2000} step={25} onChange={(v) => set({ monthly: v })} format={money} />
+            <Slider grow label="Cost per year today" value={s.cost} min={5000} max={90000} step={1000} onChange={(v) => set({ cost: v })} format={money} />
+            <Slider grow label="Saving each month" value={s.monthly} min={0} max={2000} step={25} onChange={(v) => set({ monthly: v })} format={money} />
             <Slider label="College cost growth per year" value={s.tInfl} min={0} max={8} step={0.5} onChange={(v) => set({ tInfl: v })} format={(v) => v + "%"} />
             <Slider label="Investment return" value={s.ret} min={0} max={10} step={0.5} onChange={(v) => set({ ret: v })} format={(v) => v + "%"} />
           </div>

@@ -30,7 +30,7 @@ export default function LifeStages() {
           <Segmented label="Dollars" value={s.real ? "real" : "nominal"} onChange={(v) => set({ real: v === "real" })} options={[{ value: "nominal", label: "Future dollars" }, { value: "real", label: "Today's dollars" }]} />
           <div className="mt-3">
             <Slider label="Household size" value={s.family} min={1} max={6} onChange={(v) => set({ family: v })} format={(v) => `${v} ${v === 1 ? "person" : "people"}`} />
-            <Slider label="Housing cost today" value={s.housing} min={500} max={5000} step={50} onChange={(v) => set({ housing: v })} format={(v) => money(v) + "/mo"} />
+            <Slider grow label="Housing cost today" value={s.housing} min={500} max={5000} step={50} onChange={(v) => set({ housing: v })} format={(v) => money(v) + "/mo"} />
             <Slider label="Retirement age" value={s.retireAge} min={55} max={75} onChange={(v) => set({ retireAge: v })} format={(v) => "Age " + v} />
             <Slider label="Inflation" value={s.inflation} min={0} max={8} step={0.5} onChange={(v) => set({ inflation: v })} format={(v) => v + "%"} />
           </div>

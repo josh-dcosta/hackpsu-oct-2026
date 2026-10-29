@@ -1,14 +1,13 @@
+import { AGE_BANDS, ALL_JOBS } from "../data/grounding";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DEFAULT_ASSUMPTIONS, type Assumptions, type Profile } from "./calc";
 import type { Choices } from "./story";
 import { CUSTOM_PROFILE, CUSTOM_ASSUMPTIONS } from "../data/dave";
 
-export const SAMPLE_PROFILES: Record<string, Omit<Profile, "goals" | "level" | "onboarded" | "name">> = {
-  "25–35": { ageRange: "25–35", age: 30, income: 75_000, expenses: 3_600, savings: 15_000, retirement: 12_000 },
-  "35–45": { ageRange: "35–45", age: 40, income: 95_000, expenses: 5_200, savings: 25_000, retirement: 85_000 },
-  "45–55": { ageRange: "45–55", age: 50, income: 64_000, expenses: 3_600, savings: 6_000, retirement: 22_000 }, // Dave
-  "55–65": { ageRange: "55–65", age: 60, income: 98_000, expenses: 5_000, savings: 50_000, retirement: 390_000 },
-};
+// Typical starting numbers per age band (Fed 2025 SCF medians; income = BLS all-occupation median)
+export const SAMPLE_PROFILES: Record<string, Omit<Profile, "goals" | "level" | "onboarded" | "name">> = Object.fromEntries(
+  AGE_BANDS.map((b) => [b.id, { ageRange: b.id, age: b.age, income: ALL_JOBS.median, expenses: 3_500, savings: b.bank, retirement: b.retirement }]),
+);
 
 export const BADGES = [
   { id: "welcome", name: "Fresh Start", emoji: "🌅", desc: "Finished setting up Next Step" },

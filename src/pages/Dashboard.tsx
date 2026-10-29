@@ -9,6 +9,7 @@ import { MOMENTS, autoMoments, whyAuto, buildPlan, PLAN_ASSUMPTIONS, type Moment
 import { downloadReminder } from "../lib/steps";
 import { downloadPlan } from "../lib/pdf";
 import { Panels, Fill } from "../components/Panels";
+import { ALL_JOBS, GROUNDING_SOURCES, HIST_INFLATION, INFLATION_HISTORY, bandForAge, matchJob, stateByCode, stateTaxLabel, taxes } from "../data/grounding";
 
 const TABS = [
   { id: "moments", label: "Life moments", icon: Zap },
@@ -20,7 +21,7 @@ type TabId = (typeof TABS)[number]["id"];
 function ScenarioPanel() {
   const { profile: p } = useStore();
   const chips: [string, string][] = [
-    ["Age", `${p.age}`], ["Income", `${money(p.income)}/yr`], ["Bills", `${money(p.expenses)}/mo`], ["Savings", money(p.savings)], ["Retirement", money(p.retirement)],
+    ["Age", `${p.age}`], ...(p.state ? [["State", p.state] as [string, string]] : []), ["Income", `${money(p.income)}/yr`], ["Bills", `${money(p.expenses)}/mo`], ["Savings", money(p.savings)], ["Retirement", money(p.retirement)],
     ...((p.kids || []).length ? [["Kids", (p.kids || []).map((k) => `${k.name} ${k.age}`).join(", ")] as [string, string]] : []),
   ];
   return (
@@ -164,6 +165,8 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
   const last = (d: number | null) => d ?? 90;
   const extra = last(wp.depletedAge) - last(w.depletedAge);
   const name = p.name || "you";
+  const st = stateByCode(p.state), tx = taxes(p.income, p.state, p.filing), job = matchJob(p.job), band = bandForAge(p.age);
+  const histPct = Math.round(HIST_INFLATION * 1000) / 10;
   const lbl = (txt: string, color: string, dy = -12) => ({ value: txt, position: "top" as const, fill: color, fontSize: 12, fontWeight: 700, dy });
   return (
     <Card className="p-4 sm:p-5">
@@ -203,22 +206,43 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px]">
         <span className="font-semibold text-slate-600">Prices rise each year:</span>
-        {[2, 3, 4, 5, 6].map((v) => (
+        {[2, 3, histPct, 4, 5, 6].map((v) => (
           <button key={v} onClick={() => set((s) => ({ assumptions: { ...s.assumptions, inflation: v / 100 } }))} aria-pressed={Math.abs(a.inflation * 100 - v) < 0.01}
-            className={cx("rounded-lg px-2.5 py-1 font-semibold", Math.abs(a.inflation * 100 - v) < 0.01 ? "bg-navy text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")}>{v}%</button>
+            title={v === histPct ? `U.S. average ${INFLATION_HISTORY.from}–${INFLATION_HISTORY.to}` : undefined}
+            className={cx("rounded-lg px-2.5 py-1 font-semibold", Math.abs(a.inflation * 100 - v) < 0.01 ? "bg-navy text-white" : v === histPct ? "bg-sun/60 text-navy hover:bg-sun" : "bg-slate-100 text-slate-600 hover:bg-slate-200")}>{v}%{v === histPct ? " (50-yr avg)" : ""}</button>
         ))}
-        <span className="text-slate-400">U.S. long-run average ≈ 3%</span>
+        <span className="text-slate-400">U.S. prices rose {histPct}% a year on average, {INFLATION_HISTORY.from}–{INFLATION_HISTORY.to} (BLS CPI-U)</span>
       </div>
 
       <button onClick={() => setHow(!how)} aria-expanded={how} className="mt-2 flex w-full items-center justify-between rounded-2xl bg-slate-50 px-4 py-2.5 text-left text-[14px] font-semibold ring-1 ring-slate-200">How we calculate this <ChevronDown size={18} className={how ? "rotate-180 transition" : "transition"} /></button>
       {how && (
-        <ul className="mt-3 list-disc space-y-1 pl-5 text-[14px] text-slate-600">
-          <li>Fixed formulas, not AI guesses. Bills rise {Math.round(a.inflation * 100)}% a year; investments earn about {Math.round(a.returnRate * 100)}% a year (not guaranteed).</li>
-          <li>Pension + Social Security are estimated at {Math.round(a.ssReplacement * 100)}% of today's pay, rising with prices. Savings cover the rest of the bills.</li>
-          <li>Life moments: surprise bill {money(PLAN_ASSUMPTIONS.surpriseBill)}; medical costs +{money(PLAN_ASSUMPTIONS.medicalMonthly)}/mo; market drop {Math.round(PLAN_ASSUMPTIONS.marketDrop * 100)}% (without a plan: selling and sitting in cash for 3 years); college {money(PLAN_ASSUMPTIONS.collegeShareNoAid)}/yr per student without the FAFSA vs {money(PLAN_ASSUMPTIONS.collegeShareWithAid)} with typical grants, rising 4% a year; vacation {money(PLAN_ASSUMPTIONS.vacationCost)} (without a plan, on a 22% credit card); car {money(PLAN_ASSUMPTIONS.carPrice)} (without a plan: $0 down, 9% for 6 years; with the plan: 10% down, 6.5% for 5 years).</li>
-          <li>The plan: automatic payday transfers save most of what's left after bills, emergency money earns about {Math.round(PLAN_ASSUMPTIONS.savingsRateWithPlan * 100)}% in a money market (rates vary), plus the items in step 2.</li>
-          <li>Educational estimates, not financial advice.</li>
-        </ul>
+        <div className="mt-3 space-y-3 text-[14px] text-slate-600">
+          <div>
+            <div className="font-semibold text-navy">Your numbers, checked against real data</div>
+            <ul className="mt-1 list-disc space-y-1 pl-5">
+              <li><b>Taxes{st ? ` in ${st.name}` : ""}:</b> on {money(p.income)} a year you keep about {money(tx.takeHome)} after federal income tax ({money(tx.federal)}, 2026 IRS brackets and standard deduction), {st ? `${st.name} tax (${money(tx.state)}, ${stateTaxLabel(st)})` : "state tax (pick your state to include it)"} and Social Security + Medicare ({money(tx.payroll)}). Money put into a 401(k) or HSA saves about {Math.round(tx.marginal * 100)}% in tax. Local income taxes aren't included.</li>
+              <li><b>Pay:</b> {job ? <>typical pay for {job.label.replace("*", "").toLowerCase()} is {money(job.median)} a year (BLS 2025 median). You entered {money(p.income)}.</> : <>the U.S. median for all jobs is {money(ALL_JOBS.median)} a year (BLS, May 2025). Add your job to compare.</>}</li>
+              <li><b>Savings at your age ({band.id.toLowerCase()}):</b> the typical family has {money(band.bank)} in checking and savings; {Math.round(band.share * 100)}% have a retirement account, with a typical balance of {money(band.retirement)} (Federal Reserve 2025 Survey of Consumer Finances). You have {money(p.savings)} and {money(p.retirement)}.</li>
+              <li><b>Prices:</b> from {INFLATION_HISTORY.from} to {INFLATION_HISTORY.to} U.S. prices rose {histPct}% a year on average (BLS CPI-U). The graph uses the {Math.round(a.inflation * 1000) / 10}% you picked above.</li>
+            </ul>
+          </div>
+          <div>
+            <div className="font-semibold text-navy">The math</div>
+            <ul className="mt-1 list-disc space-y-1 pl-5">
+              <li>Fixed formulas, not AI guesses. Bills rise {Math.round(a.inflation * 1000) / 10}% a year; investments earn about {Math.round(a.returnRate * 100)}% a year (not guaranteed).</li>
+              <li>Pension + Social Security are estimated at {Math.round(a.ssReplacement * 100)}% of today's pay, rising with prices. Savings cover the rest of the bills.</li>
+              <li>Life moments: surprise bill {money(PLAN_ASSUMPTIONS.surpriseBill)}; medical costs +{money(PLAN_ASSUMPTIONS.medicalMonthly)}/mo; market drop {Math.round(PLAN_ASSUMPTIONS.marketDrop * 100)}% (without a plan: selling and sitting in cash for 3 years); college {money(PLAN_ASSUMPTIONS.collegeShareNoAid)}/yr per student without the FAFSA vs {money(PLAN_ASSUMPTIONS.collegeShareWithAid)} with typical grants, rising 4% a year; vacation {money(PLAN_ASSUMPTIONS.vacationCost)} (without a plan, on a 22% credit card); car {money(PLAN_ASSUMPTIONS.carPrice)} (without a plan: $0 down, 9% for 6 years; with the plan: 10% down, 6.5% for 5 years).</li>
+              <li>The plan: automatic payday transfers save most of what's left after bills, emergency money earns about {Math.round(PLAN_ASSUMPTIONS.savingsRateWithPlan * 100)}% in a money market (rates vary), plus the items in step 2.</li>
+              <li>Educational estimates, not financial advice.</li>
+            </ul>
+          </div>
+          <div>
+            <div className="font-semibold text-navy">Sources</div>
+            <ul className="mt-1 space-y-0.5">
+              {Object.values(GROUNDING_SOURCES).map((x) => <li key={x.url}><a href={x.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium text-emerald-700 hover:underline">{x.label} <ExternalLink size={12} /></a></li>)}
+            </ul>
+          </div>
+        </div>
       )}
     </Card>
   );

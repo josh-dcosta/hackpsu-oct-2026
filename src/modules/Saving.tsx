@@ -29,8 +29,8 @@ export default function Saving() {
         controls={<>
           <Segmented label="Dollars" value={s.real ? "real" : "nominal"} onChange={(x) => set({ real: x === "real" })} options={[{ value: "nominal", label: "Future dollars" }, { value: "real", label: "Today's buying power" }]} />
           <div className="mt-3">
-            <Slider label="Starting amount" value={s.start} min={0} max={50000} step={500} onChange={(x) => set({ start: x })} format={money} />
-            <Slider label="Added each month" value={s.monthly} min={0} max={2000} step={25} onChange={(x) => set({ monthly: x })} format={money} />
+            <Slider grow label="Starting amount" value={s.start} min={0} max={50000} step={500} onChange={(x) => set({ start: x })} format={money} />
+            <Slider grow label="Added each month" value={s.monthly} min={0} max={2000} step={25} onChange={(x) => set({ monthly: x })} format={money} />
             <Slider label="Savings account rate" value={s.sav} min={0} max={6} step={0.25} onChange={(x) => set({ sav: x })} format={(x) => x + "%"} />
             <Slider label="Investment return (average)" value={s.inv} min={0} max={10} step={0.5} onChange={(x) => set({ inv: x })} format={(x) => x + "%"} />
             <Slider label="Inflation" value={s.inflation} min={0} max={8} step={0.5} onChange={(x) => set({ inflation: x })} format={(x) => x + "%"} />
