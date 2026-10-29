@@ -5,8 +5,6 @@ import { ArrowRight, Check, CalendarPlus, Download, ChevronDown, ExternalLink, P
 import { useStore } from "../lib/store";
 import { money, compact, axisMoney } from "../lib/format";
 import { Card, cx, tooltipStyle } from "../components/ui";
-import { WorkerIcon } from "../components/Brand";
-import { DAVE, isDaveProfile } from "../data/dave";
 import { MOMENTS, autoMoments, whyAuto, buildPlan, PLAN_ASSUMPTIONS, type MomentId, type PlanItem } from "../lib/plan";
 import { downloadReminder } from "../lib/steps";
 import { downloadPlan } from "../lib/pdf";
@@ -21,24 +19,18 @@ type TabId = (typeof TABS)[number]["id"];
 
 function ScenarioPanel() {
   const { profile: p } = useStore();
-  const isDave = isDaveProfile(p);
   return (
-    <div className={"mb-4 rounded-3xl p-5 sm:p-6 shadow-card ring-1 " + (isDave ? "bg-gradient-to-br from-emerald-50 via-white to-amber-50 ring-emerald-200" : "bg-white ring-slate-200")}>
+    <div className="mb-4 rounded-3xl bg-white p-5 sm:p-6 shadow-card ring-1 ring-slate-200">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          {isDave ? <WorkerIcon size={64} /> : <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-navy text-3xl">🙋</span>}
+          <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-navy text-3xl">🙋</span>
           <div>
-            <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">{isDave ? "Scenario: Dave" : "Scenario: my own numbers"}</div>
-            <div className="font-display text-2xl sm:text-3xl font-semibold">{isDave ? "Meet Dave" : p.name ? `${p.name}'s plan` : "Your plan"}</div>
-            <p className="mt-1 max-w-2xl text-[15px] text-slate-600">{isDave
-              ? `Head custodian at a Pennsylvania public high school, earning about $${DAVE.hourly} an hour. His wife Linda works part-time.`
-              : `${p.job ? p.job + ". " : ""}Built from the answers you gave.`}</p>
+            <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">My scenario</div>
+            <div className="font-display text-2xl sm:text-3xl font-semibold">{p.name ? `${p.name}'s plan` : "Your plan"}</div>
+            <p className="mt-1 max-w-2xl text-[15px] text-slate-600">{p.job ? p.job + ". " : ""}Built from the answers you gave. Change them anytime.</p>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <a href={isDave ? "#/try?pick" : "#/try?walk=mine"} className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> {isDave ? "Use my own numbers" : "Edit my numbers"}</a>
-          {!isDave && <a href="#/try?pick" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"><UserRound size={14} /> Try Dave's scenario</a>}
-        </div>
+        <a href="#/try?walk=mine" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> Edit my numbers</a>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {[
@@ -49,7 +41,7 @@ function ScenarioPanel() {
           ["Retirement savings", money(p.retirement)],
           ...((p.kids || []).length ? [[(p.kids || []).length === 1 ? "Child" : "Children", (p.kids || []).map((k) => `${k.name} ${k.age}`).join(", ")]] : []),
         ].map(([k, v]) => (
-          <span key={k} className="rounded-xl bg-white px-3 py-1.5 text-[14px] ring-1 ring-slate-200"><span className="text-slate-500">{k} </span><b className="num text-navy">{v}</b></span>
+          <span key={k} className="rounded-xl bg-slate-50 px-3 py-1.5 text-[14px] ring-1 ring-slate-200"><span className="text-slate-500">{k} </span><b className="num text-navy">{v}</b></span>
         ))}
       </div>
     </div>

@@ -90,7 +90,7 @@ function Journey() {
 }
 
 const GALLERY = [
-  { img: "moments", title: "Pick your life moments", text: "Start with Dave's scenario or your own numbers, then pick what's happening: a surprise bill, higher medical costs, college, a market drop, retiring soon, a vacation, buying a car. Your moments drive the plan and the actions." },
+  { img: "moments", title: "Pick your life moments", text: "Enter your numbers, then pick what's happening: a surprise bill, higher medical costs, college, a market drop, retiring soon, a vacation, buying a car. Your moments drive the plan and the actions." },
   { img: "plan", title: "A plan, built for you", text: "Next Step builds the plan automatically and shows where every dollar should live: emergency fund, HSA, college fund, retirement." },
   { img: "steps", title: "Next steps at your bank", text: "Every action links to the Valley Bank product that does it, with how-to steps and a calendar reminder." },
   { img: "answer", title: "The answer", text: "One graph: where your savings go without the plan, and with it. How much you'll have at retirement, and how long it lasts." },
@@ -167,8 +167,8 @@ export function AboutApp() {
         id: "try", label: "Try it now", body: () => (
           <Fill className="rounded-[2rem] bg-white p-5 sm:p-8 shadow-card ring-1 ring-slate-200/70">
             <Kicker>Try it now</Kicker>
-            <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold">Two ways to try it</h2>
-            <p className="mt-2 max-w-3xl text-[16px] text-slate-600">Start with Dave's scenario to see how everything works, with every number already filled in. Or answer a few quick questions and see your own. No bank logins, no account numbers: your numbers stay on your device.</p>
+            <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold">Build your plan</h2>
+            <p className="mt-2 max-w-3xl text-[16px] text-slate-600">Answer a few quick questions, pick your life moments, and get your plan, next steps and the answer. No bank logins, no account numbers: your numbers stay on your device.</p>
             <div className="mt-5"><ScenarioCards compact /></div>
           </Fill>
         ),
@@ -228,7 +228,7 @@ export function Mission() {
         id: "how", label: "How I'll do it", body: () => (
           <div className="grid h-full gap-4 md:grid-cols-3">
             {[
-              ["Show up in person", "I'll personally visit congregations and union halls and run short, hands-on sessions: first with Dave's story, then with people's own numbers."],
+              ["Show up in person", "I'll personally visit congregations and union halls and run short, hands-on sessions: helping people enter their own numbers on their own phones."],
               ["Leave a next step behind", "Everyone leaves with a printed or downloaded plan, one action for this week, and a reminder on their phone."],
               ["Listen and improve", "Every session teaches me what's confusing. That feedback shapes new lessons, new life moments and new languages."],
             ].map(([t, d], i) => (

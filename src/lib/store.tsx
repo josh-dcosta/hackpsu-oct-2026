@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { DEFAULT_ASSUMPTIONS, type Assumptions, type Profile } from "./calc";
 import type { Choices } from "./story";
-import { DAVE_PROFILE, DAVE_ASSUMPTIONS, DAVE_SIMS, isDaveProfile } from "../data/dave";
+import { CUSTOM_PROFILE, CUSTOM_ASSUMPTIONS } from "../data/dave";
 
 export const SAMPLE_PROFILES: Record<string, Omit<Profile, "goals" | "level" | "onboarded" | "name">> = {
   "25–35": { ageRange: "25–35", age: 30, income: 75_000, expenses: 3_600, savings: 15_000, retirement: 12_000 },
@@ -42,15 +42,23 @@ type State = {
 };
 
 const DEFAULT: State = {
-  profile: { ...DAVE_PROFILE },
-  assumptions: { ...DAVE_ASSUMPTIONS },
+  profile: { ...CUSTOM_PROFILE },
+  assumptions: { ...CUSTOM_ASSUMPTIONS },
   xp: 0, badges: [], done: [], touched: [], quiz: {}, simple: true, bigText: false, asked: 0, chat: [],
   story: { choices: {}, step: 0, finished: false }, sims: {}, stepsDone: {},
 };
 
 const KEY = "nextstep-dave-v1";
 function load(): State {
-  try { const raw = localStorage.getItem(KEY); if (raw) return { ...DEFAULT, ...JSON.parse(raw) }; } catch { /* ignore */ }
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const saved = { ...DEFAULT, ...JSON.parse(raw) } as State;
+      // The Dave demo scenario was removed: start such visitors from the generic profile
+      if (saved.profile?.scenario !== "custom") return { ...saved, profile: { ...CUSTOM_PROFILE }, assumptions: { ...CUSTOM_ASSUMPTIONS }, moments: undefined, stepsDone: {} };
+      return saved;
+    }
+  } catch { /* ignore */ }
   return DEFAULT;
 }
 
@@ -149,8 +157,8 @@ export function useStore() {
 /** Persisted simulator settings: like useState but saved per module, with reset. */
 export function useSim<T extends Record<string, unknown>>(id: string, defaults: T) {
   const { sims, saveSim, touch, profile } = useStore();
-  // Dave's scenario preloads his numbers; a custom scenario starts from the user's own profile-based defaults
-  const base = (isDaveProfile(profile) ? { ...defaults, ...((DAVE_SIMS[id] as Partial<T>) || {}) } : { ...defaults }) as T;
+  void profile;
+  const base = { ...defaults } as T;
   const key = id + "@2"; // lessons were redesigned: ignore settings saved by the old versions
   const value = { ...base, ...((sims[key] as Partial<T>) || {}) } as T;
   const update = (patch: Partial<T>) => { saveSim(key, { ...value, ...patch }); touch(id); };

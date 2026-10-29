@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Lock, Sparkles } from "lucide-react";
 import { useStore, SAMPLE_PROFILES, loadMine, clearMine } from "../lib/store";
@@ -7,7 +7,7 @@ import { Logo } from "../components/Brand";
 import { ScenarioCards, useScenario } from "../components/Scenario";
 import { money } from "../lib/format";
 import type { Profile } from "../lib/calc";
-import { DAVE, DAVE_PROFILE, DAVE_ASSUMPTIONS, CUSTOM_PROFILE, CUSTOM_ASSUMPTIONS } from "../data/dave";
+import { CUSTOM_PROFILE } from "../data/dave";
 import { UserRound, PlayCircle, Pencil } from "lucide-react";
 
 const GOALS = ["Build an emergency fund", "Pay off debt", "Buy a home", "Start investing", "Save for a child's education", "Retire comfortably", "Understand my money better", "Handle healthcare costs"];
@@ -41,25 +41,25 @@ function Q({ title, sub, children, canSkip = true, onBack: back, onNext: next }:
 }
 
 export default function Welcome() {
-  const { profile } = useStore();
-  const { mine, finish } = useScenario();
-  // "#/try?walk=dave" walks through Dave's answers; "#/try?walk=mine" (or ?edit) enters your own numbers
+  const { mine, finish, continueMine } = useScenario();
+  // "#/try?walk=mine" (or ?edit) goes straight to the questions; otherwise returning visitors see "Welcome back"
   const h = window.location.hash;
-  const walk = h.includes("walk=dave") ? "dave" : h.includes("walk=mine") || h.includes("edit") ? "mine" : null;
-  const [step, setStep] = useState(walk ? 1 : 0);
-  const [p, setP] = useState<Profile>(walk === "dave" ? { ...DAVE_PROFILE } : walk === "mine" ? (mine ? { ...mine.profile } : { ...CUSTOM_PROFILE }) : profile.onboarded ? { ...profile } : { ...DAVE_PROFILE });
+  const walk = h.includes("walk=mine") || h.includes("edit");
+  const [step, setStep] = useState(1);
+  // Numbers already saved on this device? Go straight to the plan (edit them anytime from there)
+  useEffect(() => { if (!walk && mine) continueMine(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const [p, setP] = useState<Profile>({ ...(mine ? mine.profile : CUSTOM_PROFILE), scenario: "custom" });
   const total = 9;
   const next = () => setStep((s) => Math.min(total + 1, s + 1));
-  const back = () => { if (step === 1) { window.location.hash = "#/try?pick"; setStep(0); } else setStep((s) => Math.max(0, s - 1)); };
+  const back = () => { if (step === 1) { if (mine) continueMine(); else window.location.hash = "#/about"; } else setStep((s) => Math.max(0, s - 1)); };
   const patch = (x: Partial<Profile>) => setP((v) => ({ ...v, ...x }));
-  const custom = p.scenario === "custom";
+  const custom = true;
 
   const steps = [
-    // 0 — pick a scenario
+    // 0: welcome back (only when numbers are already saved on this device)
     <div key="pick">
       <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">Try it now</div>
-      <h1 className="mt-1 font-display text-3xl sm:text-4xl font-semibold">Pick a scenario to start</h1>
-      <p className="mt-2 max-w-3xl text-[17px] text-slate-600">Start with Dave's scenario to see how everything works, with every number already filled in. When you're ready, use your own numbers to get your own answer, plan and next steps.</p>
+      <h1 className="mt-1 font-display text-3xl sm:text-4xl font-semibold">Your plan</h1>
       <div className="mt-6"><ScenarioCards /></div>
     </div>,
     <Q onBack={back} onNext={next} key="name" title={custom ? "First, what should we call you?" : "First, what should we call you?"} sub={custom ? "Optional. It just makes things friendlier." : "This is Dave's scenario. Every answer is filled in; just tap Continue."}>

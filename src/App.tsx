@@ -40,8 +40,8 @@ export default function App() {
   let page;
   let key = route;
   if (about[route]) { const P = about[route]; page = <P />; }
-  else if (!entered || !profile.onboarded || route === "/welcome" || (route === "/try" && query)) {
-    // Try it now: pick Dave's scenario or your own numbers first (and answer the questions)
+  else if ((route === "/try" || route === "/" || route === "/welcome") && (!entered || !profile.onboarded || profile.scenario !== "custom" || route === "/welcome" || query)) {
+    // Try it now: enter your own numbers first (or continue with the ones saved on this device)
     page = <Welcome key={query} />; key = "/try?" + query;
   }
   else if (route === "/try") page = <Dashboard />;
@@ -53,7 +53,7 @@ export default function App() {
     const M = MODS[id];
     page = M ? <ModuleFrame id={id}><M /></ModuleFrame> : <Dashboard />;
   } else page = <Dashboard />;
-  const shown = !about[route] && (!entered || !profile.onboarded) ? "/try" : route;
+  const shown = route === "/welcome" ? "/try" : route;
 
   return (
     <Layout route={shown}>
