@@ -11,7 +11,7 @@ export function Idea({ title, children, n = 1, kicker = "The idea" }: { title: s
   );
 }
 
-export function Simulator({ title, controls, chart, onReset, note, n = 2, chartClass = "h-80 sm:h-96" }: { title: string; controls: ReactNode; chart: ReactNode; onReset?: () => void; note?: string; n?: number; chartClass?: string }) {
+export function Simulator({ title, controls, chart, onReset, note, n = 2, chartClass = "h-72 lg:h-[min(26rem,calc(100dvh-17rem))]" }: { title: string; controls: ReactNode; chart: ReactNode; onReset?: () => void; note?: string; n?: number; chartClass?: string }) {
   return (
     <Section n={n} kicker="Simulator" title={title}>
       <Card>

@@ -1,8 +1,9 @@
 import { ArrowRight, CheckCircle2, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useStore } from "../lib/store";
-import { CORE, EXTRA, moduleHref, nextLessonFor, type ModuleMeta } from "../data/modules";
+import { CORE, MODULES, moduleHref, type ModuleMeta } from "../data/modules";
 import { cx } from "../components/ui";
+import { Panels, Fill } from "../components/Panels";
 
 function LessonCard({ m, i, step }: { m: ModuleMeta; i: number; step?: number }) {
   const { done } = useStore();
@@ -17,47 +18,51 @@ function LessonCard({ m, i, step }: { m: ModuleMeta; i: number; step?: number })
       </div>
       <div className="mt-3 text-lg font-semibold leading-snug">{m.title}</div>
       <p className="mt-1 flex-1 text-[15px] text-slate-500">{m.blurb}</p>
-      <div className="mt-4 flex items-center justify-between text-[13px] font-semibold text-slate-500"><span className="flex items-center gap-1"><Clock size={13} />{m.minutes} min</span><span className="flex items-center gap-1 text-emerald-600 group-hover:gap-2 transition-all">Start <ArrowRight size={14} /></span></div>
+      <div className="mt-4 flex items-center justify-between text-[13px] font-semibold text-slate-500"><span className="flex items-center gap-1"><Clock size={13} />{m.minutes} min</span><span className="flex items-center gap-1 text-emerald-600 transition-all group-hover:gap-2">Start <ArrowRight size={14} /></span></div>
     </motion.a>
   );
 }
 
+const GROUPS = [
+  { id: "basics", label: "Money basics", sub: "How prices, life stages, saving and debt shape your money.", ids: ["inflation", "life", "saving", "debt"] },
+  { id: "family", label: "Retirement & family", sub: "Workplace retirement plans, health savings and college.", ids: ["k401", "hsa", "college"] },
+];
+
 export default function Learn() {
   const { done } = useStore();
-  const nextUp = nextLessonFor(done);
   const coreDone = CORE.filter((m) => done.includes(m.id)).length;
-  return (
-    <div>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <h1 className="font-display text-4xl font-semibold">Learn by doing</h1>
-        <a href="#/progress" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><CheckCircle2 size={15} className="text-emerald-600" /> My progress</a>
+  const head = (
+    <div className="mb-3 flex shrink-0 flex-wrap items-start justify-between gap-3">
+      <div>
+        <h1 className="font-display text-3xl sm:text-4xl font-semibold">Learn by doing</h1>
+        <p className="mt-1 max-w-2xl text-[16px] text-slate-500">Short lessons: one idea, a simulator, what it means, and a 3-question check.</p>
       </div>
-      <p className="mt-2 max-w-2xl text-lg text-slate-500">Short, practical money lessons. Each one explains one idea, lets you try it in a simulator, and ends with a quick 3-question check.</p>
-      <a href={moduleHref(nextUp.id)} className="mt-6 flex items-center gap-4 rounded-3xl hero-dark p-5 text-white">
-        <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white/10 text-3xl">{nextUp.emoji}</span>
-        <span className="flex-1"><span className="text-[13px] font-semibold text-emerald-300">Up next</span><span className="block font-display text-2xl font-semibold">{nextUp.title}</span></span>
-        <ArrowRight />
-      </a>
-
-      <div className="mt-8 flex items-end justify-between gap-3">
-        <div>
-          <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">Start here</div>
-          <h2 className="font-display text-2xl font-semibold">The 3 essentials</h2>
-          <p className="text-slate-500">Protect your money, choose the right retirement account, and invest the simple, safe way.</p>
-        </div>
-        <span className="num shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">{coreDone}/3 done</span>
-      </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-3">
-        {CORE.map((m, i) => <LessonCard key={m.id} m={m} i={i} step={i + 1} />)}
-      </div>
-
-      <div className="mt-10">
-        <div className="text-[12px] font-bold uppercase tracking-wider text-slate-400">Go deeper</div>
-        <h2 className="font-display text-2xl font-semibold">More lessons</h2>
-      </div>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {EXTRA.map((m, i) => <LessonCard key={m.id} m={m} i={i} />)}
-      </div>
+      <a href="#/progress" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><CheckCircle2 size={15} className="text-emerald-600" /> My progress</a>
     </div>
+  );
+  return (
+    <Panels top={head} tabs={[
+      {
+        id: "core", label: "The 3 essentials", body: () => (
+          <Fill>
+            <div className="flex items-end justify-between gap-3">
+              <p className="text-slate-500">Protect your money, choose the right retirement account, and invest the simple, safe way.</p>
+              <span className="num shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">{coreDone}/3 done</span>
+            </div>
+            <div className="mt-3 grid gap-4 md:grid-cols-3">{CORE.map((m, i) => <LessonCard key={m.id} m={m} i={i} step={i + 1} />)}</div>
+          </Fill>
+        ),
+      },
+      ...GROUPS.map((g) => ({
+        id: g.id, label: g.label, body: () => (
+          <Fill>
+            <p className="text-slate-500">{g.sub}</p>
+            <div className={cx("mt-3 grid gap-4 sm:grid-cols-2", g.ids.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3")}>
+              {g.ids.map((id, i) => { const m = MODULES.find((x) => x.id === id)!; return <LessonCard key={id} m={m} i={i} />; })}
+            </div>
+          </Fill>
+        ),
+      })),
+    ]} />
   );
 }

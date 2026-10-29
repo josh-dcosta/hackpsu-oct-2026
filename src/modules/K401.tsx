@@ -67,7 +67,8 @@ export default function K401() {
           </div>
         </div>} />
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <Section n={3} kicker="Compare" title="Small changes, big differences">
+      <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <div className="font-semibold">Compare contribution levels</div>
           <p className="text-[14px] text-slate-500">Same job, same match, same returns. Only the % changes.</p>
@@ -103,12 +104,13 @@ export default function K401() {
           </div>
         </Card>
       </div>
+      </Section>
 
-      <Section n={3} kicker="What it means" title="Why do small changes matter so much?">
+      <Section n={4} kicker="What it means" title="Why do small changes matter so much?">
         <WhatItMeans ctx={{ page: "lesson", module: "401(k) Growth Simulator", inputs: { ...s, contribPct: s.contrib + "%", match: `${s.matchRate}% up to ${s.matchCap}% of pay` }, results: { projected: Math.round(r.final), todaysDollars: Math.round(r.finalReal), yourContributions: Math.round(r.totalEmployee), employerMatch: Math.round(r.totalEmployer), growth: Math.round(r.totalGrowth), byContribution: Object.fromEntries(compare.map((c) => [c.label, Math.round(c.final)])), startNow: Math.round(early.final), startIn10Years: Math.round(late.final), missedMatchThisYear: Math.round(missing) }, insights }}
           prompts={["Why does going from 5% to 10% make such a big difference?", "What is an employer match, really?", "Why does starting early matter?"]} />
       </Section>
-      <Section n={4} kicker="Quick check" title="Test yourself">
+      <Section n={5} kicker="Quick check" title="Test yourself">
         <Quiz id="k401" onComplete={finish} questions={[
           { q: "Your employer matches 100% up to 5% of pay. You contribute 3%. What happens?", options: ["You get the full match", "You leave part of the match unclaimed", "Your employer pays 5% anyway"], answer: 1, why: "You'd get 3% instead of 5%. The rest of the match is left behind." },
           { q: "Why does starting 10 years earlier matter so much?", options: ["Lower fees", "10 extra years of compound growth", "Higher contribution limits"], answer: 1, why: "Early dollars have the most time to earn returns on their returns." },

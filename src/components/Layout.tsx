@@ -70,7 +70,7 @@ export function Layout({ route, children }: { route: string; children: ReactNode
       </header>
 
       <main id="main" className="lg:ml-64">
-        <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6 lg:pb-10 lg:pt-8">{children}</div>
+        <div className="mx-auto max-w-6xl px-4 pb-24 pt-4 sm:px-6 lg:pb-10 lg:pt-8">{children}</div>
       </main>
 
       {/* Mobile bottom tabs */}

@@ -26,7 +26,7 @@ export function Slider({ label, value, min, max, step = 1, onChange, format = (v
   const sid = id || "s-" + label.replace(/\W+/g, "-").toLowerCase();
   const p = ((value - min) / (max - min)) * 100;
   return (
-    <div className="py-1.5">
+    <div className="py-1">
       <div className="flex items-baseline justify-between gap-3">
         <label htmlFor={sid} className="text-[15px] font-medium text-slate-700">{label}</label>
         <span className="num text-lg font-bold text-navy">{format(value)}</span>
@@ -87,11 +87,11 @@ export function ResetButton({ onClick, dark }: { onClick: () => void; dark?: boo
 export function Section({ n, title, children, kicker }: { n?: number; title: string; kicker?: string; children: ReactNode; practice?: boolean }) {
   return (
     <section className="mt-8 first:mt-0">
-      <div className="mb-3 flex items-center gap-3">
+      <div className="mb-2 flex items-center gap-3">
         {n !== undefined && <span className="grid h-8 w-8 place-items-center rounded-full bg-navy text-sm font-bold text-white">{n}</span>}
         <div>
           {kicker && <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">{kicker}</div>}
-          <h2 className="font-display text-2xl font-semibold text-navy">{title}</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-semibold text-navy">{title}</h2>
         </div>
       </div>
       {children}
@@ -196,18 +196,18 @@ export function Quiz({ id, questions, onComplete }: { id: string; questions: Qui
   };
   const score = Object.values(mine).filter(Boolean).length;
   return (
-    <div className="space-y-4">
+    <div className="grid gap-3 lg:grid-cols-3">
       {questions.map((q, qi) => {
         const p = picked[qi];
         return (
-          <Card key={qi} className="p-5">
-            <div className="font-semibold text-[17px]">{qi + 1}. {q.q}</div>
-            <div className="mt-3 grid gap-2">
+          <Card key={qi} className="p-4 sm:p-4">
+            <div className="text-[16px] font-semibold">{qi + 1}. {q.q}</div>
+            <div className="mt-2.5 grid gap-1.5">
               {q.options.map((o, oi) => {
                 const state = p === undefined ? "idle" : oi === q.answer ? "right" : oi === p ? "wrong" : "dim";
                 return (
                   <button key={oi} onClick={() => choose(qi, oi)} disabled={p !== undefined}
-                    className={cx("flex min-h-[48px] items-center justify-between gap-3 rounded-2xl px-4 py-3 text-left text-[15px] font-medium ring-1 transition",
+                    className={cx("flex min-h-[42px] items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-[14px] font-medium ring-1 transition",
                       state === "idle" && "bg-white ring-slate-200 hover:ring-emerald-400 hover:bg-emerald-50/50",
                       state === "right" && "bg-emerald-50 ring-emerald-400 text-emerald-800",
                       state === "wrong" && "bg-orange-50 ring-orange-300 text-orange-800",
@@ -218,11 +218,11 @@ export function Quiz({ id, questions, onComplete }: { id: string; questions: Qui
                 );
               })}
             </div>
-            {p !== undefined && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 text-[15px] text-slate-600">{p === q.answer ? "✅ Nice! " : "Not quite. "}{q.why}</motion.p>}
+            {p !== undefined && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-2 text-[13px] text-slate-600">{p === q.answer ? "✅ Nice! " : "Not quite. "}{q.why}</motion.p>}
           </Card>
         );
       })}
-      {answeredAll && <div className="text-center text-sm font-semibold text-emerald-700">You got {score} of {questions.length} right. Lesson complete! 🎉</div>}
+      {answeredAll && <div className="text-center text-sm font-semibold text-emerald-700 lg:col-span-3">You got {score} of {questions.length} right. Lesson complete! 🎉</div>}
     </div>
   );
 }

@@ -73,7 +73,7 @@ export default function Bank() {
       <Section n={3} kicker="Money that grows itself" title="Compounding">
         <Card>
           <p className="text-lg leading-relaxed text-slate-700"><b>Compound interest</b> means earning interest on your savings <b>and</b> on the interest already earned. {his === "Your" ? "Your" : `${p.name}'s`} {money(start)}, left alone for {years} years:</p>
-          <div className="mt-3 h-72 sm:h-80">
+          <div className="mt-3 h-64 lg:h-[min(18rem,36vh)]">
             <ResponsiveContainer>
               <LineChart data={rows} margin={{ top: 24, right: 12, left: 0, bottom: 0 }}>
                 <CartesianGrid stroke="#EEF2F7" vertical={false} />

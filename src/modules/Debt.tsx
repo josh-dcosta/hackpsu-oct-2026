@@ -37,12 +37,14 @@ export default function Debt() {
 
       <Simulator title="Debt Payoff Simulator" onReset={reset} note="Simplified: fixed rates, no new charges, minimums estimated."
         controls={<>
+          <div className="grid gap-x-4 sm:grid-cols-2">
           <Slider label="Credit card" value={s.cc} min={0} max={20000} step={100} onChange={(v) => set({ cc: v })} format={money} />
           <Slider label="Credit card rate (APR)" value={s.ccApr} min={0} max={36} step={0.5} onChange={(v) => set({ ccApr: v })} format={(v) => v + "%"} />
           <Slider label="Store card" value={s.store} min={0} max={5000} step={50} onChange={(v) => set({ store: v })} format={money} />
           <Slider label="Store card rate (APR)" value={s.storeApr} min={0} max={36} step={0.5} onChange={(v) => set({ storeApr: v })} format={(v) => v + "%"} />
           <Slider label="Car loan" value={s.car} min={0} max={40000} step={500} onChange={(v) => set({ car: v })} format={money} />
           <Slider label="Car loan rate (APR)" value={s.carApr} min={0} max={20} step={0.5} onChange={(v) => set({ carApr: v })} format={(v) => v + "%"} />
+          </div>
           <div className="mt-2 rounded-2xl bg-slate-50 p-3">
             <Slider label="Total monthly payment" value={pay} min={Math.ceil(mins / 25) * 25} max={3000} step={25} onChange={(v) => set({ pay: v })} format={money} help={`Minimums add up to about ${money(mins)}.`} />
           </div>

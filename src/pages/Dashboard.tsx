@@ -8,6 +8,7 @@ import { Card, cx, tooltipStyle } from "../components/ui";
 import { MOMENTS, autoMoments, whyAuto, buildPlan, PLAN_ASSUMPTIONS, type MomentId, type PlanItem } from "../lib/plan";
 import { downloadReminder } from "../lib/steps";
 import { downloadPlan } from "../lib/pdf";
+import { Panels, Fill } from "../components/Panels";
 
 const TABS = [
   { id: "moments", label: "Life moments", icon: Zap },
@@ -19,31 +20,20 @@ type TabId = (typeof TABS)[number]["id"];
 
 function ScenarioPanel() {
   const { profile: p } = useStore();
+  const chips: [string, string][] = [
+    ["Age", `${p.age}`], ["Income", `${money(p.income)}/yr`], ["Bills", `${money(p.expenses)}/mo`], ["Savings", money(p.savings)], ["Retirement", money(p.retirement)],
+    ...((p.kids || []).length ? [["Kids", (p.kids || []).map((k) => `${k.name} ${k.age}`).join(", ")] as [string, string]] : []),
+  ];
   return (
-    <div className="mb-4 rounded-3xl bg-white p-5 sm:p-6 shadow-card ring-1 ring-slate-200">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-start gap-4">
-          <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-navy text-3xl">🙋</span>
-          <div>
-            <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">My scenario</div>
-            <div className="font-display text-2xl sm:text-3xl font-semibold">{p.name ? `${p.name}'s plan` : "Your plan"}</div>
-            <p className="mt-1 max-w-2xl text-[15px] text-slate-600">{p.job ? p.job + ". " : ""}Built from the answers you gave. Change them anytime.</p>
-          </div>
-        </div>
-        <a href="#/try?walk=mine" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> Edit my numbers</a>
+    <div className="mb-3 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl bg-white px-4 py-3 shadow-card ring-1 ring-slate-200">
+      <div className="flex items-center gap-3">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-navy text-xl">🙋</span>
+        <div className="leading-tight"><div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">My scenario</div><div className="font-display text-xl font-semibold">{p.name ? `${p.name}'s plan` : "Your plan"}</div></div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {[
-          ["Age", `${p.age}`],
-          ["Household income", `${money(p.income)}/yr`],
-          ["Monthly bills", money(p.expenses)],
-          ["Savings", money(p.savings)],
-          ["Retirement savings", money(p.retirement)],
-          ...((p.kids || []).length ? [[(p.kids || []).length === 1 ? "Child" : "Children", (p.kids || []).map((k) => `${k.name} ${k.age}`).join(", ")]] : []),
-        ].map(([k, v]) => (
-          <span key={k} className="rounded-xl bg-slate-50 px-3 py-1.5 text-[14px] ring-1 ring-slate-200"><span className="text-slate-500">{k} </span><b className="num text-navy">{v}</b></span>
-        ))}
+      <div className="flex flex-1 flex-wrap gap-1.5">
+        {chips.map(([k, v]) => <span key={k} className="rounded-lg bg-slate-50 px-2 py-1 text-[13px] ring-1 ring-slate-200"><span className="text-slate-500">{k} </span><b className="num text-navy">{v}</b></span>)}
       </div>
+      <a href="#/try?walk=mine" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> Edit my numbers</a>
     </div>
   );
 }
@@ -57,41 +47,40 @@ function MomentsStep({ selected, toggle, auto }: { selected: MomentId[]; toggle:
   const { profile: p } = useStore();
   const his = p.name ? `${p.name}'s` : "your";
   return (
-    <Card>
+    <Card className="p-4 sm:p-5">
       <Kicker>Step 1</Kicker>
-      <h2 className="font-display text-2xl sm:text-3xl font-semibold">What's happening in {his} life right now?</h2>
-      <p className="mt-1 text-slate-500">Pick every moment that applies. Some are already picked from {his} scenario.</p>
-      <div className="mt-4 rounded-2xl bg-sky-soft/70 p-4 ring-1 ring-sky-200">
-        <div className="text-[15px] font-semibold text-navy">The moments you pick drive everything that follows</div>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-[14px] font-semibold">
+      <h2 className="font-display text-2xl font-semibold">What's happening in {his} life right now?</h2>
+      <div className="mt-2 rounded-2xl bg-sky-soft/70 px-4 py-2.5 ring-1 ring-sky-200">
+        <div className="flex flex-wrap items-center gap-2 text-[13px] font-semibold">
+          <span className="mr-1 text-[14px] text-navy">The moments you pick drive everything:</span>
           {["Life moments", "Your plan", "Next steps", "The answer"].map((t, i) => (
             <span key={t} className="flex items-center gap-2">
-              <span className={cx("rounded-full px-3 py-1", i === 0 ? "bg-sun text-navy" : "bg-white text-navy ring-1 ring-slate-200")}>{t}</span>
+              <span className={cx("rounded-full px-2.5 py-0.5", i === 0 ? "bg-sun text-navy" : "bg-white text-navy ring-1 ring-slate-200")}>{t}</span>
               {i < 3 && <ArrowRight size={15} className="text-slate-400" />}
             </span>
           ))}
         </div>
-        <p className="mt-2 text-[14px] text-slate-600">Next Step builds {his} plan around these moments, turns the plan into next steps with the Valley Bank products that fit, and shows how far the money goes with and without the plan. Change the moments anytime and everything updates.</p>
+        <p className="mt-1 text-[13px] text-slate-600">Pick every moment that applies (some are picked from {his} answers). Next Step builds the plan around them, links each action to the Valley Bank product that fits, and shows the answer with and without the plan.</p>
       </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
         {MOMENTS.map((m) => {
           const on = selected.includes(m.id);
           const isAuto = auto.includes(m.id);
           return (
             <button key={m.id} onClick={() => toggle(m.id)} aria-pressed={on}
-              className={cx("relative flex items-start gap-3 rounded-2xl p-4 text-left ring-2 transition", on ? "bg-emerald-50 ring-emerald-500" : "bg-white ring-slate-200 hover:ring-emerald-300")}>
-              <span className="text-3xl">{m.emoji}</span>
+              className={cx("relative flex items-start gap-2.5 rounded-2xl p-3 text-left ring-2 transition", on ? "bg-emerald-50 ring-emerald-500" : "bg-white ring-slate-200 hover:ring-emerald-300")}>
+              <span className="text-2xl">{m.emoji}</span>
               <span className="flex-1">
-                <span className="block text-[17px] font-semibold">{m.title}</span>
-                <span className="block text-[14px] text-slate-500">{m.sub}</span>
-                {isAuto && <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[12px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><Sparkles size={12} /> From the scenario: {whyAuto(p, m.id)}</span>}
+                <span className="block text-[15px] font-semibold leading-snug">{m.title}</span>
+                <span className="block text-[13px] text-slate-500">{m.sub}</span>
+                {isAuto && <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><Sparkles size={11} /> {whyAuto(p, m.id)}</span>}
               </span>
               <span className={cx("grid h-7 w-7 shrink-0 place-items-center rounded-lg ring-2", on ? "bg-emerald-500 text-white ring-emerald-500" : "bg-white ring-slate-300")}>{on && <Check size={16} />}</span>
             </button>
           );
         })}
       </div>
-      <p className="mt-4 text-[14px] text-slate-500">{selected.length ? `${selected.length} moment${selected.length === 1 ? "" : "s"} picked. Next Step builds ${his} plan around them.` : "No moments picked: the plan will cover the basics."}</p>
+      <p className="mt-2 text-[13px] text-slate-500">{selected.length ? `${selected.length} moment${selected.length === 1 ? "" : "s"} picked. Next Step builds ${his} plan around them.` : "No moments picked: the plan will cover the basics."}</p>
     </Card>
   );
 }
@@ -102,48 +91,39 @@ function PlanStep({ items }: { items: PlanItem[] }) {
   const monthlyItems = items.filter((i) => i.monthly > 0);
   const total = monthlyItems.reduce((t, i) => t + i.monthly, 0);
   return (
-    <Card>
+    <Card className="p-4 sm:p-5">
       <Kicker>Step 2</Kicker>
-      <h2 className="font-display text-2xl sm:text-3xl font-semibold">{p.name ? `${p.name}'s` : "Your"} plan: where the money lives</h2>
-      <p className="mt-1 text-slate-500">Built automatically from the scenario and the life moments picked.</p>
-      <div className="mt-5">
-        <div className="flex items-baseline justify-between text-[14px]"><span className="font-semibold">Saved every month</span><span className="num text-xl font-bold">{money(total)}/mo</span></div>
-        <div className="mt-2 flex h-12 overflow-hidden rounded-2xl text-[13px] font-bold text-white">
-          {monthlyItems.map((i) => (
-            <motion.div key={i.id} initial={{ width: 0 }} animate={{ width: `${(i.monthly / total) * 100}%` }} className="flex items-center justify-center px-1" style={{ background: i.color }} title={i.title}>
-              {i.monthly / total > 0.12 && money(i.monthly)}
-            </motion.div>
-          ))}
-        </div>
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[13px] text-slate-600">
-          {monthlyItems.map((i) => <span key={i.id} className="flex items-center gap-1.5"><i className="h-3 w-3 rounded" style={{ background: i.color }} />{i.title} {money(i.monthly)}</span>)}
-        </div>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-display text-2xl font-semibold">{p.name ? `${p.name}'s` : "Your"} plan: where the money lives</h2>
+        <span className="text-[14px] text-slate-500">Saved every month <b className="num text-lg text-navy">{money(total)}</b></span>
       </div>
-      <div className="mt-5 grid gap-3 md:grid-cols-2">
+      <div className="mt-2 flex h-8 overflow-hidden rounded-xl text-[12px] font-bold text-white">
+        {monthlyItems.map((i) => (
+          <motion.div key={i.id} initial={{ width: 0 }} animate={{ width: `${(i.monthly / total) * 100}%` }} className="flex items-center justify-center overflow-hidden whitespace-nowrap px-1" style={{ background: i.color }} title={`${i.title} ${money(i.monthly)}/mo`}>
+            {i.monthly / total > 0.2 ? `${i.title} ${money(i.monthly)}` : i.monthly / total > 0.08 ? money(i.monthly) : ""}
+          </motion.div>
+        ))}
+      </div>
+      <div className="mt-3 grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">
         {items.map((i) => {
           const m = MOMENTS.find((x) => x.id === i.moment);
           return (
-            <div key={i.id} className="rounded-2xl bg-slate-50 p-4 ring-1 ring-slate-200" style={{ borderLeft: `6px solid ${i.color}` }}>
+            <div key={i.id} className="flex flex-col rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200" style={{ borderLeft: `6px solid ${i.color}` }} title={i.where}>
               <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2"><span className="text-2xl">{i.emoji}</span><span className="text-lg font-semibold">{i.title}</span></div>
-                {m && <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[12px] font-semibold text-slate-600 ring-1 ring-slate-200">{m.emoji} {m.title}</span>}
+                <div className="flex items-center gap-2"><span className="text-xl">{i.emoji}</span><span className="text-[15px] font-semibold leading-snug">{i.title}</span></div>
+                {m && <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200" title={m.title}>{m.emoji} {m.title.split(" ").slice(0, 2).join(" ")}</span>}
               </div>
-              <div className="mt-1 text-[14px] text-slate-500">{i.where}</div>
-              <div className="num mt-2 text-[17px] font-bold text-navy">{i.amount}</div>
-              <p className="mt-1 text-[14px] text-slate-600">{i.why}</p>
-              <div className="mt-3 rounded-xl bg-white p-3 ring-1 ring-slate-200">
-                <div className="text-[12px] font-bold uppercase tracking-wider text-slate-500">{i.products.length ? "Valley Bank options" : "Learn more"}</div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {i.products.map((pr) => (
-                    <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-sun px-3 py-2 text-[13px] font-semibold text-navy hover:bg-sun-600">
-                      <span className="rounded bg-navy px-1 text-[10px] font-extrabold text-sun">VALLEY</span>{pr.name.replace("Valley ", "")}<ExternalLink size={13} />
-                    </a>
-                  ))}
-                  {(i.also || []).map((pr) => (
-                    <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-[13px] font-semibold ring-1 ring-slate-200 hover:bg-slate-50">{pr.name}<ExternalLink size={13} /></a>
-                  ))}
-                  {!i.products.length && !(i.also || []).length && <span className="text-[13px] text-slate-500">No new account needed.</span>}
-                </div>
+              <div className="num mt-1 text-[14px] font-bold text-navy">{i.amount}</div>
+              <p className="mt-0.5 line-clamp-2 flex-1 text-[13px] leading-snug text-slate-600" title={i.why}>{i.why}</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {i.products.map((pr) => (
+                  <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-sun px-2.5 py-1 text-[12px] font-semibold text-navy hover:bg-sun-600">
+                    <span className="rounded bg-navy px-1 text-[9px] font-extrabold text-sun">VALLEY</span>{pr.name.replace("Valley ", "")}<ExternalLink size={12} />
+                  </a>
+                ))}
+                {(i.also || []).map((pr) => (
+                  <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-[12px] font-semibold ring-1 ring-slate-200 hover:bg-slate-50">{pr.name}<ExternalLink size={12} /></a>
+                ))}
               </div>
             </div>
           );
@@ -157,14 +137,14 @@ function PlanStep({ items }: { items: PlanItem[] }) {
 function StepsStep({ items }: { items: PlanItem[] }) {
   const st = useStore();
   const { stepsDone, set } = st;
-  const [closed, setClosed] = useState<Record<string, boolean>>({});
+  const [openId, setOpenId] = useState<string | null>(null);
   const done = items.filter((i) => stepsDone[i.id]).length;
   return (
-    <Card>
+    <Card className="p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <Kicker>Step 3</Kicker>
-          <h2 className="font-display text-2xl sm:text-3xl font-semibold">Next steps</h2>
+          <h2 className="font-display text-2xl font-semibold">Next steps</h2>
           <p className="mt-1 text-slate-500">Every action in the plan, with the Valley Bank product that does it.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -173,15 +153,15 @@ function StepsStep({ items }: { items: PlanItem[] }) {
             className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Download size={15} /> PDF</button>
         </div>
       </div>
-      <div className="mt-4 space-y-2.5">
+      <div className="mt-3 grid items-start gap-2.5 lg:grid-cols-2">
         {items.map((i) => {
-          const isOpen = !closed[i.id], isDone = !!stepsDone[i.id];
+          const isOpen = openId === i.id, isDone = !!stepsDone[i.id];
           return (
             <div key={i.id} className={cx("rounded-2xl ring-1", isDone ? "bg-emerald-50/60 ring-emerald-200" : "bg-white ring-slate-200")}>
-              <div className="flex items-start gap-3 p-4">
+              <div className="flex items-start gap-3 p-3">
                 <button onClick={() => set((s) => ({ stepsDone: { ...s.stepsDone, [i.id]: !isDone } }))} aria-pressed={isDone} aria-label={`Mark ${i.title} done`}
                   className={cx("mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg ring-2", isDone ? "bg-emerald-500 text-white ring-emerald-500" : "bg-white ring-slate-300")}>{isDone && <Check size={18} />}</button>
-                <button onClick={() => setClosed((c) => ({ ...c, [i.id]: isOpen }))} className="flex flex-1 items-start justify-between gap-2 text-left" aria-expanded={isOpen}>
+                <button onClick={() => setOpenId(isOpen ? null : i.id)} className="flex flex-1 items-start justify-between gap-2 text-left" aria-expanded={isOpen}>
                   <span>
                     <span className="flex flex-wrap items-center gap-2"><span className={cx("text-[17px] font-semibold", isDone && "text-slate-400 line-through")}>{i.emoji} {i.title}</span><span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold uppercase text-slate-500">{i.when}</span></span>
                     <span className="mt-0.5 block text-[14px] text-slate-600">{i.amount}</span>
@@ -228,10 +208,10 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
   const name = p.name || "you";
   const lbl = (txt: string, color: string, dy = -12) => ({ value: txt, position: "top" as const, fill: color, fontSize: 12, fontWeight: 700, dy });
   return (
-    <Card>
+    <Card className="p-4 sm:p-5">
       <Kicker>Step 4 · The answer</Kicker>
-      <h2 className="font-display text-2xl sm:text-3xl font-semibold">Will {name} have enough money to pay the bills after retiring at {R}?</h2>
-      <div className="mt-4 h-80 sm:h-96">
+      <h2 className="font-display text-2xl font-semibold">Will {name} have enough money to pay the bills after retiring at {R}?</h2>
+      <div className="mt-1 h-56 lg:h-[min(19rem,calc(100dvh-34rem))]">
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 28, right: 24, left: 4, bottom: 4 }}>
             <CartesianGrid stroke="#EEF2F7" vertical={false} />
@@ -250,20 +230,20 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
       </div>
       <div className="mt-1 flex flex-wrap gap-4 text-[13px] font-semibold"><span className="flex items-center gap-2 text-orange-700"><i className="h-1 w-6 rounded bg-coral" /> Without the plan</span><span className="flex items-center gap-2 text-emerald-700"><i className="h-1 w-6 rounded bg-emerald-500" /> With the plan</span><span className="text-slate-500">Total savings by age</span></div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl bg-orange-50 p-5 ring-1 ring-orange-200">
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        <div className="rounded-2xl bg-orange-50 p-4 ring-1 ring-orange-200">
           <div className="text-[13px] font-bold uppercase tracking-wider text-orange-700">Without the plan</div>
           <div className="mt-1 font-display text-2xl font-semibold text-navy">{w.depletedAge ? `Not enough. Savings run out at ${w.depletedAge}.` : "Savings last past 90."}</div>
           <p className="mt-1 text-[15px] text-slate-600">About {money(wAt)} saved at {R}.</p>
         </div>
-        <div className="rounded-2xl bg-emerald-50 p-5 ring-1 ring-emerald-300">
+        <div className="rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-300">
           <div className="text-[13px] font-bold uppercase tracking-wider text-emerald-700">With the plan</div>
           <div className="mt-1 font-display text-2xl font-semibold text-navy">{wp.depletedAge ? `Money lasts until ${wp.depletedAge}${extra > 0 ? `, ${extra} more year${extra === 1 ? "" : "s"}` : ""}.` : "Money lasts past 90."}</div>
           <p className="mt-1 text-[15px] text-slate-600">About {money(pAt)} saved at {R}{pAt > wAt ? `, ${money(pAt - wAt)} more` : ""}.</p>
         </div>
       </div>
 
-      <div className="mt-5 flex flex-wrap items-center gap-2 text-[13px]">
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px]">
         <span className="font-semibold text-slate-600">Prices rise each year:</span>
         {[2, 3, 4, 5, 6].map((v) => (
           <button key={v} onClick={() => set((s) => ({ assumptions: { ...s.assumptions, inflation: v / 100 } }))} aria-pressed={Math.abs(a.inflation * 100 - v) < 0.01}
@@ -272,7 +252,7 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
         <span className="text-slate-400">U.S. long-run average ≈ 3%</span>
       </div>
 
-      <button onClick={() => setHow(!how)} aria-expanded={how} className="mt-4 flex w-full items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-left text-[15px] font-semibold ring-1 ring-slate-200">How we calculate this <ChevronDown size={18} className={how ? "rotate-180 transition" : "transition"} /></button>
+      <button onClick={() => setHow(!how)} aria-expanded={how} className="mt-2 flex w-full items-center justify-between rounded-2xl bg-slate-50 px-4 py-2.5 text-left text-[14px] font-semibold ring-1 ring-slate-200">How we calculate this <ChevronDown size={18} className={how ? "rotate-180 transition" : "transition"} /></button>
       {how && (
         <ul className="mt-3 list-disc space-y-1 pl-5 text-[14px] text-slate-600">
           <li>Fixed formulas, not AI guesses. Bills rise {Math.round(a.inflation * 100)}% a year; investments earn about {Math.round(a.returnRate * 100)}% a year (not guaranteed).</li>
@@ -292,16 +272,7 @@ export default function Dashboard() {
   const selected = (saved as MomentId[] | undefined) ?? auto;
   const toggle = (m: MomentId) => set({ moments: selected.includes(m) ? selected.filter((x) => x !== m) : [...selected, m] });
   const plan = useMemo(() => buildPlan(p, a, selected), [p, a, selected]);
-  const [tab, setTab] = useState<TabId>("moments");
-  const tabsRef = useRef<HTMLDivElement>(null);
-  const go = (id: TabId) => {
-    setTab(id);
-    const mark = tabsRef.current; if (!mark) return;
-    const header = window.innerWidth >= 1024 ? 0 : 64;
-    const y = mark.getBoundingClientRect().top + window.scrollY - header;
-    if (window.scrollY > y) window.scrollTo({ top: y, behavior: "smooth" });
-  };
-  const nextTab = TABS[TABS.findIndex((t) => t.id === tab) + 1];
+  const [tab, setTab] = useState(0);
   useEffect(() => {
     setContext({
       page: "try it now", lifeMoments: selected,
@@ -310,35 +281,15 @@ export default function Dashboard() {
     });
   }, [plan, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const body = (n: React.ReactNode) => <Fill center={false}>{n}</Fill>;
   return (
-    <div>
-      <ScenarioPanel />
-      <div ref={tabsRef} />
-      <div className="sticky top-16 z-20 -mx-4 mb-4 bg-paper/90 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 lg:top-0">
-        <div role="tablist" aria-label="Try it now steps" className="flex gap-1.5 overflow-x-auto rounded-2xl bg-white p-1.5 shadow-card ring-1 ring-slate-200 [scrollbar-width:none]">
-          {TABS.map((t, n) => (
-            <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => go(t.id)}
-              className={"inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-[14px] font-semibold transition " + (tab === t.id ? "bg-navy text-white" : "text-slate-600 hover:bg-slate-100")}>
-              <span className={cx("grid h-5 w-5 place-items-center rounded-full text-[11px] num", tab === t.id ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-600")}>{n + 1}</span>{t.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <motion.div key={tab} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-        {tab === "moments" && <MomentsStep selected={selected} toggle={toggle} auto={auto} />}
-        {tab === "plan" && <PlanStep items={plan.items} />}
-        {tab === "steps" && <StepsStep items={plan.items} />}
-        {tab === "answer" && <AnswerStep plan={plan} />}
-      </motion.div>
-
-      {nextTab && (
-        <div className="mt-5 flex justify-center">
-          <button onClick={() => go(nextTab.id)} className="inline-flex items-center gap-2 rounded-2xl bg-sun px-6 py-3.5 text-[17px] font-semibold text-navy hover:bg-sun-600">
-            {tab === "moments" ? "Build my plan" : `Next: ${nextTab.label}`} <ArrowRight size={18} />
-          </button>
-        </div>
-      )}
-    </div>
+    <Panels top={<ScenarioPanel />} index={tab} onIndex={setTab}
+      nextLabel={(i) => (i === 0 ? "Build my plan" : TABS[i + 1] ? `Next: ${TABS[i + 1].label}` : undefined)}
+      tabs={[
+        { id: "moments", label: "Life moments", body: () => body(<MomentsStep selected={selected} toggle={toggle} auto={auto} />) },
+        { id: "plan", label: "Your plan", body: () => body(<PlanStep items={plan.items} />) },
+        { id: "steps", label: "Next steps", body: () => body(<StepsStep items={plan.items} />) },
+        { id: "answer", label: "The answer", body: () => body(<AnswerStep plan={plan} />) },
+      ]} />
   );
 }

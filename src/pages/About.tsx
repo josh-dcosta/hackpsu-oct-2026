@@ -1,6 +1,6 @@
 import { useRef, useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, BookOpen, ShieldCheck, ListChecks, Lightbulb, Church, Users, Landmark, Languages, MapPin, GraduationCap, Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Panels as BasePanels, Fill, type Panel } from "../components/Panels";
+import { ArrowRight, BookOpen, ShieldCheck, ListChecks, Lightbulb, Church, Users, Landmark, Languages, MapPin, GraduationCap, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { cx } from "../components/ui";
 import { Logo } from "../components/Brand";
 import { ScenarioCards } from "../components/Scenario";
@@ -17,7 +17,7 @@ function Kicker({ children, dark = false }: { children: ReactNode; dark?: boolea
 function AboutSwitcher() {
   const here = "#" + ((window.location.hash.replace(/^#/, "") || "/").split("?")[0]);
   return (
-    <div className="mb-4 flex gap-1.5 overflow-x-auto rounded-2xl bg-white p-1.5 shadow-card ring-1 ring-slate-200 lg:hidden">
+    <div className="mb-3 flex shrink-0 gap-1.5 overflow-x-auto rounded-2xl bg-white p-1.5 shadow-card ring-1 ring-slate-200 lg:hidden">
       {ABOUT_NAV.map((n) => {
         const on = here === n.href || (n.href === "#/about" && here === "#/");
         return <a key={n.href} href={n.href} className={cx("flex-1 whitespace-nowrap rounded-xl px-3 py-2 text-center text-[14px] font-semibold", on ? "bg-navy text-white" : "text-slate-600")}>{n.label}</a>;
@@ -26,49 +26,13 @@ function AboutSwitcher() {
   );
 }
 
-// A page made of panels: tabs on top, one panel at a time, Back / Next at the bottom. No long scrolling.
-function Panels({ tabs, start = 0 }: { tabs: { id: string; label: string; body: (go: (id: string) => void) => ReactNode }[]; start?: number }) {
-  const [i, setI] = useState(start);
-  const go = (id: string) => { const n = tabs.findIndex((t) => t.id === id); if (n >= 0) { setI(n); window.scrollTo({ top: 0 }); } };
-  return (
-    <div className="flex flex-col lg:h-[calc(100dvh-4.5rem)]">
-      <AboutSwitcher />
-      <div role="tablist" className={cx("flex gap-1.5 overflow-x-auto [scrollbar-width:none]", tabs.length < 2 && "hidden")}>
-        {tabs.map((t, n) => (
-          <button key={t.id} role="tab" aria-selected={n === i} onClick={() => setI(n)}
-            className={cx("inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-[14px] font-semibold transition", n === i ? "bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200" : "text-slate-500 hover:bg-white hover:text-navy")}>
-            <span className={cx("grid h-5 w-5 place-items-center rounded-full text-[11px] num", n === i ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-600")}>{n + 1}</span>{t.label}
-          </button>
-        ))}
-      </div>
-      <div className={cx("min-h-0 flex-1", tabs.length > 1 && "mt-4")}>
-        <AnimatePresence mode="wait">
-          <motion.div key={tabs[i].id} className="h-full" initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.22 }}>
-            {tabs[i].body(go)}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-      {tabs.length > 1 && (
-        <div className="mt-4 flex items-center justify-between">
-          <button onClick={() => setI(i - 1)} disabled={i === 0} className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2.5 font-semibold text-slate-500 hover:text-navy disabled:invisible"><ArrowLeft size={17} /> {tabs[i - 1]?.label}</button>
-          <div className="flex gap-1.5">{tabs.map((t, n) => <span key={t.id} className={cx("h-2 rounded-full transition-all", n === i ? "w-6 bg-emerald-500" : "w-2 bg-slate-300")} />)}</div>
-          <button onClick={() => setI(i + 1)} disabled={i === tabs.length - 1} className="inline-flex items-center gap-1.5 rounded-xl bg-sun px-4 py-2.5 font-semibold text-navy hover:bg-sun-600 disabled:invisible">{tabs[i + 1]?.label} <ArrowRight size={17} /></button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Fills its panel; centers content when it fits, scrolls quietly (no scrollbar) on short screens
-function Fill({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cx("h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", className)}><div className="flex min-h-full flex-col justify-center">{children}</div></div>;
-}
+const Panels = ({ tabs }: { tabs: Panel[] }) => <BasePanels tabs={tabs} top={<AboutSwitcher />} />;
 
 export const JOURNEY: { icon: typeof BookOpen; word: string; text: React.ReactNode }[] = [
-  { icon: BookOpen, word: "Information", text: "There's more money advice out there than ever. Most of it is confusing, and some of it is wrong." },
-  { icon: Lightbulb, word: "Understanding", text: "One honest answer with your own numbers: will you have enough to pay the bills after you retire?" },
-  { icon: ShieldCheck, word: "Confidence", text: "Short lessons, life moments and a plan builder show exactly what each smart move changes." },
-  { icon: ListChecks, word: "Action", text: <>Real next steps with exact amounts, and we connect you to <span className="inline-block rounded-full bg-sun px-2.5 py-0.5 font-semibold text-navy">Valley Bank products</span> that suit your plan.</> },
+  { icon: BookOpen, word: "Information", text: "Money advice is everywhere, and most of it is confusing." },
+  { icon: Lightbulb, word: "Understanding", text: "One honest answer, built from your own numbers." },
+  { icon: ShieldCheck, word: "Confidence", text: "Your life moments and a plan show what each move changes." },
+  { icon: ListChecks, word: "Action", text: <>Real next steps, and we connect you to <span className="inline-block rounded-full bg-sun px-2.5 py-0.5 font-semibold text-navy">Valley Bank products</span> that suit your plan.</> },
 ];
 
 function Journey() {
@@ -149,16 +113,14 @@ export function AboutApp() {
     <Panels tabs={[
       {
         id: "see", label: "See tomorrow", body: (go) => (
-          <Fill className="hero-dark rounded-[2rem] p-6 sm:p-10 text-white">
-            <div className="flex items-center gap-3"><Logo size={46} /><Kicker dark>The App</Kicker></div>
-            <h1 className="mt-5 font-display text-3xl sm:text-5xl font-semibold leading-tight">See tomorrow before you spend today.</h1>
-            <p className="mt-4 max-w-4xl text-[17px] sm:text-lg leading-relaxed text-slate-300">
-              <b className="text-white">Next Step</b> is a free, simple money simulator for everyday working people. It started as my entry to <b className="text-white">HackPSU</b>, Penn State's hackathon,
-              where the challenge was to use AI to build a tool that turns information into understanding, understanding into confidence, and confidence into action.
-              It answers one honest question, <i className="text-white">"Will I have enough money to pay my bills after I retire?"</i>, then shows the small, safe moves that make the biggest difference and turns them into real next steps.
+          <Fill className="hero-dark rounded-[2rem] p-5 sm:p-8 text-white">
+            <div className="flex items-center gap-3"><Logo size={40} /><Kicker dark>The App</Kicker></div>
+            <h1 className="mt-3 font-display text-3xl sm:text-5xl font-semibold leading-tight">See tomorrow before you spend today.</h1>
+            <p className="mt-3 max-w-3xl text-[16px] sm:text-lg leading-relaxed text-slate-300">
+              <b className="text-white">Next Step</b> is a free, simple money planner for everyday working people, built for <b className="text-white">HackPSU</b>. It answers one honest question, <i className="text-white">"Will I have enough to pay my bills after I retire?"</i>, then gives you a plan and real next steps.
             </p>
-            <div className="mt-6"><Journey /></div>
-            <div className="mt-7"><button onClick={() => go("try")} className="inline-flex min-h-[52px] items-center gap-2 rounded-2xl bg-sun px-6 py-3 text-lg font-semibold text-navy hover:bg-sun-600">Try it now <ArrowRight size={19} /></button></div>
+            <div className="mt-5"><Journey /></div>
+            <div className="mt-5"><button onClick={() => go("try")} className="inline-flex min-h-[52px] items-center gap-2 rounded-2xl bg-sun px-6 py-3 text-lg font-semibold text-navy hover:bg-sun-600">Try it now <ArrowRight size={19} /></button></div>
           </Fill>
         ),
       },
