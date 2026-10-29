@@ -44,7 +44,7 @@ export default function Saving() {
               <XAxis dataKey="year" tickFormatter={(x) => `Yr ${x}`} {...axis} />
               <YAxis tickFormatter={axisMoney} {...axis} width={56} />
               <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Year ${l}`} formatter={(x, nm) => [money(Number(x)), nm]} />
-              <Line dataKey="i" name="Investing" stroke="#10B981" strokeWidth={3} dot={false} animationDuration={500} label={endLabel(n, (v) => `Investing ${compact(v)}`, "#047857")} />
+              <Line dataKey="i" name="Investing" stroke="#F5C000" strokeWidth={3} dot={false} animationDuration={500} label={endLabel(n, (v) => `Investing ${compact(v)}`, "#7A5C00")} />
               <Line dataKey="h" name={`Savings ${s.sav}%`} stroke="#38BDF8" strokeWidth={3} dot={false} animationDuration={500} label={endLabel(n, (v) => `Savings ${s.sav}% ${compact(v)}`, "#0369A1", { dy: last.i - last.h < last.i * 0.12 ? 18 : -10 })} />
               <Line dataKey="c" name="0% account" stroke="#94A3B8" strokeWidth={3} dot={false} strokeDasharray="6 4" animationDuration={500} label={endLabel(n, (v) => `0% account ${compact(v)}`, "#475569", { dy: 18 })} />
             </LineChart>

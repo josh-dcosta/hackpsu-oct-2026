@@ -5,9 +5,9 @@ export function Logo({ size = 40, className = "" }: { size?: number; className?:
   return (
     <span className={"relative grid shrink-0 place-items-center rounded-[28%] bg-navy " + className} style={{ width: size, height: size }} aria-hidden>
       <svg viewBox="0 0 40 40" width={size * 0.72} height={size * 0.72}>
-        <rect x="5" y="25" width="9" height="9" rx="2" fill="#10B981" opacity=".45" />
-        <rect x="15.5" y="18" width="9" height="16" rx="2" fill="#10B981" opacity=".7" />
-        <rect x="26" y="11" width="9" height="23" rx="2" fill="#10B981" />
+        <rect x="5" y="25" width="9" height="9" rx="2" fill="#F5C000" opacity=".45" />
+        <rect x="15.5" y="18" width="9" height="16" rx="2" fill="#F5C000" opacity=".7" />
+        <rect x="26" y="11" width="9" height="23" rx="2" fill="#F5C000" />
         <path d="M8 19 L17 12 L23 12 L30.5 4.5" fill="none" stroke="#F8FAFC" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M25.5 4 H31 V9.5" fill="none" stroke="#F8FAFC" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
@@ -18,7 +18,7 @@ export function Logo({ size = 40, className = "" }: { size?: number; className?:
 export function Wordmark({ dark = false, sub = true }: { dark?: boolean; sub?: boolean }) {
   return (
     <span className="leading-none">
-      <span className={"whitespace-nowrap font-display text-[20px] sm:text-[22px] font-semibold tracking-tight " + (dark ? "text-white" : "text-navy")}>Next<span className="text-emerald-500"> Step</span></span>
+      <span className={"whitespace-nowrap font-display text-[20px] sm:text-[22px] font-semibold tracking-tight " + (dark ? "text-white" : "text-navy")}>Next<span className={dark ? "text-sun" : "text-emerald-600"}> Step</span></span>
       {sub && <span className={"mt-1 block text-[11px] " + (dark ? "text-slate-400" : "text-slate-500")}>See tomorrow before you spend today</span>}
     </span>
   );

@@ -159,7 +159,7 @@ export function buildPlan(p: Profile, a: Assumptions, moments: MomentId[]) {
     });
   }
   items.push({
-    id: "retire", emoji: "🧭", color: "#10B981", title: "Retirement savings", where: has("retire") ? "Workplace plan + an IRA for the extra" : "Workplace retirement plan",
+    id: "retire", emoji: "🧭", color: "#F5C000", title: "Retirement savings", where: has("retire") ? "Workplace plan + an IRA for the extra" : "Workplace retirement plan",
     monthly: retireMonthly + matchMonthly,
     amount: `${Math.round(planA.contribPct * 100)}% of pay (${money0(retireMonthly)}/mo) + ${money0(matchMonthly)}/mo from the employer`,
     why: has("retire") ? `Retirement is close, so every extra dollar counts: ${Math.round(A.extraRetirementPct * 100)}% more of pay goes toward retirement, about ${money0((p.income * A.extraRetirementPct) / 12)} a month.` : "Keeps the full employer match and steady growth.",

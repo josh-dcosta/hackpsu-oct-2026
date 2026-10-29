@@ -93,7 +93,7 @@ export default function Welcome() {
           <div className="flex items-center gap-3">
             <button aria-label="Remove a child" onClick={() => patch({ kids: (p.kids || []).slice(0, -1) })} className="grid h-11 w-11 place-items-center rounded-xl bg-slate-100 text-2xl font-bold hover:bg-slate-200">−</button>
             <span className="num w-8 text-center text-2xl font-bold">{(p.kids || []).length}</span>
-            <button aria-label="Add a child" onClick={() => patch({ kids: [...(p.kids || []), { name: `Child ${(p.kids || []).length + 1}`, age: 10 }].slice(0, 6) })} className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-500 text-2xl font-bold text-white hover:bg-emerald-600">+</button>
+            <button aria-label="Add a child" onClick={() => patch({ kids: [...(p.kids || []), { name: `Child ${(p.kids || []).length + 1}`, age: 10 }].slice(0, 6) })} className="grid h-11 w-11 place-items-center rounded-xl bg-sun text-2xl font-bold text-navy hover:bg-sun-600">+</button>
           </div>
         </div>
         <div className="mt-4 space-y-4">

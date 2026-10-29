@@ -53,7 +53,7 @@ export default function Accounts() {
               <YAxis tickFormatter={axisMoney} {...axis} width={56} />
               <Tooltip contentStyle={tooltipStyle} formatter={(v, n) => [money(Number(v)), n === "keep" ? "You keep" : "Taxes at withdrawal"]} />
               <Legend wrapperStyle={{ fontSize: 12 }} formatter={(v) => (v === "keep" ? "You keep" : "Taxes at withdrawal")} />
-              <Bar dataKey="keep" stackId="a" fill="#10B981" animationDuration={500}>
+              <Bar dataKey="keep" stackId="a" fill="#F5C000" animationDuration={500}>
                 <LabelList dataKey="keep" position="center" formatter={(v: unknown) => compact(Number(v))} style={{ fontSize: 13, fontWeight: 700, fill: "#fff" }} />
               </Bar>
               <Bar dataKey="tax" stackId="a" fill="#FDBA74" radius={[8, 8, 0, 0]} animationDuration={500}>

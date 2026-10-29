@@ -4,7 +4,6 @@ import { Layout } from "./components/Layout";
 import { useStore } from "./lib/store";
 import Welcome from "./pages/Welcome";
 import Dashboard from "./pages/Dashboard";
-import Learn from "./pages/Learn";
 import Bank from "./pages/Bank";
 import Progress from "./pages/Progress";
 import { AboutApp, AboutMe, Mission } from "./pages/About";
@@ -45,7 +44,7 @@ export default function App() {
     page = <Welcome key={query} />; key = "/try?" + query;
   }
   else if (route === "/try") page = <Dashboard />;
-  else if (route === "/learn" || route === "/sims" || route === "/future") page = <Learn />;
+  else if (route === "/learn" || route === "/sims" || route === "/future") page = <Progress />;
   else if (route === "/bank") page = <ModuleFrame id="bank"><Bank /></ModuleFrame>;
   else if (route === "/progress") page = <Progress />;
   else if (route.startsWith("/learn/")) {

@@ -211,7 +211,7 @@ function Photo() {
   const [ok, setOk] = useState(true);
   return ok
     ? <img src="/josh.jpg" alt={OWNER} onError={() => setOk(false)} className="h-40 w-40 sm:h-48 sm:w-48 shrink-0 rounded-full object-cover ring-4 ring-white/20" />
-    : <div className="grid h-40 w-40 sm:h-48 sm:w-48 shrink-0 place-items-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 font-display text-6xl font-semibold text-white ring-4 ring-white/20" aria-label={OWNER}>JD</div>;
+    : <div className="grid h-40 w-40 sm:h-48 sm:w-48 shrink-0 place-items-center rounded-full bg-gradient-to-br from-emerald-300 to-emerald-500 font-display text-6xl font-semibold text-navy ring-4 ring-white/20" aria-label={OWNER}>JD</div>;
 }
 
 export function AboutMe() {

@@ -45,7 +45,7 @@ export default function Bank() {
           <p className="mt-2 text-lg leading-relaxed text-slate-700">An emergency fund is money kept <b>only</b> for surprises, like a furnace that dies in January or a car repair. {his} essential bills are about <b>{money(essentials)}</b> a month, so the goal is <b>{money(t3)}</b> (3 months) first, then <b>{money(t6)}</b> (6 months).</p>
           <div className="relative mt-8 mb-10">
             <div className="h-10 overflow-hidden rounded-xl bg-slate-100">
-              <motion.div className="flex h-10 items-center justify-end rounded-xl bg-emerald-500 pr-3 text-[15px] font-bold text-white num" initial={{ width: 0 }} animate={{ width: `${Math.min(100, (saved / scale) * 100)}%` }}>
+              <motion.div className="flex h-10 items-center justify-end rounded-xl bg-emerald-500 pr-3 text-[15px] font-bold text-navy num" initial={{ width: 0 }} animate={{ width: `${Math.min(100, (saved / scale) * 100)}%` }}>
                 {saved > 0 && `${money(saved)} saved`}
               </motion.div>
             </div>
@@ -80,7 +80,7 @@ export default function Bank() {
                 <XAxis dataKey="year" tickFormatter={(v) => `Yr ${v}`} {...axis} />
                 <YAxis tickFormatter={axisMoney} {...axis} width={56} domain={[Math.floor(start * 0.9), "auto"]} />
                 <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Year ${l}`} formatter={(v, n) => [money(Number(v)), n]} />
-                <Line dataKey="compound" name="4% compound" stroke="#10B981" strokeWidth={3.5} dot={false} label={endLabel(rows.length, (v) => `4% compound: ${compact(v)}`, "#047857")} />
+                <Line dataKey="compound" name="4% compound" stroke="#F5C000" strokeWidth={3.5} dot={false} label={endLabel(rows.length, (v) => `4% compound: ${compact(v)}`, "#7A5C00")} />
                 <Line dataKey="simple" name="4% simple" stroke="#38BDF8" strokeWidth={2.5} dot={false} strokeDasharray="6 4" label={endLabel(rows.length, (v) => `4% simple: ${compact(v)}`, "#0369A1", { dy: 18 })} />
                 <Line dataKey="regular" name="Regular 0.5%" stroke="#94A3B8" strokeWidth={2.5} dot={false} label={endLabel(rows.length, (v) => `0.5% account: ${compact(v)}`, "#475569", { dy: -10 })} />
               </LineChart>

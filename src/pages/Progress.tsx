@@ -1,7 +1,7 @@
 import { CheckCircle2, Circle, Download, RotateCcw, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import { useStore } from "../lib/store";
-import { MODULES, moduleHref } from "../data/modules";
+import { CORE, MODULES, moduleHref } from "../data/modules";
 import { RULES } from "../lib/rules";
 import { downloadPlan } from "../lib/pdf";
 import { Button, Card, Stat } from "../components/ui";
@@ -17,8 +17,8 @@ export default function Progress() {
   const head = (
     <div className="mb-3 flex shrink-0 flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="font-display text-3xl sm:text-4xl font-semibold">Your progress</h1>
-        <p className="mt-1 text-[16px] text-slate-500">Lessons you've completed and the real-world steps you've taken.</p>
+        <h1 className="font-display text-3xl sm:text-4xl font-semibold">Learn by doing</h1>
+        <p className="mt-1 text-[16px] text-slate-500">Short lessons, each with a simulator and a 3-question check. Your progress is tracked here.</p>
       </div>
       <Button onClick={() => downloadPlan({ profile, assumptions: st.assumptions, story: st.story, done, xp: 0, badges: [], stepsDone, moments: st.moments })}><Download size={18} /> Download my plan (PDF)</Button>
     </div>
@@ -42,13 +42,13 @@ export default function Progress() {
       </Card>
 
       <Card className="lg:col-span-2">
-        <div className="font-semibold">Your lessons</div>
+        <div className="font-semibold">Your lessons <span className="font-normal text-slate-500">· start with the 3 essentials</span></div>
         <div className="mt-2 divide-y divide-slate-100">
           {MODULES.map((m) => (
             <a key={m.id} href={moduleHref(m.id)} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-slate-50">
               {done.includes(m.id) ? <CheckCircle2 className="text-emerald-500" /> : <Circle className="text-slate-300" />}
               <span className="text-xl">{m.emoji}</span>
-              <span className="flex-1 font-semibold">{m.title}</span>
+              <span className="min-w-0 flex-1"><span className="font-semibold">{m.title}</span>{CORE.some((c) => c.id === m.id) && <span className="ml-2 rounded-full bg-navy px-2 py-0.5 align-middle text-[10px] font-bold uppercase text-white">Essential</span>}<span className="block truncate text-[13px] text-slate-500">{m.blurb}</span></span>
               <span className="text-[13px] text-slate-500">{quiz[m.id] ? `${Object.values(quiz[m.id]).filter(Boolean).length}/3 quiz` : `${m.minutes} min`}</span>
             </a>
           ))}

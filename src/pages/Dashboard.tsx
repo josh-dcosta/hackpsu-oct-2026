@@ -74,7 +74,7 @@ function MomentsStep({ selected, toggle, auto }: { selected: MomentId[]; toggle:
                 <span className="block text-[13px] text-slate-500">{m.sub}</span>
                 {isAuto && <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><Sparkles size={11} /> {whyAuto(p, m.id)}</span>}
               </span>
-              <span className={cx("grid h-7 w-7 shrink-0 place-items-center rounded-lg ring-2", on ? "bg-emerald-500 text-white ring-emerald-500" : "bg-white ring-slate-300")}>{on && <Check size={16} />}</span>
+              <span className={cx("grid h-7 w-7 shrink-0 place-items-center rounded-lg ring-2", on ? "bg-emerald-500 text-navy ring-emerald-500" : "bg-white ring-slate-300")}>{on && <Check size={16} />}</span>
             </button>
           );
         })}
@@ -121,7 +121,7 @@ function PlanStep({ items }: { items: PlanItem[] }) {
             <div key={i.id} className={cx("flex flex-col rounded-2xl p-3 ring-1", isDone ? "bg-emerald-50/70 ring-emerald-200" : "bg-slate-50 ring-slate-200")} style={{ borderLeft: `6px solid ${i.color}` }} title={i.where}>
               <div className="flex items-start gap-2">
                 <button onClick={() => set((s) => ({ stepsDone: { ...s.stepsDone, [i.id]: !isDone } }))} aria-pressed={isDone} aria-label={`Mark ${i.title} done`}
-                  className={cx("mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md ring-2", isDone ? "bg-emerald-500 text-white ring-emerald-500" : "bg-white ring-slate-300")}>{isDone && <Check size={15} />}</button>
+                  className={cx("mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md ring-2", isDone ? "bg-emerald-500 text-navy ring-emerald-500" : "bg-white ring-slate-300")}>{isDone && <Check size={15} />}</button>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <span className={cx("text-[15px] font-semibold leading-snug", isDone && "text-slate-400 line-through")}>{i.emoji} {i.title}</span>
@@ -178,11 +178,11 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
             <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Age ${l}`} formatter={(v, n) => [money(Number(v)), n === "with" ? "With the plan" : "Without the plan"]} />
             <ReferenceLine x={R} stroke="#94A3B8" strokeDasharray="4 4" label={w.depletedAge && Math.abs(w.depletedAge - R) < 3 ? undefined : { value: `Retire at ${R}`, position: "insideBottomLeft", fill: "#64748B", fontSize: 12, dy: -18 }} />
             <Line dataKey="without" stroke="#F97361" strokeWidth={3} dot={false} animationDuration={700} />
-            <Line dataKey="with" stroke="#10B981" strokeWidth={3.5} dot={false} animationDuration={700} />
-            <ReferenceDot x={R} y={pAt} r={6} fill="#10B981" stroke="#fff" strokeWidth={2} label={lbl(`With plan: ${compact(pAt)}`, "#047857")} />
+            <Line dataKey="with" stroke="#F5C000" strokeWidth={3.5} dot={false} animationDuration={700} />
+            <ReferenceDot x={R} y={pAt} r={6} fill="#F5C000" stroke="#fff" strokeWidth={2} label={lbl(`With plan: ${compact(pAt)}`, "#7A5C00")} />
             {wAt > 0 && <ReferenceDot x={R} y={wAt} r={6} fill="#F97361" stroke="#fff" strokeWidth={2} label={lbl(`Without: ${compact(wAt)}`, "#C2410C", 22)} />}
             {w.depletedAge && <ReferenceDot x={w.depletedAge} y={0} r={6} fill="#F97361" stroke="#fff" strokeWidth={2} label={lbl(`Runs out at ${w.depletedAge}`, "#C2410C")} />}
-            {wp.depletedAge && <ReferenceDot x={wp.depletedAge} y={0} r={6} fill="#10B981" stroke="#fff" strokeWidth={2} label={lbl(`Runs out at ${wp.depletedAge}`, "#047857", w.depletedAge && Math.abs(wp.depletedAge - w.depletedAge) < 6 ? -44 : -12)} />}
+            {wp.depletedAge && <ReferenceDot x={wp.depletedAge} y={0} r={6} fill="#F5C000" stroke="#fff" strokeWidth={2} label={lbl(`Runs out at ${wp.depletedAge}`, "#7A5C00", w.depletedAge && Math.abs(wp.depletedAge - w.depletedAge) < 6 ? -44 : -12)} />}
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -241,7 +241,7 @@ export default function Dashboard() {
 
   const body = (n: React.ReactNode) => <Fill center={false}>{n}</Fill>;
   return (
-    <Panels top={<ScenarioPanel />} index={tab} onIndex={setTab}
+    <Panels nav="top" top={<ScenarioPanel />} index={tab} onIndex={setTab}
       nextLabel={(i) => (i === 0 ? "Build my plan" : TABS[i + 1] ? `Next: ${TABS[i + 1].label}` : undefined)}
       tabs={[
         { id: "moments", label: "Life moments", body: () => body(<MomentsStep selected={selected} toggle={toggle} auto={auto} />) },

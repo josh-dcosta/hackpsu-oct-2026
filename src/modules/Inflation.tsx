@@ -43,7 +43,7 @@ export default function Inflation() {
                 <div key={y} className="flex items-center gap-3">
                   <span className="w-14 shrink-0 text-[13px] font-semibold text-slate-500">{y === 0 ? "Today" : `+${y} yrs`}</span>
                   <div className="h-7 flex-1 rounded-lg bg-white">
-                    <motion.div className="flex h-7 items-center justify-end rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-400 pr-2 text-[13px] font-bold text-white num" initial={{ width: 0 }} animate={{ width: `${v}%` }}>{money(v)}</motion.div>
+                    <motion.div className="flex h-7 items-center justify-end rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-300 pr-2 text-[13px] font-bold text-navy num" initial={{ width: 0 }} animate={{ width: `${v}%` }}>{money(v)}</motion.div>
                   </div>
                 </div>
               );

@@ -22,7 +22,7 @@ export default function HSA() {
       <Idea title="The account with three tax breaks">
         <div className="grid gap-3 sm:grid-cols-3">
           {[["1", "Going in", "Contributions lower your taxable income."], ["2", "Growing", "Growth inside the HSA isn't taxed."], ["3", "Coming out", "Withdrawals for medical costs are tax-free."]].map(([n, t, d]) => (
-            <div key={n} className="rounded-2xl bg-emerald-50 p-4"><div className="grid h-8 w-8 place-items-center rounded-full bg-emerald-500 text-base font-bold text-white">{n}</div><div className="mt-2 text-base font-semibold">{t}</div><p className="text-[15px] text-slate-700">{d}</p></div>
+            <div key={n} className="rounded-2xl bg-emerald-50 p-4"><div className="grid h-8 w-8 place-items-center rounded-full bg-emerald-500 text-base font-bold text-navy">{n}</div><div className="mt-2 text-base font-semibold">{t}</div><p className="text-[15px] text-slate-700">{d}</p></div>
           ))}
         </div>
         <p className="text-[15px] text-slate-600">You need a qualifying high-deductible health plan. {RULES.year} limits: {money(RULES.hsa.selfOnly)} self-only, {money(RULES.hsa.family)} family.</p>
@@ -47,7 +47,7 @@ export default function HSA() {
                 <YAxis tickFormatter={axisMoney} {...axis} width={56} />
                 <Tooltip contentStyle={tooltipStyle} formatter={(v, n) => [money(Number(v)), n === "hsa" ? "HSA" : "Regular savings"]} />
                 <Legend wrapperStyle={{ fontSize: 12 }} formatter={(v) => (v === "hsa" ? "HSA (invested)" : "Same money in regular savings")} />
-                <Bar dataKey="hsa" fill="#10B981" radius={[6, 6, 0, 0]} animationDuration={500}><LabelList dataKey="hsa" position="top" formatter={(v: unknown) => compact(Number(v))} style={{ fontSize: 11, fontWeight: 700, fill: "#047857" }} /></Bar>
+                <Bar dataKey="hsa" fill="#F5C000" radius={[6, 6, 0, 0]} animationDuration={500}><LabelList dataKey="hsa" position="top" formatter={(v: unknown) => compact(Number(v))} style={{ fontSize: 11, fontWeight: 700, fill: "#7A5C00" }} /></Bar>
                 <Bar dataKey="savings" fill="#CBD5E1" radius={[6, 6, 0, 0]} animationDuration={500}><LabelList dataKey="savings" position="top" formatter={(v: unknown) => compact(Number(v))} style={{ fontSize: 11, fontWeight: 700, fill: "#475569" }} /></Bar>
               </BarChart>
             </ResponsiveContainer>

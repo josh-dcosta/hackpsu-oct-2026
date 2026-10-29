@@ -16,7 +16,7 @@ People have more financial information than ever, but at the moments that matter
 Anyone (like a plumber with three kids, or a school custodian with two teens) can plug in their own numbers in about two minutes.
 
 ## How it works
-Three simple sections: **About · Try it now · Learn** (with Progress under Learn). No AI, no API keys, no bank logins.
+Three simple sections: **Try it now · Learn · About** (Learn shows every lesson and your progress in one place). No AI, no API keys, no bank logins.
 
 - **About:** what Next Step is (my HackPSU entry: information → understanding → confidence → action), where it's going, and about me.
 - **Try it now:** enter **your own numbers** (about 2 minutes; saved only on your device), then:
@@ -32,7 +32,7 @@ Three simple sections: **About · Try it now · Learn** (with Progress under Lea
 3. **Build my plan** → see where the money lives.
 4. On a plan card → **How to do it**, a Valley Bank product link, a reminder. Download the PDF.
 5. **Your future** → without the plan vs. with it.
-5b. **Learn** → the 401(k) lesson simulator.
+6. **Learn** → the 401(k) lesson simulator.
 
 ## Tech
 React + TypeScript + Vite · Tailwind · Recharts · Framer Motion · Lucide · jsPDF · a tiny Express server that serves the app · localStorage for progress. All math lives in `src/lib/calc.ts` and `src/lib/plan.ts`.

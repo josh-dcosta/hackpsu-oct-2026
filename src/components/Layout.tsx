@@ -33,15 +33,9 @@ export function Layout({ route, children }: { route: string; children: ReactNode
             return (
               <div key={n.href}>
                 <a href={n.href} aria-current={active(n.href) ? "page" : undefined}
-                  className={cx("flex items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-semibold transition", active(n.href) && !(n.href === "#/learn" && active("#/progress")) ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white")}>
+                  className={cx("flex items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-semibold transition", on ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white")}>
                   <n.icon size={20} className={on ? "text-emerald-400" : ""} />{n.label}
                 </a>
-                {n.href === "#/learn" && (
-                  <div className="ml-[22px] mt-0.5 border-l border-white/10 pl-3">
-                    <a href="#/progress" aria-current={active("#/progress") ? "page" : undefined}
-                      className={cx("flex items-center gap-2 rounded-xl px-3 py-2 text-[14px] font-semibold transition", active("#/progress") ? "bg-white/10 text-white" : "text-slate-400 hover:bg-white/5 hover:text-white")}><CheckCircle2 size={15} /> Progress</a>
-                  </div>
-                )}
               </div>
             );
           })}
@@ -54,18 +48,14 @@ export function Layout({ route, children }: { route: string; children: ReactNode
             ))}
           </div>
         </nav>
-        <div className="mt-auto rounded-2xl bg-white/5 p-4">
-          <div className="flex items-center justify-between text-sm"><span className="text-slate-300">Lessons completed</span><span className="num font-bold text-emerald-400">{done.length}/{MODULES.length}</span></div>
-          <div className="mt-2 h-2 rounded-full bg-white/10"><div className="h-2 rounded-full bg-emerald-400 transition-all" style={{ width: `${(done.length / MODULES.length) * 100}%` }} /></div>
-          <p className="mt-3 text-[11px] leading-snug text-slate-400">Educational simulations. Not financial advice.</p>
-        </div>
+        <p className="mt-auto px-3 text-[11px] leading-snug text-slate-400">Educational simulations. Not financial advice.</p>
       </aside>
 
       {/* Top bar (phones and tablets) */}
       <header className="sticky top-0 z-30 border-b border-slate-200/60 bg-paper/80 backdrop-blur lg:hidden">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <a href="#/about" className="flex items-center gap-2"><Logo size={36} /><Wordmark sub={false} /></a>
-          <a href="#/progress" className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700 num" aria-label="Lessons completed"><CheckCircle2 size={15} />{done.length}/{MODULES.length}</a>
+          <a href="#/learn" className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700 num" aria-label="Lessons completed"><CheckCircle2 size={15} />{done.length}/{MODULES.length}</a>
         </div>
       </header>
 

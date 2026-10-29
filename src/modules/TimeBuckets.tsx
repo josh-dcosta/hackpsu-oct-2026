@@ -7,7 +7,7 @@ import { ApplyToPlan, Card, EstimateTag, ResetButton, Slider, tooltipStyle } fro
 const CATS = [
   { key: "safe", label: "High-yield savings, CDs, Treasury bills", note: "FDIC-insured or U.S.-government-backed. Won't drop in a crash.", color: "#38BDF8" },
   { key: "bond", label: "Bond index fund", note: "Steadier than stocks. Holds thousands of bonds.", color: "#6366F1" },
-  { key: "us", label: "U.S. total stock market index fund", note: "Thousands of U.S. companies in one low-cost fund.", color: "#10B981" },
+  { key: "us", label: "U.S. total stock market index fund", note: "Thousands of U.S. companies in one low-cost fund.", color: "#F5C000" },
   { key: "intl", label: "International stock index fund", note: "Companies outside the U.S. for extra diversification.", color: "#0B2A45" },
 ] as const;
 

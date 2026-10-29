@@ -175,7 +175,7 @@ export function RippleMark({ size = 40 }: { size?: number }) {
   return (
     <span className="relative grid shrink-0 place-items-center rounded-2xl bg-navy" style={{ width: size, height: size }} aria-hidden>
       <span className="absolute h-1/3 w-1/3 rounded-full bg-emerald-400/50 ring-anim" />
-      <svg viewBox="0 0 40 40" width={size * 0.7} height={size * 0.7}><circle cx="20" cy="20" r="4" fill="#10B981" /><circle cx="20" cy="20" r="9.5" fill="none" stroke="#10B981" strokeWidth="2.5" opacity=".75" /><circle cx="20" cy="20" r="15.5" fill="none" stroke="#10B981" strokeWidth="2" opacity=".35" /></svg>
+      <svg viewBox="0 0 40 40" width={size * 0.7} height={size * 0.7}><circle cx="20" cy="20" r="4" fill="#F5C000" /><circle cx="20" cy="20" r="9.5" fill="none" stroke="#F5C000" strokeWidth="2.5" opacity=".75" /><circle cx="20" cy="20" r="15.5" fill="none" stroke="#F5C000" strokeWidth="2" opacity=".35" /></svg>
     </span>
   );
 }

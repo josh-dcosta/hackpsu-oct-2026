@@ -20,7 +20,7 @@ export default function K401() {
   const waitAge = Math.min(s.retireAge - 1, s.age + 10);
   const early = run(s.contrib, s.age, 0);
   const late = run(s.contrib, waitAge, 0, s.salary * Math.pow(1 + s.growth / 100, waitAge - s.age));
-  const wait = [{ label: `Start at ${s.age}`, final: early.final, c: "#10B981" }, { label: `Start at ${waitAge}`, final: late.final, c: "#F97361" }];
+  const wait = [{ label: `Start at ${s.age}`, final: early.final, c: "#F5C000" }, { label: `Start at ${waitAge}`, final: late.final, c: "#F97361" }];
   const missing = s.contrib < s.matchCap ? (s.salary * (s.matchCap - s.contrib) / 100) * (s.matchRate / 100) : 0;
   const insights = [
     `Contributing ${s.contrib}% could grow to about ${compact(r.final)} by age ${s.retireAge}, about ${compact(r.finalReal)} in today's money.`,
@@ -61,7 +61,7 @@ export default function K401() {
                 <Legend wrapperStyle={{ fontSize: 12 }} formatter={(v) => v === "Your money" ? `Your money ${compact(r.totalEmployee)}` : v === "Employer match" ? `Employer match ${compact(r.totalEmployer)}` : `Growth ${compact(r.totalGrowth + r.startBalance)}`} />
                 <Area type="monotone" stackId="1" dataKey="employee" name="Your money" stroke="#0B2A45" fill="#0B2A45" fillOpacity={0.85} animationDuration={500} />
                 <Area type="monotone" stackId="1" dataKey="employer" name="Employer match" stroke="#38BDF8" fill="#38BDF8" fillOpacity={0.85} animationDuration={500} />
-                <Area type="monotone" stackId="1" dataKey="growth" name="Growth" stroke="#10B981" fill="#10B981" fillOpacity={0.75} animationDuration={500} />
+                <Area type="monotone" stackId="1" dataKey="growth" name="Growth" stroke="#F5C000" fill="#F5C000" fillOpacity={0.75} animationDuration={500} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -79,7 +79,7 @@ export default function K401() {
                 <YAxis hide />
                 <Tooltip contentStyle={tooltipStyle} formatter={(v) => [money(Number(v)), "At retirement"]} />
                 <Bar dataKey="final" radius={[10, 10, 4, 4]} animationDuration={500}>
-                  {compare.map((c) => <Cell key={c.label} fill={c.mine ? "#10B981" : "#CBD5E1"} />)}
+                  {compare.map((c) => <Cell key={c.label} fill={c.mine ? "#F5C000" : "#CBD5E1"} />)}
                   <LabelList dataKey="final" position="top" formatter={(v: unknown) => compact(Number(v))} style={{ fontSize: 13, fontWeight: 700, fill: "#0B2A45" }} />
                 </Bar>
               </BarChart>
