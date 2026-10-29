@@ -36,7 +36,7 @@ export default function Progress() {
         </div>
         <div className="mt-3 h-4 overflow-hidden rounded-full bg-slate-100"><motion.div className="h-4 rounded-full bg-emerald-500" initial={{ width: 0 }} animate={{ width: `${pctDone}%` }} /></div>
         <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-1">
-          <Stat label="Next steps checked off" value={stepsChecked} tone="green" />
+          <Stat label="Plan actions done" value={stepsChecked} tone="green" />
           <Stat label="Quiz answers right" value={`${correct}/${answered}`} tone="sky" />
         </div>
       </Card>

@@ -55,9 +55,8 @@ function Journey() {
 
 const GALLERY = [
   { img: "moments", title: "Pick your life moments", text: "Enter your numbers, then pick what's happening: a surprise bill, higher medical costs, college, a market drop, retiring soon, a vacation, buying a car. Your moments drive the plan and the actions." },
-  { img: "plan", title: "A plan, built for you", text: "Next Step builds the plan automatically and shows where every dollar should live: emergency fund, HSA, college fund, retirement." },
-  { img: "steps", title: "Next steps at your bank", text: "Every action links to the Valley Bank product that does it, with how-to steps and a calendar reminder." },
-  { img: "answer", title: "The answer", text: "One graph: where your savings go without the plan, and with it. How much you'll have at retirement, and how long it lasts." },
+  { img: "plan", title: "A plan, built for you", text: "Every action comes with how-to steps and the Valley Bank product that does it. Next Step builds the plan automatically and shows where every dollar should live: emergency fund, HSA, college fund, retirement." },
+  { img: "answer", title: "Your future", text: "One graph: where your savings go without the plan, and with it. How much you'll have at retirement, and how long it lasts." },
   { img: "learn", title: "Learn by doing", text: "Short lessons with a simple simulator: sliders on the left, the answer written right on the chart." },
   { img: "progress", title: "Numbers you can trust", text: "Every number comes from fixed, tested formulas and official IRS, FDIC and Social Security sources. No bank logins, no account numbers: everything stays on your device. Take your plan with you as a PDF." },
 ];

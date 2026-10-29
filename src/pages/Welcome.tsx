@@ -157,7 +157,7 @@ export default function Welcome() {
       <motion.div className="mx-auto w-fit" animate={{ scale: [1, 1.08, 1] }} transition={{ repeat: Infinity, duration: 1.6 }}><Logo size={80} /></motion.div>
       <h1 className="mt-6 font-display text-4xl font-semibold">Your future is ready{p.name ? `, ${p.name}` : ""}.</h1>
       <p className="mx-auto mt-3 max-w-md text-lg text-slate-600">We built a personal, pretend projection from your answers. Everything is an educational estimate you can change.</p>
-      <Button onClick={() => finish(p)} className="mt-8 text-lg px-8 py-4">Show me my future <ArrowRight size={20} /></Button>
+      <Button onClick={() => finish(p)} className="mt-8 text-lg px-8 py-4">Let's build my future <ArrowRight size={20} /></Button>
     </div>,
   ];
 

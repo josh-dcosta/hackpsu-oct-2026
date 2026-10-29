@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceDot } from "recharts";
-import { ArrowRight, Check, CalendarPlus, Download, ChevronDown, ExternalLink, Pencil, UserRound, Sparkles, Zap, Compass, ListChecks, Target } from "lucide-react";
+import { ArrowRight, Check, CalendarPlus, Download, ChevronDown, ExternalLink, Pencil, UserRound, Sparkles, Zap, Compass, Target } from "lucide-react";
 import { useStore } from "../lib/store";
 import { money, compact, axisMoney } from "../lib/format";
 import { Card, cx, tooltipStyle } from "../components/ui";
@@ -13,8 +13,7 @@ import { Panels, Fill } from "../components/Panels";
 const TABS = [
   { id: "moments", label: "Life moments", icon: Zap },
   { id: "plan", label: "Your plan", icon: Compass },
-  { id: "steps", label: "Next steps", icon: ListChecks },
-  { id: "answer", label: "The answer", icon: Target },
+  { id: "future", label: "Your future", icon: Target },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
@@ -53,14 +52,14 @@ function MomentsStep({ selected, toggle, auto }: { selected: MomentId[]; toggle:
       <div className="mt-2 rounded-2xl bg-sky-soft/70 px-4 py-2.5 ring-1 ring-sky-200">
         <div className="flex flex-wrap items-center gap-2 text-[13px] font-semibold">
           <span className="mr-1 text-[14px] text-navy">The moments you pick drive everything:</span>
-          {["Life moments", "Your plan", "Next steps", "The answer"].map((t, i) => (
+          {["Life moments", "Your plan", "Your future"].map((t, i) => (
             <span key={t} className="flex items-center gap-2">
               <span className={cx("rounded-full px-2.5 py-0.5", i === 0 ? "bg-sun text-navy" : "bg-white text-navy ring-1 ring-slate-200")}>{t}</span>
-              {i < 3 && <ArrowRight size={15} className="text-slate-400" />}
+              {i < 2 && <ArrowRight size={15} className="text-slate-400" />}
             </span>
           ))}
         </div>
-        <p className="mt-1 text-[13px] text-slate-600">Pick every moment that applies (some are picked from {his} answers). Next Step builds the plan around them, links each action to the Valley Bank product that fits, and shows the answer with and without the plan.</p>
+        <p className="mt-1 text-[13px] text-slate-600">Pick every moment that applies (some are picked from {his} answers). Next Step builds the plan around them, links each action to the Valley Bank product that fits, and shows your future with and without the plan.</p>
       </div>
       <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
         {MOMENTS.map((m) => {
@@ -87,15 +86,25 @@ function MomentsStep({ selected, toggle, auto }: { selected: MomentId[]; toggle:
 
 /* 2 · The plan, built automatically */
 function PlanStep({ items }: { items: PlanItem[] }) {
-  const { profile: p } = useStore();
+  const st = useStore();
+  const { profile: p, stepsDone, set } = st;
+  const [openId, setOpenId] = useState<string | null>(null);
   const monthlyItems = items.filter((i) => i.monthly > 0);
   const total = monthlyItems.reduce((t, i) => t + i.monthly, 0);
+  const done = items.filter((i) => stepsDone[i.id]).length;
   return (
     <Card className="p-4 sm:p-5">
-      <Kicker>Step 2</Kicker>
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-display text-2xl font-semibold">{p.name ? `${p.name}'s` : "Your"} plan: where the money lives</h2>
-        <span className="text-[14px] text-slate-500">Saved every month <b className="num text-lg text-navy">{money(total)}</b></span>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <Kicker>Step 2</Kicker>
+          <h2 className="font-display text-2xl font-semibold">{p.name ? `${p.name}'s` : "Your"} plan: where the money lives and what to do</h2>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[14px] text-slate-500">Saved every month <b className="num text-lg text-navy">{money(total)}</b></span>
+          <span className="num rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">{done}/{items.length} done</span>
+          <button onClick={() => downloadPlan({ profile: st.profile, assumptions: st.assumptions, story: st.story, done: st.done, xp: 0, badges: [], stepsDone, moments: st.moments })}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Download size={15} /> PDF</button>
+        </div>
       </div>
       <div className="mt-2 flex h-8 overflow-hidden rounded-xl text-[12px] font-bold text-white">
         {monthlyItems.map((i) => (
@@ -104,18 +113,26 @@ function PlanStep({ items }: { items: PlanItem[] }) {
           </motion.div>
         ))}
       </div>
-      <div className="mt-3 grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-3 grid items-start gap-2.5 md:grid-cols-2 xl:grid-cols-3">
         {items.map((i) => {
           const m = MOMENTS.find((x) => x.id === i.moment);
+          const isDone = !!stepsDone[i.id], isOpen = openId === i.id;
           return (
-            <div key={i.id} className="flex flex-col rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200" style={{ borderLeft: `6px solid ${i.color}` }} title={i.where}>
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2"><span className="text-xl">{i.emoji}</span><span className="text-[15px] font-semibold leading-snug">{i.title}</span></div>
-                {m && <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200" title={m.title}>{m.emoji} {m.title.split(" ").slice(0, 2).join(" ")}</span>}
+            <div key={i.id} className={cx("flex flex-col rounded-2xl p-3 ring-1", isDone ? "bg-emerald-50/70 ring-emerald-200" : "bg-slate-50 ring-slate-200")} style={{ borderLeft: `6px solid ${i.color}` }} title={i.where}>
+              <div className="flex items-start gap-2">
+                <button onClick={() => set((s) => ({ stepsDone: { ...s.stepsDone, [i.id]: !isDone } }))} aria-pressed={isDone} aria-label={`Mark ${i.title} done`}
+                  className={cx("mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md ring-2", isDone ? "bg-emerald-500 text-white ring-emerald-500" : "bg-white ring-slate-300")}>{isDone && <Check size={15} />}</button>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className={cx("text-[15px] font-semibold leading-snug", isDone && "text-slate-400 line-through")}>{i.emoji} {i.title}</span>
+                    <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold uppercase text-slate-500 ring-1 ring-slate-200">{i.when}</span>
+                  </div>
+                  <div className="num mt-1 text-[14px] font-bold text-navy">{i.amount}</div>
+                </div>
               </div>
-              <div className="num mt-1 text-[14px] font-bold text-navy">{i.amount}</div>
-              <p className="mt-0.5 line-clamp-2 flex-1 text-[13px] leading-snug text-slate-600" title={i.why}>{i.why}</p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
+              <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-slate-600" title={i.why}>{m ? `${m.emoji} ` : ""}{i.why}</p>
+              {isOpen && <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-[13px] text-slate-700">{i.how.map((h) => <li key={h}>{h}</li>)}</ol>}
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 {i.products.map((pr) => (
                   <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-sun px-2.5 py-1 text-[12px] font-semibold text-navy hover:bg-sun-600">
                     <span className="rounded bg-navy px-1 text-[9px] font-extrabold text-sun">VALLEY</span>{pr.name.replace("Valley ", "")}<ExternalLink size={12} />
@@ -124,6 +141,9 @@ function PlanStep({ items }: { items: PlanItem[] }) {
                 {(i.also || []).map((pr) => (
                   <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-[12px] font-semibold ring-1 ring-slate-200 hover:bg-slate-50">{pr.name}<ExternalLink size={12} /></a>
                 ))}
+                <button onClick={() => setOpenId(isOpen ? null : i.id)} aria-expanded={isOpen} className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold text-emerald-700 hover:bg-emerald-50">{isOpen ? "Hide steps" : "How to do it"}<ChevronDown size={13} className={cx("transition", isOpen && "rotate-180")} /></button>
+                <button onClick={() => downloadReminder({ id: i.id, title: i.title, why: i.why, how: i.how, source: i.products[0] ? { label: i.products[0].name, url: i.products[0].url } : undefined } as never)}
+                  aria-label={`Add a reminder for ${i.title}`} title="Add a reminder" className="inline-flex items-center rounded-lg px-1.5 py-1 text-slate-500 hover:bg-white hover:text-navy"><CalendarPlus size={15} /></button>
               </div>
             </div>
           );
@@ -133,69 +153,7 @@ function PlanStep({ items }: { items: PlanItem[] }) {
   );
 }
 
-/* 3 · Next steps, each linked to a real product */
-function StepsStep({ items }: { items: PlanItem[] }) {
-  const st = useStore();
-  const { stepsDone, set } = st;
-  const [openId, setOpenId] = useState<string | null>(null);
-  const done = items.filter((i) => stepsDone[i.id]).length;
-  return (
-    <Card className="p-4 sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <Kicker>Step 3</Kicker>
-          <h2 className="font-display text-2xl font-semibold">Next steps</h2>
-          <p className="mt-1 text-slate-500">Every action in the plan, with the Valley Bank product that does it.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="num rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">{done}/{items.length} done</span>
-          <button onClick={() => downloadPlan({ profile: st.profile, assumptions: st.assumptions, story: st.story, done: st.done, xp: 0, badges: [], stepsDone, moments: st.moments })}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Download size={15} /> PDF</button>
-        </div>
-      </div>
-      <div className="mt-3 grid items-start gap-2.5 lg:grid-cols-2">
-        {items.map((i) => {
-          const isOpen = openId === i.id, isDone = !!stepsDone[i.id];
-          return (
-            <div key={i.id} className={cx("rounded-2xl ring-1", isDone ? "bg-emerald-50/60 ring-emerald-200" : "bg-white ring-slate-200")}>
-              <div className="flex items-start gap-3 p-3">
-                <button onClick={() => set((s) => ({ stepsDone: { ...s.stepsDone, [i.id]: !isDone } }))} aria-pressed={isDone} aria-label={`Mark ${i.title} done`}
-                  className={cx("mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg ring-2", isDone ? "bg-emerald-500 text-white ring-emerald-500" : "bg-white ring-slate-300")}>{isDone && <Check size={18} />}</button>
-                <button onClick={() => setOpenId(isOpen ? null : i.id)} className="flex flex-1 items-start justify-between gap-2 text-left" aria-expanded={isOpen}>
-                  <span>
-                    <span className="flex flex-wrap items-center gap-2"><span className={cx("text-[17px] font-semibold", isDone && "text-slate-400 line-through")}>{i.emoji} {i.title}</span><span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold uppercase text-slate-500">{i.when}</span></span>
-                    <span className="mt-0.5 block text-[14px] text-slate-600">{i.amount}</span>
-                  </span>
-                  <ChevronDown size={18} className={cx("mt-1 shrink-0 text-slate-400 transition", isOpen && "rotate-180")} />
-                </button>
-              </div>
-              {isOpen && (
-                <div className="border-t border-slate-100 px-4 pb-4 pt-3 sm:pl-[60px]">
-                  <ol className="list-decimal space-y-1 pl-5 text-[15px] text-slate-700">{i.how.map((h) => <li key={h}>{h}</li>)}</ol>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {i.products.map((pr) => (
-                      <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-sun px-3.5 py-2.5 text-sm font-semibold text-navy hover:bg-sun-600">
-                        <span className="rounded bg-navy px-1 text-[10px] font-extrabold text-sun">VALLEY</span>{pr.name.replace("Valley ", "")}<ExternalLink size={14} />
-                      </a>
-                    ))}
-                    {(i.also || []).map((pr) => (
-                      <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2.5 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50">{pr.name}<ExternalLink size={14} /></a>
-                    ))}
-                    <button onClick={() => downloadReminder({ id: i.id, title: i.title, why: i.why, how: i.how, source: i.products[0] ? { label: i.products[0].name, url: i.products[0].url } : undefined } as never)}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2.5 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><CalendarPlus size={15} /> Add a reminder</button>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-      <p className="mt-4 text-[12px] text-slate-500">Product links go to Valley Bank's personal banking pages at valley.com. Check current rates, fees and eligibility with the bank.</p>
-    </Card>
-  );
-}
-
-/* 4 · The answer: one graph, then the answer */
+/* 3 · Your future: one graph, then the answer */
 function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
   const { profile: p, assumptions: a, set } = useStore();
   const [how, setHow] = useState(false);
@@ -209,7 +167,7 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
   const lbl = (txt: string, color: string, dy = -12) => ({ value: txt, position: "top" as const, fill: color, fontSize: 12, fontWeight: 700, dy });
   return (
     <Card className="p-4 sm:p-5">
-      <Kicker>Step 4 · The answer</Kicker>
+      <Kicker>Step 3 · Your future</Kicker>
       <h2 className="font-display text-2xl font-semibold">Will {name} have enough money to pay the bills after retiring at {R}?</h2>
       <div className="mt-1 h-56 lg:h-[min(19rem,calc(100dvh-34rem))]">
         <ResponsiveContainer>
@@ -288,8 +246,7 @@ export default function Dashboard() {
       tabs={[
         { id: "moments", label: "Life moments", body: () => body(<MomentsStep selected={selected} toggle={toggle} auto={auto} />) },
         { id: "plan", label: "Your plan", body: () => body(<PlanStep items={plan.items} />) },
-        { id: "steps", label: "Next steps", body: () => body(<StepsStep items={plan.items} />) },
-        { id: "answer", label: "The answer", body: () => body(<AnswerStep plan={plan} />) },
+        { id: "future", label: "Your future", body: () => body(<AnswerStep plan={plan} />) },
       ]} />
   );
 }

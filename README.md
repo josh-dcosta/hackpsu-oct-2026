@@ -21,9 +21,8 @@ Three simple sections: **About · Try it now · Learn** (with Progress under Lea
 - **About:** what Next Step is (my HackPSU entry: information → understanding → confidence → action), where it's going, and about me.
 - **Try it now:** enter **your own numbers** (about 2 minutes; saved only on your device), then:
   1. **Life moments:** surprise bill · medical insurance going up · kid heading to college · the market dropped · retiring soon. Pick any; college and retiring soon are picked automatically from the scenario.
-  2. **Your plan:** built automatically: where each month's savings should live (emergency fund, HSA, college fund, retirement, a balanced index-fund mix).
-  3. **Next steps:** each action with how-to steps, a calendar reminder and a link to the matching Valley Bank product.
-  4. **The answer:** one graph of savings by age without vs. with the plan, then how long the money lasts.
+  2. **Your plan:** built automatically: where each month's savings should live, and for each action how to do it, a calendar reminder, a checkbox and the matching Valley Bank product.
+  3. **Your future:** one graph of savings by age without vs. with the plan, then how long the money lasts.
   Download the whole plan as a PDF.
 - **Learn:** ten short lessons, each in four parts: the idea · a simulator (sliders left, numbers written on the chart) · what it means · a 3-question check.
 
@@ -31,9 +30,9 @@ Three simple sections: **About · Try it now · Learn** (with Progress under Lea
 1. Open the site → The App → **Try it now** → answer the questions (e.g. 50, two teens, $64,000, $3,600 bills, $6,000 saved).
 2. Life moments: college and retiring soon are picked automatically. Add **Medical insurance going up**.
 3. **Build my plan** → see where the money lives.
-4. **Next steps** → open a step → Valley Bank product link, reminder. Download the PDF.
-5. **The answer** → without the plan vs. with it.
-6. **Learn** → the 401(k) lesson simulator.
+4. On a plan card → **How to do it**, a Valley Bank product link, a reminder. Download the PDF.
+5. **Your future** → without the plan vs. with it.
+5b. **Learn** → the 401(k) lesson simulator.
 
 ## Tech
 React + TypeScript + Vite · Tailwind · Recharts · Framer Motion · Lucide · jsPDF · a tiny Express server that serves the app · localStorage for progress. All math lives in `src/lib/calc.ts` and `src/lib/plan.ts`.
