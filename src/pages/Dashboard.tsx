@@ -88,11 +88,10 @@ function MomentsStep({ selected, toggle, auto }: { selected: MomentId[]; toggle:
 /* 2 · The plan, built automatically */
 function PlanStep({ items }: { items: PlanItem[] }) {
   const st = useStore();
-  const { profile: p, stepsDone, set } = st;
+  const { profile: p } = st;
   const [openId, setOpenId] = useState<string | null>(null);
   const monthlyItems = items.filter((i) => i.monthly > 0);
   const total = monthlyItems.reduce((t, i) => t + i.monthly, 0);
-  const done = items.filter((i) => stepsDone[i.id]).length;
   return (
     <Card className="p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -102,9 +101,6 @@ function PlanStep({ items }: { items: PlanItem[] }) {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[14px] text-slate-500">Saved every month <b className="num text-lg text-navy">{money(total)}</b></span>
-          <span className="num rounded-full bg-emerald-50 px-3 py-1 text-sm font-bold text-emerald-700">{done}/{items.length} done</span>
-          <button onClick={() => downloadPlan({ profile: st.profile, assumptions: st.assumptions, story: st.story, done: st.done, xp: 0, badges: [], stepsDone, moments: st.moments })}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Download size={15} /> PDF</button>
         </div>
       </div>
       <div className="mt-2 flex h-8 overflow-hidden rounded-xl text-[12px] font-bold text-white">
@@ -117,15 +113,13 @@ function PlanStep({ items }: { items: PlanItem[] }) {
       <div className="mt-3 grid items-start gap-2.5 md:grid-cols-2 xl:grid-cols-3">
         {items.map((i) => {
           const m = MOMENTS.find((x) => x.id === i.moment);
-          const isDone = !!stepsDone[i.id], isOpen = openId === i.id;
+          const isOpen = openId === i.id;
           return (
-            <div key={i.id} className={cx("flex flex-col rounded-2xl p-3 ring-1", isDone ? "bg-emerald-50/70 ring-emerald-200" : "bg-slate-50 ring-slate-200")} style={{ borderLeft: `6px solid ${i.color}` }} title={i.where}>
+            <div key={i.id} className="flex flex-col rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200" style={{ borderLeft: `6px solid ${i.color}` }} title={i.where}>
               <div className="flex items-start gap-2">
-                <button onClick={() => set((s) => ({ stepsDone: { ...s.stepsDone, [i.id]: !isDone } }))} aria-pressed={isDone} aria-label={`Mark ${i.title} done`}
-                  className={cx("mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md ring-2", isDone ? "bg-emerald-500 text-navy ring-emerald-500" : "bg-white ring-slate-300")}>{isDone && <Check size={15} />}</button>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
-                    <span className={cx("text-[15px] font-semibold leading-snug", isDone && "text-slate-400 line-through")}>{i.emoji} {i.title}</span>
+                    <span className="text-[15px] font-semibold leading-snug">{i.emoji} {i.title}</span>
                     <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold uppercase text-slate-500 ring-1 ring-slate-200">{i.when}</span>
                   </div>
                   <div className="num mt-1 text-[14px] font-bold text-navy">{i.amount}</div>
@@ -156,7 +150,8 @@ function PlanStep({ items }: { items: PlanItem[] }) {
 
 /* 3 · Your future: one graph, then the answer */
 function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
-  const { profile: p, assumptions: a, set } = useStore();
+  const store = useStore();
+  const { profile: p, assumptions: a, set } = store;
   const [how, setHow] = useState(false);
   const { without: w, withPlan: wp } = plan;
   const data = w.rows.map((r, i) => ({ age: r.age, without: Math.round(r.nominal), with: Math.round(wp.rows[i]?.nominal ?? 0) }));
@@ -172,7 +167,7 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
     <Card className="p-4 sm:p-5">
       <Kicker>Step 3 · Your future</Kicker>
       <h2 className="font-display text-2xl font-semibold">Will {name} have enough money to pay the bills after retiring at {R}?</h2>
-      <div className="mt-1 h-56 lg:h-[min(19rem,calc(100dvh-34rem))]">
+      <div className="mt-1 h-56 lg:h-[max(10rem,min(16.5rem,calc(100dvh-36rem)))]">
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 28, right: 24, left: 4, bottom: 4 }}>
             <CartesianGrid stroke="#EEF2F7" vertical={false} />
@@ -211,7 +206,9 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
             title={v === histPct ? `U.S. average ${INFLATION_HISTORY.from}–${INFLATION_HISTORY.to}` : undefined}
             className={cx("rounded-lg px-2.5 py-1 font-semibold", Math.abs(a.inflation * 100 - v) < 0.01 ? "bg-navy text-white" : v === histPct ? "bg-sun/60 text-navy hover:bg-sun" : "bg-slate-100 text-slate-600 hover:bg-slate-200")}>{v}%{v === histPct ? " (50-yr avg)" : ""}</button>
         ))}
-        <span className="text-slate-400">U.S. prices rose {histPct}% a year on average, {INFLATION_HISTORY.from}–{INFLATION_HISTORY.to} (BLS CPI-U)</span>
+        <span className="text-slate-400">{INFLATION_HISTORY.from}–{INFLATION_HISTORY.to} U.S. average: {histPct}% (BLS)</span>
+        <button onClick={() => downloadPlan({ profile: store.profile, assumptions: store.assumptions, story: store.story, done: [], xp: 0, badges: [], moments: store.moments })}
+          className="ml-auto inline-flex items-center gap-2 rounded-xl bg-sun px-4 py-2 text-[14px] font-semibold text-navy hover:bg-sun-600"><Download size={16} /> Download my plan (PDF)</button>
       </div>
 
       <button onClick={() => setHow(!how)} aria-expanded={how} className="mt-2 flex w-full items-center justify-between rounded-2xl bg-slate-50 px-4 py-2.5 text-left text-[14px] font-semibold ring-1 ring-slate-200">How we calculate this <ChevronDown size={18} className={how ? "rotate-180 transition" : "transition"} /></button>
@@ -244,6 +241,7 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
           </div>
         </div>
       )}
+
     </Card>
   );
 }

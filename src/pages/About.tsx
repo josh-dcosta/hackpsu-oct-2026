@@ -1,10 +1,9 @@
 import { useRef, useState, type ReactNode } from "react";
-import { Panels as BasePanels, Fill, type Panel } from "../components/Panels";
+import { Panels, Fill, type Panel } from "../components/Panels";
 import { ArrowRight, BookOpen, ShieldCheck, ListChecks, Lightbulb, Church, Users, Landmark, Languages, MapPin, GraduationCap, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { cx } from "../components/ui";
 import { Logo } from "../components/Brand";
 import { ScenarioCards } from "../components/Scenario";
-import { ABOUT_NAV } from "../components/SiteMenu";
 
 const LINKEDIN = "https://www.linkedin.com/in/joshdcosta";
 export const OWNER = "Josh DCosta";
@@ -13,20 +12,6 @@ function Kicker({ children, dark = false }: { children: ReactNode; dark?: boolea
   return <div className={"text-[12px] font-bold uppercase tracking-wider " + (dark ? "text-emerald-300" : "text-emerald-600")}>{children}</div>;
 }
 
-// On phones and tablets there's no sidebar, so About pages show their own small switcher
-function AboutSwitcher() {
-  const here = "#" + ((window.location.hash.replace(/^#/, "") || "/").split("?")[0]);
-  return (
-    <div className="mb-3 flex shrink-0 gap-1.5 overflow-x-auto rounded-2xl bg-white p-1.5 shadow-card ring-1 ring-slate-200 lg:hidden">
-      {ABOUT_NAV.map((n) => {
-        const on = here === n.href || (n.href === "#/about" && here === "#/");
-        return <a key={n.href} href={n.href} className={cx("flex-1 whitespace-nowrap rounded-xl px-3 py-2 text-center text-[14px] font-semibold", on ? "bg-navy text-white" : "text-slate-600")}>{n.label}</a>;
-      })}
-    </div>
-  );
-}
-
-const Panels = ({ tabs }: { tabs: Panel[] }) => <BasePanels tabs={tabs} top={<AboutSwitcher />} />;
 
 export const JOURNEY: { icon: typeof BookOpen; word: string; text: React.ReactNode }[] = [
   { icon: BookOpen, word: "Information", text: "Money advice is everywhere, and most of it is confusing." },
@@ -126,53 +111,39 @@ function WhyStats() {
   );
 }
 
-export function AboutApp() {
-  return (
-    <Panels tabs={[
+function appPanels(): Panel[] {
+  return [
       {
-        id: "see", label: "See tomorrow", body: (go) => (
+        id: "see", label: "Build a better future", body: () => (
           <Fill className="hero-dark rounded-[2rem] p-5 sm:p-8 [@media(min-width:640px)_and_(max-height:800px)]:p-6 text-white">
             <div className="flex items-center gap-3"><Logo size={40} /><Kicker dark>The App</Kicker></div>
-            <h1 className="mt-3 font-display text-3xl sm:text-5xl [@media(min-width:640px)_and_(max-height:800px)]:text-4xl font-semibold leading-tight">See tomorrow before you spend today.</h1>
+            <h1 className="mt-3 font-display text-3xl sm:text-5xl [@media(min-width:640px)_and_(max-height:800px)]:text-4xl font-semibold leading-tight">Build a better future.</h1>
             <p className="mt-3 max-w-3xl text-[16px] sm:text-lg leading-relaxed text-slate-300">
               <b className="text-white">Next Step</b> is a free, simple money planner for everyday working people, built for <b className="text-white">HackPSU</b>. It answers one honest question, <i className="text-white">"Will I have enough to pay my bills after I retire?"</i>, then gives you a plan and real next steps.
             </p>
             <WhyStats />
             <div className="mt-5 [@media(min-width:640px)_and_(max-height:800px)]:mt-3"><Journey /></div>
-            <div className="mt-5 [@media(min-width:640px)_and_(max-height:800px)]:mt-3"><button onClick={() => go("try")} className="inline-flex min-h-[52px] items-center gap-2 rounded-2xl bg-sun px-6 py-3 text-lg font-semibold text-navy hover:bg-sun-600">Try it now <ArrowRight size={19} /></button></div>
           </Fill>
         ),
       },
       { id: "inside", label: "What's inside", body: () => <Gallery /> },
-      {
-        id: "try", label: "Try it now", body: () => (
-          <Fill className="rounded-[2rem] bg-white p-5 sm:p-8 shadow-card ring-1 ring-slate-200/70">
-            <Kicker>Try it now</Kicker>
-            <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold">Build your plan</h2>
-            <p className="mt-2 max-w-3xl text-[16px] text-slate-600">Answer a few quick questions, pick your life moments, and get your plan, next steps and the answer. No bank logins, no account numbers: your numbers stay on your device.</p>
-            <div className="mt-5"><ScenarioCards compact /></div>
-          </Fill>
-        ),
-      },
-    ]} />
-  );
+  ];
 }
 
 /* ---------------- Where it's going ---------------- */
-export function Mission() {
+function missionPanels(): Panel[] {
   const partners = [
     { icon: Church, title: "Local churches", text: "Churches are where trust already lives. I want to run simple workshops after services and at community nights, walking families through their own numbers on their own phones." },
     { icon: Users, title: "Workers' unions", text: "Union halls bring together exactly the people I built this for: tradespeople, custodians, drivers and service workers. Lunch-and-learns around open enrollment and raises, when the decisions are real." },
     { icon: Landmark, title: "Credit unions", text: "Credit unions are member-owned and community-minded. Partnering with them connects every lesson to a safe, real next step, like opening an insured savings account." },
     { icon: Languages, title: "Multiple languages", text: "Money stress doesn't only speak English. I want Next Step and its lessons available in the languages people speak at home." },
   ];
-  return (
-    <Panels tabs={[
+  return [
       {
-        id: "vision", label: "The vision", body: () => (
+        id: "vision", label: "Future plans", body: () => (
           <div className="flex h-full flex-col gap-4">
             <div className="hero-dark flex flex-1 flex-col justify-center rounded-[2rem] p-6 sm:p-10 text-white">
-              <Kicker dark>Future Plans</Kicker>
+              <Kicker dark>Future plans</Kicker>
               <h1 className="mt-4 font-display text-3xl sm:text-5xl font-semibold leading-tight">Taking Next Step to the people who need it most.</h1>
               <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-300">
                 I want to take this financial literacy app into local churches and workers' unions, and help people make better financial decisions and plans
@@ -222,21 +193,19 @@ export function Mission() {
           </div>
         ),
       },
-    ]} />
-  );
+  ];
 }
 
 /* ---------------- About me ---------------- */
 function Photo() {
   const [ok, setOk] = useState(true);
   return ok
-    ? <img src="/josh.jpg" alt={OWNER} onError={() => setOk(false)} className="h-40 w-40 sm:h-48 sm:w-48 shrink-0 rounded-full object-cover ring-4 ring-white/20" />
+    ? <img src="/josh.jpg" alt={OWNER} onError={() => setOk(false)} className="h-40 w-40 sm:h-48 sm:w-48 [@media(min-width:640px)_and_(max-height:800px)]:h-36 [@media(min-width:640px)_and_(max-height:800px)]:w-36 shrink-0 rounded-full object-cover ring-4 ring-white/20" />
     : <div className="grid h-40 w-40 sm:h-48 sm:w-48 shrink-0 place-items-center rounded-full bg-gradient-to-br from-emerald-300 to-emerald-500 font-display text-6xl font-semibold text-navy ring-4 ring-white/20" aria-label={OWNER}>JD</div>;
 }
 
-export function AboutMe() {
-  return (
-    <Panels tabs={[{
+function mePanel(): Panel {
+  return {
       id: "me", label: "Me", body: () => (
         <div className="grid h-full gap-4 lg:grid-cols-5">
           <Fill className="hero-dark rounded-[2rem] p-6 sm:p-8 text-center text-white lg:col-span-2"><div className="flex flex-col items-center">
@@ -248,9 +217,9 @@ export function AboutMe() {
             </div>
             <a href={LINKEDIN} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0A66C2] px-4 py-2.5 font-semibold text-white hover:opacity-90"><span className="grid h-5 w-5 place-items-center rounded bg-white text-[12px] font-extrabold text-[#0A66C2]">in</span> Connect on LinkedIn</a>
           </div></Fill>
-          <Fill className="rounded-[2rem] bg-white p-6 sm:p-9 shadow-card ring-1 ring-slate-200/70 lg:col-span-3">
+          <Fill className="rounded-[2rem] bg-white p-6 sm:p-9 [@media(min-width:640px)_and_(max-height:800px)]:p-6 shadow-card ring-1 ring-slate-200/70 lg:col-span-3">
             <Kicker>Why I built Next Step</Kicker>
-            <div className="mt-3 space-y-4 text-[17px] leading-relaxed text-slate-600">
+            <div className="mt-3 space-y-4 text-[17px] [@media(min-width:640px)_and_(max-height:800px)]:space-y-3 [@media(min-width:640px)_and_(max-height:800px)]:text-[15px] leading-relaxed text-slate-600">
               <p>Next Step started with conversations at home. Whenever contractors, plumbers and other tradespeople come to work on our house, my dad and I have a habit of getting to know them. We ask about their families, their work and what's ahead.</p>
               <p>Over many of those conversations, one theme kept coming up. These are skilled, hardworking people who earn an honest living, but almost no one has ever taught them how to plan with their money. Retirement, college for their kids, a surprise bill: the future feels unpredictable, and they feel unprepared for it.</p>
               <p>It was heartbreaking to realize how much stress could be avoided with a little clear, trustworthy guidance. Financial literacy is deeply underserved in blue-collar jobs and underprivileged communities, and the people there deserve that guidance just as much as anyone. So I built Next Step for them.</p>
@@ -258,6 +227,26 @@ export function AboutMe() {
           </Fill>
         </div>
       ),
-    }]} />
-  );
+    };
 }
+
+
+const tryPanel = (): Panel => (
+      {
+        id: "try", label: "Try it now", body: () => (
+          <Fill className="rounded-[2rem] bg-white p-5 sm:p-8 shadow-card ring-1 ring-slate-200/70">
+            <Kicker>Try it now</Kicker>
+            <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold">Build your plan</h2>
+            <p className="mt-2 max-w-3xl text-[16px] text-slate-600">Answer a few quick questions, pick your life moments, and get your plan and see your future. No bank logins, no account numbers: your numbers stay on your device.</p>
+            <div className="mt-5"><ScenarioCards compact /></div>
+          </Fill>
+        ),
+      }
+);
+
+/** About is one swipeable carousel: The App → What's inside → Future plans → Me → Try it now. */
+export default function AboutPage({ start = 0 }: { start?: number }) {
+  const tabs = [...appPanels(), ...missionPanels(), mePanel(), tryPanel()];
+  return <Panels key={start} tabs={tabs} start={start} />;
+}
+export const ABOUT_START = { about: 0, mission: 2, me: 5 };

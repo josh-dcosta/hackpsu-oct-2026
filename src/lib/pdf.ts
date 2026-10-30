@@ -43,7 +43,7 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
   doc.lines([[8, -6], [6, 0], [8, -8]], M + 2, 50); doc.lines([[5, 0], [0, 5]], M + 19, 36);
   doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(24); doc.text("Next Step", M + 38, 60);
   doc.setFont("helvetica", "normal"); doc.setFontSize(11); doc.setTextColor(203, 213, 225);
-  doc.text("See tomorrow before you spend today.", M + 38, 78);
+  doc.text("Build a better future.", M + 38, 78);
   doc.text(`My Next Steps Plan${o.profile.name ? ` · ${o.profile.name}` : ""} · ${new Date().toLocaleDateString()}`, M + 38, 96);
   y = 150;
 
@@ -76,8 +76,7 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
 
   h2("4. My next steps");
   plan.items.forEach((i, n) => {
-    const done = o.stepsDone?.[i.id];
-    para(`${done ? "[x]" : "[  ]"}  ${n + 1}. ${i.title}  ·  ${i.when}`, 11, NAVY);
+    para(`[  ]  ${n + 1}. ${i.title}  ·  ${i.when}`, 11, NAVY);
     i.how.forEach((h) => para("      - " + h, 9.5, SLATE));
     [...i.products, ...(i.also || [])].forEach((pr) => link(pr.name, pr.url));
     y += 8;
@@ -104,8 +103,7 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
   row(["Money lasts until", w.depletedAge ? `age ${w.depletedAge}` : "past 90", wp.depletedAge ? `age ${wp.depletedAge}` : "past 90"], [180, 150, 150], false, [248, 250, 252]);
   para(`Assumes bills rise ${Math.round(a.inflation * 100)}% a year and investments earn about ${Math.round(a.returnRate * 100)}%. Life moment estimates: surprise bill ${money(PLAN_ASSUMPTIONS.surpriseBill)}, medical +${money(PLAN_ASSUMPTIONS.medicalMonthly)}/mo, market drop ${Math.round(PLAN_ASSUMPTIONS.marketDrop * 100)}%, college ${money(PLAN_ASSUMPTIONS.collegeShareNoAid)}/yr per student without the FAFSA vs ${money(PLAN_ASSUMPTIONS.collegeShareWithAid)} with typical grants.`, 8.5, SLATE);
 
-  h2("6. What I've learned");
-  para(`Lessons completed: ${o.done.length} of ${MODULES.length}`);
+  h2("6. Key ideas");
   [
     "Inflation compounds. Plan for future prices, not today's.",
     "Keep an emergency fund in an FDIC-insured account so surprises don't become debt.",

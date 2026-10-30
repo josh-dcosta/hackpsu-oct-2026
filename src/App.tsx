@@ -6,7 +6,7 @@ import Welcome from "./pages/Welcome";
 import Dashboard from "./pages/Dashboard";
 import Bank from "./pages/Bank";
 import Progress from "./pages/Progress";
-import { AboutApp, AboutMe, Mission } from "./pages/About";
+import AboutPage, { ABOUT_START } from "./pages/About";
 import ModuleFrame from "./pages/ModuleFrame";
 import Inflation from "./modules/Inflation";
 import LifeStages from "./modules/LifeStages";
@@ -34,11 +34,11 @@ function useRoute() {
 export default function App() {
   const { route, query } = useRoute();
   const { profile, entered } = useStore();
-  const about: Record<string, ComponentType> = { "/": AboutApp, "/about": AboutApp, "/mission": Mission, "/me": AboutMe };
+  const about: Record<string, number> = { "/": ABOUT_START.about, "/about": ABOUT_START.about, "/mission": ABOUT_START.mission, "/me": ABOUT_START.me };
 
   let page;
   let key = route;
-  if (about[route]) { const P = about[route]; page = <P />; }
+  if (route in about) page = <AboutPage start={about[route]} />;
   else if ((route === "/try" || route === "/" || route === "/welcome") && (!entered || !profile.onboarded || profile.scenario !== "custom" || route === "/welcome" || query)) {
     // Try it now: enter your own numbers first (or continue with the ones saved on this device)
     page = <Welcome key={query} />; key = "/try?" + query;

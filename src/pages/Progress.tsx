@@ -1,75 +1,59 @@
-import { CheckCircle2, Circle, Download, RotateCcw, ExternalLink } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowRight, Clock, RotateCcw, ExternalLink } from "lucide-react";
 import { useStore } from "../lib/store";
-import { CORE, MODULES, moduleHref } from "../data/modules";
+import { CORE, MODULES, moduleHref, type ModuleMeta } from "../data/modules";
 import { RULES } from "../lib/rules";
-import { downloadPlan } from "../lib/pdf";
-import { Button, Card, Stat } from "../components/ui";
+import { Card } from "../components/ui";
 import { Panels, Fill } from "../components/Panels";
 
-export default function Progress() {
-  const st = useStore();
-  const { done, quiz, resetAll, profile, stepsDone } = st;
-  const correct = Object.values(quiz).flatMap((q) => Object.values(q)).filter(Boolean).length;
-  const answered = Object.values(quiz).flatMap((q) => Object.values(q)).length;
-  const stepsChecked = Object.values(stepsDone || {}).filter(Boolean).length;
-  const pctDone = Math.round((done.length / MODULES.length) * 100);
+const isCore = (m: ModuleMeta) => CORE.some((c) => c.id === m.id);
+
+function LessonRow({ m }: { m: ModuleMeta }) {
+  return (
+    <a href={moduleHref(m.id)} className="group flex items-center gap-3 rounded-2xl bg-white p-3 shadow-card ring-1 ring-slate-200/70 transition hover:ring-emerald-400">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-2xl" style={{ background: m.color + "1f" }}>{m.emoji}</span>
+      <span className="min-w-0 flex-1">
+        <span className="font-semibold">{m.title}</span>
+        {isCore(m) && <span className="ml-2 rounded-full bg-navy px-2 py-0.5 align-middle text-[10px] font-bold uppercase text-white">Essential</span>}
+        <span className="block truncate text-[13px] text-slate-500">{m.blurb}</span>
+      </span>
+      <span className="flex shrink-0 items-center gap-1 text-[13px] text-slate-500"><Clock size={13} />{m.minutes} min</span>
+      <ArrowRight size={16} className="shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-navy" />
+    </a>
+  );
+}
+
+/** Learn: every lesson in one list (the 3 essentials first), plus where the numbers come from. */
+export default function Learn() {
+  const { resetAll } = useStore();
+  const lessons = [...MODULES].sort((a, b) => Number(isCore(b)) - Number(isCore(a)));
   const head = (
-    <div className="mb-3 flex shrink-0 flex-wrap items-end justify-between gap-3">
-      <div>
-        <h1 className="font-display text-3xl sm:text-4xl font-semibold">Learn by doing</h1>
-        <p className="mt-1 text-[16px] text-slate-500">Short lessons, each with a simulator and a 3-question check. Your progress is tracked here.</p>
-      </div>
-      <Button onClick={() => downloadPlan({ profile, assumptions: st.assumptions, story: st.story, done, xp: 0, badges: [], stepsDone, moments: st.moments })}><Download size={18} /> Download my plan (PDF)</Button>
+    <div className="mb-3 shrink-0">
+      <h1 className="font-display text-3xl sm:text-4xl font-semibold">Learn by doing</h1>
+      <p className="mt-1 text-[16px] text-slate-500">Short lessons, each with a simulator and a 3-question check. Start with the 3 essentials.</p>
     </div>
   );
   return (
     <Panels top={head} tabs={[
-      { id: "lessons", label: "My lessons", body: () => <Fill center={false}><div className="grid items-start gap-4 lg:grid-cols-3">
-      <Card>
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <div className="text-[13px] font-semibold text-slate-500">Lessons completed</div>
-            <div className="num font-display text-5xl font-semibold">{done.length}<span className="text-2xl text-slate-400"> / {MODULES.length}</span></div>
+      { id: "lessons", label: "Lessons", body: () => (
+        <Fill center={false}>
+          <div className="grid gap-2.5 lg:grid-cols-2">{lessons.map((m) => <LessonRow key={m.id} m={m} />)}</div>
+        </Fill>
+      ) },
+      { id: "numbers", label: "About the numbers", body: () => (
+        <Fill center={false}>
+          <Card>
+            <div className="font-semibold">About the numbers</div>
+            <p className="mt-2 text-[15px] text-slate-600">Next Step is an educational tool. All simulations use hypothetical inputs and fictional money, and every calculation is done by fixed formulas. Nothing you enter leaves your device. Projections can't predict the future: markets, inflation, taxes, and laws change. This is not financial, tax, legal, or investment advice.</p>
+            <p className="mt-3 text-[13px] font-semibold text-slate-500">{RULES.year} limits verified {RULES.verifiedOn} from:</p>
+            <ul className="mt-1 space-y-1">
+              {RULES.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[14px] font-medium text-emerald-700 hover:underline">{s.label} <ExternalLink size={12} /></a></li>)}
+            </ul>
+          </Card>
+          <div className="mt-6 flex justify-center">
+            <button onClick={() => { if (confirm("Start over? This clears your numbers and simulations on this device.")) resetAll(); }} className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100"><RotateCcw size={15} /> Start over</button>
           </div>
-          <div className="num text-lg font-bold text-emerald-600">{pctDone}%</div>
-        </div>
-        <div className="mt-3 h-4 overflow-hidden rounded-full bg-slate-100"><motion.div className="h-4 rounded-full bg-emerald-500" initial={{ width: 0 }} animate={{ width: `${pctDone}%` }} /></div>
-        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-1">
-          <Stat label="Plan actions done" value={stepsChecked} tone="green" />
-          <Stat label="Quiz answers right" value={`${correct}/${answered}`} tone="sky" />
-        </div>
-      </Card>
-
-      <Card className="lg:col-span-2">
-        <div className="font-semibold">Your lessons <span className="font-normal text-slate-500">· start with the 3 essentials</span></div>
-        <div className="mt-2 divide-y divide-slate-100">
-          {MODULES.map((m) => (
-            <a key={m.id} href={moduleHref(m.id)} className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-slate-50">
-              {done.includes(m.id) ? <CheckCircle2 className="text-emerald-500" /> : <Circle className="text-slate-300" />}
-              <span className="text-xl">{m.emoji}</span>
-              <span className="min-w-0 flex-1"><span className="font-semibold">{m.title}</span>{CORE.some((c) => c.id === m.id) && <span className="ml-2 rounded-full bg-navy px-2 py-0.5 align-middle text-[10px] font-bold uppercase text-white">Essential</span>}<span className="block truncate text-[13px] text-slate-500">{m.blurb}</span></span>
-              <span className="text-[13px] text-slate-500">{quiz[m.id] ? `${Object.values(quiz[m.id]).filter(Boolean).length}/3 quiz` : `${m.minutes} min`}</span>
-            </a>
-          ))}
-        </div>
-      </Card>
-
-      </div></Fill> },
-      { id: "numbers", label: "About the numbers", body: () => <Fill center={false}><>
-      <Card>
-        <div className="font-semibold">About the numbers</div>
-        <p className="mt-2 text-[15px] text-slate-600">Next Step is an educational tool. All simulations use hypothetical inputs and fictional money, and every calculation is done by fixed formulas. Nothing you enter leaves your device. Projections can't predict the future: markets, inflation, taxes, and laws change. This is not financial, tax, legal, or investment advice.</p>
-        <p className="mt-3 text-[13px] font-semibold text-slate-500">{RULES.year} limits verified {RULES.verifiedOn} from:</p>
-        <ul className="mt-1 space-y-1">
-          {RULES.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[14px] font-medium text-emerald-700 hover:underline">{s.label} <ExternalLink size={12} /></a></li>)}
-        </ul>
-      </Card>
-
-      <div className="mt-6 flex justify-center">
-        <button onClick={() => { if (confirm("Start over? This clears your profile, progress and simulations on this device.")) resetAll(); }} className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100"><RotateCcw size={15} /> Start over</button>
-      </div>
-      </></Fill> },
+        </Fill>
+      ) },
     ]} />
   );
 }

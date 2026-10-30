@@ -41,7 +41,7 @@ export default function ModuleFrame({ id, children }: { id: string; children: Re
   const next = MODULES[(i + 1) % MODULES.length];
   const [labels, setLabels] = useState<string[]>(DEFAULT_LABELS);
   const [panel, setPanel] = useState(0);
-  useLayoutEffect(() => { award(10, "Started a lesson", "visit-" + id); setPanel(0); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => { setPanel(0); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
   const update = (l: string[]) => { if (l.join("|") !== labels.join("|")) setLabels(l); };
 
   const head = (
@@ -51,7 +51,6 @@ export default function ModuleFrame({ id, children }: { id: string; children: Re
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2 text-[12px] font-semibold text-slate-500">
           <span>Lesson {m.letter}</span><span>·</span><span className="flex items-center gap-1"><Clock size={12} />{m.minutes} min</span>
-          {done.includes(id) && <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700"><CheckCircle2 size={12} /> Completed</span>}
         </div>
         <h1 className="truncate font-display text-2xl sm:text-3xl font-semibold leading-tight">{m.title}</h1>
       </div>

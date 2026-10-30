@@ -19,7 +19,7 @@ export function Wordmark({ dark = false, sub = true }: { dark?: boolean; sub?: b
   return (
     <span className="leading-none">
       <span className={"whitespace-nowrap font-display text-[20px] sm:text-[22px] font-semibold tracking-tight " + (dark ? "text-white" : "text-navy")}>Next<span className={dark ? "text-sun" : "text-emerald-600"}> Step</span></span>
-      {sub && <span className={"mt-1 block text-[11px] " + (dark ? "text-slate-400" : "text-slate-500")}>See tomorrow before you spend today</span>}
+      {sub && <span className={"mt-1 block text-[11px] " + (dark ? "text-slate-400" : "text-slate-500")}>Build a better future</span>}
     </span>
   );
 }

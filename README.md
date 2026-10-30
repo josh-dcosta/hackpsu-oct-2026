@@ -1,5 +1,5 @@
 # 📈 Next Step
-**See tomorrow before you spend today.**
+**Build a better future.**
 
 Live: https://nextstep-beta.up.railway.app
 
@@ -28,26 +28,26 @@ People have more financial information than ever, but at the moments that matter
 Anyone (like a plumber with three kids, or a school custodian with two teens) can plug in their own numbers in about two minutes.
 
 ## How it works
-Three simple sections: **Try it now · Learn · About** (Learn shows every lesson and your progress in one place). No AI, no API keys, no bank logins.
+Three simple sections: **Try it now · Learn · About** (Learn lists every lesson; nothing is tracked). No AI, no API keys, no bank logins.
 
-- **About:** what Next Step is (my HackPSU entry: information → understanding → confidence → action), where it's going, and about me.
+- **About:** one swipeable carousel: the app, what's inside, future plans, me, then Try it now.
 - **Try it now:** enter **your own numbers** (about 2 minutes; saved only on your device), then:
   1. **Life moments:** surprise bill · medical insurance going up · kid heading to college · the market dropped · retiring soon. Pick any; college and retiring soon are picked automatically from the scenario.
-  2. **Your plan:** built automatically: where each month's savings should live, and for each action how to do it, a calendar reminder, a checkbox and the matching Valley Bank product.
+  2. **Your plan:** built automatically: where each month's savings should live, and for each action how to do it, a calendar reminder and the matching Valley Bank product.
   3. **Your future:** one graph of savings by age without vs. with the plan, then how long the money lasts.
-  Download the whole plan as a PDF.
+  Download the whole plan as a PDF at the end, on Your future.
 - **Learn:** ten short lessons, each in four parts: the idea · a simulator (sliders left, numbers written on the chart) · what it means · a 3-question check.
 
 ## Demo script
-1. Open the site → The App → **Try it now** → answer the questions (e.g. 50, two teens, $64,000, $3,600 bills, $6,000 saved).
+1. Open the site → **Try it now** → answer the questions (e.g. 50, two teens, $64,000, $3,600 bills, $6,000 saved).
 2. Life moments: college and retiring soon are picked automatically. Add **Medical insurance going up**.
 3. **Build my plan** → see where the money lives.
-4. On a plan card → **How to do it**, a Valley Bank product link, a reminder. Download the PDF.
+4. On a plan card → **How to do it**, a Valley Bank product link, a reminder.
 5. **Your future** → without the plan vs. with it.
 6. **Learn** → the 401(k) lesson simulator.
 
 ## Tech
-React + TypeScript + Vite · Tailwind · Recharts · Framer Motion · Lucide · jsPDF · a tiny Express server that serves the app · localStorage for progress. All math lives in `src/lib/calc.ts` and `src/lib/plan.ts`.
+React + TypeScript + Vite · Tailwind · Recharts · Framer Motion · Lucide · jsPDF · a tiny Express server that serves the app · localStorage for your numbers. All math lives in `src/lib/calc.ts` and `src/lib/plan.ts`.
 
 2026 contribution limits live in one dated config file (`src/lib/rules.ts`) with IRS/FDIC sources.
 
