@@ -1,9 +1,8 @@
 import { useRef, useState, type ReactNode } from "react";
 import { Panels, Fill, type Panel } from "../components/Panels";
-import { ArrowRight, BookOpen, ShieldCheck, ListChecks, Lightbulb, Church, Users, Landmark, Languages, MapPin, GraduationCap, Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Lock, BookOpen, ShieldCheck, ListChecks, Lightbulb, Church, Users, Landmark, Languages, MapPin, GraduationCap, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { cx } from "../components/ui";
 import { Logo } from "../components/Brand";
-import { ScenarioCards } from "../components/Scenario";
 
 const LINKEDIN = "https://www.linkedin.com/in/joshdcosta";
 export const OWNER = "Josh DCosta";
@@ -166,19 +165,30 @@ function missionPanels(): Panel[] {
       },
       {
         id: "who", label: "Who I'll work with", body: () => (
-          <div className="grid h-full gap-4 sm:grid-cols-2">
+          <Fill center={false}><div className="flex min-h-full flex-col gap-4">
+            <div className="shrink-0">
+              <Kicker>Future plans · Who I'll work with</Kicker>
+              <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold">Meeting people where they already gather</h2>
+            </div>
+            <div className="grid flex-1 gap-4 sm:grid-cols-2">
             {partners.map((p) => (
-              <div key={p.title} className="flex flex-col justify-center rounded-[2rem] bg-white p-6 shadow-card ring-1 ring-slate-200/70">
+              <div key={p.title} className="flex flex-col justify-center rounded-[2rem] bg-white p-6 [@media(min-width:640px)_and_(max-height:800px)]:p-5 shadow-card ring-1 ring-slate-200/70">
                 <div className="flex items-center gap-3"><span className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-600"><p.icon size={24} /></span><div className="font-display text-2xl font-semibold">{p.title}</div></div>
                 <p className="mt-3 text-[16px] leading-relaxed text-slate-600">{p.text}</p>
               </div>
             ))}
-          </div>
+            </div>
+          </div></Fill>
         ),
       },
       {
         id: "how", label: "How I'll do it", body: () => (
-          <div className="grid h-full gap-4 md:grid-cols-3">
+          <Fill center={false}><div className="flex min-h-full flex-col gap-4">
+            <div className="shrink-0">
+              <Kicker>Future plans · How I'll do it</Kicker>
+              <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold">Three steps, in person</h2>
+            </div>
+            <div className="grid flex-1 gap-4 md:grid-cols-3">
             {[
               ["Show up in person", "I'll personally visit congregations and union halls and run short, hands-on sessions: helping people enter their own numbers on their own phones."],
               ["Leave a next step behind", "Everyone leaves with a printed or downloaded plan, one action for this week, and a reminder on their phone."],
@@ -190,7 +200,8 @@ function missionPanels(): Panel[] {
                 <p className="mt-2 text-[16px] leading-relaxed text-slate-600">{d}</p>
               </div>
             ))}
-          </div>
+            </div>
+          </div></Fill>
         ),
       },
   ];
@@ -237,8 +248,9 @@ const tryPanel = (): Panel => (
           <Fill className="rounded-[2rem] bg-white p-5 sm:p-8 shadow-card ring-1 ring-slate-200/70">
             <Kicker>Try it now</Kicker>
             <h2 className="mt-1 font-display text-2xl sm:text-3xl font-semibold">Build your plan</h2>
-            <p className="mt-2 max-w-3xl text-[16px] text-slate-600">Answer a few quick questions, pick your life moments, and get your plan and see your future. No bank logins, no account numbers: your numbers stay on your device.</p>
-            <div className="mt-5"><ScenarioCards compact /></div>
+            <p className="mt-2 max-w-3xl text-[16px] text-slate-600">Tell me a little about yourself, pick what you'd like to work on, and see your plan and your future.</p>
+            <a href="#/try" className="mt-6 inline-flex min-h-[56px] items-center gap-2 self-start rounded-2xl bg-sun px-8 py-3 text-xl font-semibold text-navy hover:bg-sun-600">Try it now <ArrowRight size={20} /></a>
+            <p className="mt-4 flex items-center gap-2 text-[13px] text-slate-500"><Lock size={13} /> About 2 minutes. No bank logins, no account numbers. Your numbers stay on your device.</p>
           </Fill>
         ),
       }

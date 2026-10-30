@@ -1,3 +1,4 @@
+import { WorkerIcon } from "./Brand";
 import { ArrowRight, Lock, Pencil, UserRound } from "lucide-react";
 import { useStore, loadMine, clearMine } from "../lib/store";
 import { money } from "../lib/format";
@@ -34,7 +35,7 @@ export function ScenarioCards({ compact = false }: { compact?: boolean }) {
   return (
     <div className={"mx-auto max-w-2xl rounded-3xl bg-navy text-left text-white shadow-card " + (compact ? "p-5 sm:p-7" : "p-6 sm:p-8")}>
       <div className="flex items-center gap-4">
-        <span className="grid h-[60px] w-[60px] shrink-0 place-items-center rounded-2xl bg-white/10 text-3xl">🙂</span>
+        <WorkerIcon size={60} />
         <div><div className="text-[12px] font-bold uppercase tracking-wider text-emerald-300">{mine ? "Welcome back" : "About 2 minutes"}</div><div className="font-display text-2xl font-semibold">{mine ? `${mine.profile.name ? mine.profile.name + "'s" : "Your"} numbers` : "Enter your numbers"}</div></div>
       </div>
       <p className="mt-4 text-[16px] leading-relaxed text-slate-300">{mine

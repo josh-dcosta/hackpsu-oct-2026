@@ -1,3 +1,4 @@
+import { WorkerIcon } from "../components/Brand";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis, ReferenceDot } from "recharts";
@@ -21,7 +22,7 @@ function ScenarioPanel() {
   return (
     <div className="mb-3 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl bg-white px-4 py-3 shadow-card ring-1 ring-slate-200">
       <div className="flex items-center gap-3">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-navy text-xl" aria-hidden>🙂</span>
+        <WorkerIcon size={40} className="rounded-xl" />
         <div className="font-display text-xl font-semibold">{p.name ? `${p.name}'s plan` : "Your plan"}</div>
       </div>
       <div className="flex flex-1 flex-wrap gap-1.5">
