@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Lock, Sparkles } from "lucide-react";
-import { useStore, SAMPLE_PROFILES, loadMine, clearMine } from "../lib/store";
+import { ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
+
 import { Button, MoneyInput, Slider, cx } from "../components/ui";
 import { AGE_BANDS, ALL_JOBS, JOBS, STATES, matchJob, stateByCode, stateTaxLabel, taxes, type Filing } from "../data/grounding";
 import { Logo } from "../components/Brand";
@@ -9,9 +9,9 @@ import { ScenarioCards, useScenario } from "../components/Scenario";
 import { money } from "../lib/format";
 import type { Profile } from "../lib/calc";
 import { CUSTOM_PROFILE } from "../data/dave";
-import { UserRound, PlayCircle, Pencil } from "lucide-react";
+import { MOMENTS, autoMoments, whyAuto, type MomentId } from "../lib/plan";
 
-const GOALS = ["Build an emergency fund", "Pay off debt", "Buy a home", "Start investing", "Save for a child's education", "Retire comfortably", "Understand my money better", "Handle healthcare costs"];
+const RETIRE_AGES = [55, 60, 62, 65, 67, 70, 72];
 const LEVELS: { id: Profile["level"]; emoji: string; text: string }[] = [
   { id: "Beginner", emoji: "🌱", text: "Keep it simple. No jargon, please." },
   { id: "Intermediate", emoji: "🌿", text: "I know the basics and want to go deeper." },
@@ -21,7 +21,7 @@ const AGES = AGE_BANDS; // Federal Reserve SCF age groups
 const FILINGS: { id: Filing; label: string }[] = [{ id: "single", label: "Single" }, { id: "married", label: "Married, filing together" }, { id: "head", label: "Head of household" }];
 const Src = ({ children }: { children: React.ReactNode }) => <span className="text-[12px] text-slate-400">Source: {children}</span>;
 
-function Q({ title, sub, children, canSkip = true, onBack: back, onNext: next }: { title: string; sub?: string; children: React.ReactNode; canSkip?: boolean; onBack: () => void; onNext: () => void }) {
+function Q({ title, sub, children, canSkip = true, ready = true, nextLabel = "Continue", onBack: back, onNext: next }: { title: string; sub?: string; children: React.ReactNode; canSkip?: boolean; ready?: boolean; nextLabel?: string; onBack: () => void; onNext: () => void }) {
   return (
     <div>
       <h1 className="font-display text-3xl sm:text-4xl font-semibold leading-tight">{title}</h1>
@@ -31,7 +31,7 @@ function Q({ title, sub, children, canSkip = true, onBack: back, onNext: next }:
         <button onClick={back} className="flex items-center gap-1 rounded-xl px-3 py-3 font-semibold text-slate-500 hover:text-navy"><ArrowLeft size={18} /> Back</button>
         <div className="flex gap-2">
           {canSkip && <button onClick={next} className="rounded-xl px-4 py-3 font-semibold text-slate-500 hover:bg-slate-100">Skip</button>}
-          <Button onClick={next}>Continue <ArrowRight size={18} /></Button>
+          <Button onClick={next} disabled={!ready}>{nextLabel} <ArrowRight size={18} /></Button>
         </div>
       </div>
     </div>
@@ -56,7 +56,14 @@ export default function Welcome() {
   const [step, setStep] = useState(1);
   // Numbers already saved on this device? Go straight to the plan (edit them anytime from there)
   useEffect(() => { if (!walk && mine) continueMine(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const [p, setP] = useState<Profile>({ ...CUSTOM_PROFILE, ...(mine ? mine.profile : {}), scenario: "custom" });
+  // New visitors start blank: name, work and age range are required answers
+  const [p, setP] = useState<Profile>(mine ? { ...CUSTOM_PROFILE, ...mine.profile, scenario: "custom" } : { ...CUSTOM_PROFILE, name: "", job: "", ageRange: "", state: undefined, kids: [], scenario: "custom" });
+  const [retireAge, setRetireAge] = useState<number>(mine?.assumptions.retireAge ?? 67);
+  const [picked, setPicked] = useState<string[] | null>(mine?.moments ?? null); // null = use the automatic picks
+  const auto = autoMoments(p);
+  const moments = (picked ?? auto) as MomentId[];
+  const toggleMoment = (id: MomentId) => setPicked(moments.includes(id) ? moments.filter((x) => x !== id) : [...moments, id]);
+  const retireOptions = RETIRE_AGES.filter((r) => r > p.age);
   // Fields the person has typed themselves; untouched ones get filled with typical values from real data
   const [touched, setTouched] = useState<Record<string, boolean>>(mine ? { income: true, savings: true, retirement: true } : {});
   const touch = (k: string) => setTouched((t) => ({ ...t, [k]: true }));
@@ -68,7 +75,6 @@ export default function Welcome() {
   const next = () => setStep((s) => Math.min(total + 1, s + 1));
   const back = () => { if (step === 1) { if (mine) continueMine(); else window.location.hash = "#/about"; } else setStep((s) => Math.max(0, s - 1)); };
   const patch = (x: Partial<Profile>) => setP((v) => ({ ...v, ...x }));
-  const custom = true;
 
   const steps = [
     // 0: welcome back (only when numbers are already saved on this device)
@@ -77,34 +83,41 @@ export default function Welcome() {
       <h1 className="mt-1 font-display text-3xl sm:text-4xl font-semibold">Your plan</h1>
       <div className="mt-6"><ScenarioCards /></div>
     </div>,
-    <Q onBack={back} onNext={next} key="name" title={custom ? "First, what should we call you?" : "First, what should we call you?"} sub={custom ? "Optional. It just makes things friendlier." : "This is Dave's scenario. Every answer is filled in; just tap Continue."}>
-      <label htmlFor="nm" className="sr-only">Your first name</label>
-      <input id="nm" autoFocus value={p.name || ""} onChange={(e) => patch({ name: e.target.value.slice(0, 30) })} placeholder="Your first name"
-        className="w-full rounded-2xl bg-white px-5 py-4 text-xl ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" />
-      <label htmlFor="job" className="mt-5 block text-[15px] font-medium text-slate-700">What do you do for work? <span className="text-slate-400">(optional)</span></label>
+    <Q onBack={back} onNext={next} key="name" title="First, tell me a little bit about yourself" sub="So I can help you better." canSkip={false} ready={!!p.name?.trim() && !!p.job?.trim()}>
+      <label htmlFor="nm" className="block text-[15px] font-medium text-slate-700">What's your first name?</label>
+      <input id="nm" autoFocus value={p.name || ""} required onChange={(e) => patch({ name: e.target.value.slice(0, 30) })} placeholder="Your first name"
+        className="mt-1 w-full rounded-2xl bg-white px-5 py-4 text-xl ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" />
+      <label htmlFor="job" className="mt-5 block text-[15px] font-medium text-slate-700">What do you do for work?</label>
       <input id="job" list="job-list" value={p.job || ""} placeholder="e.g. Plumber, nurse, teacher's aide"
         onChange={(e) => { const v = e.target.value.slice(0, 60); const j = matchJob(v); patch({ job: v, ...(!touched.income && j ? { income: j.median } : {}) }); }}
         className="mt-1 w-full rounded-2xl bg-white px-5 py-4 text-xl ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500" />
       <datalist id="job-list">{JOBS.map((j) => <option key={j.id} value={j.label.replace("*", "")} />)}</datalist>
       {job && <p className="mt-2 text-[14px] text-slate-600">We'll compare you with <b>{job.label.replace("*", "")}</b>: typical pay <b className="num">{money(job.median)}</b> a year. <Src>BLS, 2025 median pay</Src></p>}
     </Q>,
-    <Q onBack={back} onNext={next} key="age" title="Which age range are you in?" sub="This helps us show what matters most at your stage of life." canSkip={false}>
+    <Q onBack={back} onNext={next} key="age" title="Which age range are you in?" sub="This helps us show what matters most at your stage of life." canSkip={false} ready={!!p.ageRange}>
       <div className="grid gap-3 sm:grid-cols-3">
         {AGES.map((a) => (
-          <button key={a.id} onClick={() => patch({ ageRange: a.id, age: a.age, ...(!touched.savings ? { savings: a.bank } : {}), ...(!touched.retirement ? { retirement: a.retirement } : {}) })}
+          <button key={a.id} onClick={() => { if (retireAge <= a.age) setRetireAge(RETIRE_AGES.find((r) => r > a.age) ?? a.age + 3); patch({ ageRange: a.id, age: a.age, ...(!touched.savings ? { savings: a.bank } : {}), ...(!touched.retirement ? { retirement: a.retirement } : {}) }); }}
             className={cx("rounded-3xl p-5 text-left ring-2 transition", p.ageRange === a.id ? "bg-emerald-50 ring-emerald-500" : "bg-white ring-slate-200 hover:ring-emerald-300")}>
             <div className="font-display text-3xl font-semibold">{a.id}</div>
             <div className="mt-1 text-slate-500">{a.text}</div>
           </button>
         ))}
       </div>
-      {custom && (
-        <div className="mt-5 rounded-3xl bg-white p-5 ring-1 ring-slate-200">
-          <Slider label="Your exact age" value={p.age} min={18} max={80} onChange={(v) => { const b = v < 35 ? AGES[0] : v < 45 ? AGES[1] : v < 55 ? AGES[2] : v < 65 ? AGES[3] : AGES[4]; patch({ age: v, ageRange: b.id, ...(!touched.savings ? { savings: b.bank } : {}), ...(!touched.retirement ? { retirement: b.retirement } : {}) }); }} format={(v) => `${v} years old`} />
+      {p.ageRange && (
+        <div className="mt-6">
+          <div className="text-[15px] font-medium text-slate-700">When would you like to retire?</div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {retireOptions.map((r) => (
+              <button key={r} onClick={() => setRetireAge(r)} aria-pressed={retireAge === r}
+                className={cx("num rounded-2xl px-4 py-2.5 text-[16px] font-semibold ring-2 transition", retireAge === r ? "bg-emerald-50 ring-emerald-500" : "bg-white ring-slate-200 hover:ring-emerald-300")}>{r}</button>
+            ))}
+          </div>
+          <p className="mt-2 text-[13px] text-slate-500">You can change this later on Your future.</p>
         </div>
       )}
     </Q>,
-    <Q onBack={back} onNext={next} key="state" title="Which state do you live in?" sub="State income tax changes how much of each paycheck you keep." canSkip={false}>
+    <Q onBack={back} onNext={next} key="state" title="Which state do you live in?" sub="State income tax changes how much of each paycheck you keep." canSkip={false} ready={!!p.state}>
       <label htmlFor="state" className="sr-only">Your state</label>
       <select id="state" value={p.state || ""} onChange={(e) => patch({ state: e.target.value || undefined })}
         className="w-full appearance-none rounded-2xl bg-white px-5 py-4 text-xl ring-1 ring-slate-200 outline-none focus:ring-2 focus:ring-emerald-500">
@@ -118,7 +131,7 @@ export default function Welcome() {
           className={cx("rounded-2xl px-4 py-3 text-[15px] font-semibold ring-2 transition", (p.filing ?? "single") === f.id ? "bg-emerald-50 ring-emerald-500" : "bg-white ring-slate-200 hover:ring-emerald-300")}>{f.label}</button>)}
       </div>
     </Q>,
-    <Q onBack={back} onNext={next} key="kids" title="Do you have children?" sub={custom ? "Kids change budgets and bring college costs. Add each one with their age." : "Dave and Linda have two teenagers: Emma and Jake."}>
+    <Q onBack={back} onNext={next} key="kids" title="Do you have children?" sub="Kids change budgets and bring college costs. Add each one with their age.">
       <div className="rounded-3xl bg-white p-5 ring-1 ring-slate-200">
         <div className="flex items-center justify-between">
           <span className="text-lg font-semibold">Number of children</span>
@@ -141,7 +154,7 @@ export default function Welcome() {
         </div>
       </div>
     </Q>,
-    <Q onBack={back} onNext={next} key="inc" title="About how much do you earn in a year?" sub="Before taxes, for your whole household. A rough number is fine.">
+    <Q onBack={back} onNext={next} key="inc" title="About how much do you earn in a year, before taxes?" sub="For your whole household. A rough number is fine.">
       <div className="rounded-3xl bg-white p-6 ring-1 ring-slate-200">
         <MoneyInput id="income" label="Yearly income" value={p.income} base={150000} onChange={(v) => { touch("income"); patch({ income: v }); }} />
         <Typical label={job ? `Typical for ${job.label.replace("*", "").toLowerCase()}` : "U.S. median pay, all jobs"} value={job?.median ?? ALL_JOBS.median} current={p.income}
@@ -168,15 +181,6 @@ export default function Welcome() {
           src={`Federal Reserve 2025 Survey of Consumer Finances, median balance. About ${Math.round(band.share * 100)}% of families this age have one.`} />
       </div>
     </Q>,
-    <Q onBack={back} onNext={next} key="goals" title="What would you like to work on?" sub="Pick as many as you like.">
-      <div className="flex flex-wrap gap-2">
-        {GOALS.map((g) => {
-          const on = p.goals.includes(g);
-          return <button key={g} aria-pressed={on} onClick={() => patch({ goals: on ? p.goals.filter((x) => x !== g) : [...p.goals, g] })}
-            className={cx("rounded-full px-4 py-3 text-[15px] font-semibold ring-2 transition", on ? "bg-navy text-white ring-navy" : "bg-white ring-slate-200 hover:ring-emerald-300")}>{on ? "✓ " : ""}{g}</button>;
-        })}
-      </div>
-    </Q>,
     <Q onBack={back} onNext={next} key="lvl" title="How comfortable are you with money topics?" sub="Next Step will explain things at your level. You can change this anytime." canSkip={false}>
       <div className="grid gap-3">
         {LEVELS.map((l) => (
@@ -188,12 +192,27 @@ export default function Welcome() {
         ))}
       </div>
     </Q>,
-    <div key="build" className="text-center">
-      <motion.div className="mx-auto w-fit" animate={{ scale: [1, 1.08, 1] }} transition={{ repeat: Infinity, duration: 1.6 }}><Logo size={80} /></motion.div>
-      <h1 className="mt-6 font-display text-4xl font-semibold">Your future is ready{p.name ? `, ${p.name}` : ""}.</h1>
-      <p className="mx-auto mt-3 max-w-md text-lg text-slate-600">We built a personal, pretend projection from your answers. Everything is an educational estimate you can change.</p>
-      <Button onClick={() => finish(p)} className="mt-8 text-lg px-8 py-4">Let's build my future <ArrowRight size={20} /></Button>
-    </div>,
+    <Q onBack={back} onNext={() => finish(p, moments, retireAge)} key="work" canSkip={false} nextLabel="Show my plan"
+      title="What would you like to work on?" sub="Pick everything that's happening in your life. Your plan is built around these.">
+      <div className="grid gap-2.5 sm:grid-cols-2">
+        {MOMENTS.map((m) => {
+          const on = moments.includes(m.id);
+          return (
+            <button key={m.id} onClick={() => toggleMoment(m.id)} aria-pressed={on}
+              className={cx("flex items-start gap-3 rounded-2xl p-3.5 text-left ring-2 transition", on ? "bg-emerald-50 ring-emerald-500" : "bg-white ring-slate-200 hover:ring-emerald-300")}>
+              <span className="text-2xl">{m.emoji}</span>
+              <span className="flex-1">
+                <span className="block text-[16px] font-semibold leading-snug">{m.title}</span>
+                <span className="block text-[13px] text-slate-500">{m.sub}</span>
+                {auto.includes(m.id) && <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><Sparkles size={11} /> {whyAuto(p, m.id)}</span>}
+              </span>
+              <span className={cx("grid h-7 w-7 shrink-0 place-items-center rounded-lg ring-2", on ? "bg-emerald-500 text-navy ring-emerald-500" : "bg-white ring-slate-300")}>{on && <Check size={16} />}</span>
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-3 text-[13px] text-slate-500">{moments.length ? `${moments.length} picked.` : "Nothing picked? Your plan will cover the basics."}</p>
+    </Q>,
   ];
 
   return (

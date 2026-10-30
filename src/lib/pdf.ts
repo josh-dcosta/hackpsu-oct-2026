@@ -56,7 +56,7 @@ export function downloadPlan(o: { profile: Profile; assumptions: Assumptions; st
     doc.textWithLink(label + "  ->", M + 18, y, { url }); y += 15;
   };
 
-  h2("1. My scenario");
+  h2("1. About me");
   row(["Age", "Yearly income", "Monthly bills", "Savings", "Retirement"], [70, 110, 110, 100, 100], true, NAVY);
   row([String(p.age), money(p.income), money(p.expenses), money(p.savings), money(p.retirement)], [70, 110, 110, 100, 100]);
   if (p.job) para("Work: " + p.job);

@@ -11,29 +11,23 @@ import { downloadPlan } from "../lib/pdf";
 import { Panels, Fill } from "../components/Panels";
 import { ALL_JOBS, GROUNDING_SOURCES, HIST_INFLATION, INFLATION_HISTORY, bandForAge, matchJob, stateByCode, stateTaxLabel, taxes } from "../data/grounding";
 
-const TABS = [
-  { id: "moments", label: "Life moments", icon: Zap },
-  { id: "plan", label: "Your plan", icon: Compass },
-  { id: "future", label: "Your future", icon: Target },
-] as const;
-type TabId = (typeof TABS)[number]["id"];
 
 function ScenarioPanel() {
   const { profile: p } = useStore();
   const chips: [string, string][] = [
-    ["Age", `${p.age}`], ...(p.state ? [["State", p.state] as [string, string]] : []), ["Income", `${money(p.income)}/yr`], ["Bills", `${money(p.expenses)}/mo`], ["Savings", money(p.savings)], ["Retirement", money(p.retirement)],
+    ["Age", p.ageRange || `${p.age}`], ...(p.state ? [["State", p.state] as [string, string]] : []), ["Income", `${money(p.income)}/yr`], ["Bills", `${money(p.expenses)}/mo`], ["Savings", money(p.savings)], ["Retirement", money(p.retirement)],
     ...((p.kids || []).length ? [["Kids", (p.kids || []).map((k) => `${k.name} ${k.age}`).join(", ")] as [string, string]] : []),
   ];
   return (
     <div className="mb-3 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl bg-white px-4 py-3 shadow-card ring-1 ring-slate-200">
       <div className="flex items-center gap-3">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-navy text-xl">🙋</span>
-        <div className="leading-tight"><div className="text-[11px] font-bold uppercase tracking-wider text-emerald-600">My scenario</div><div className="font-display text-xl font-semibold">{p.name ? `${p.name}'s plan` : "Your plan"}</div></div>
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-navy text-xl" aria-hidden>🙂</span>
+        <div className="font-display text-xl font-semibold">{p.name ? `${p.name}'s plan` : "Your plan"}</div>
       </div>
       <div className="flex flex-1 flex-wrap gap-1.5">
         {chips.map(([k, v]) => <span key={k} className="rounded-lg bg-slate-50 px-2 py-1 text-[13px] ring-1 ring-slate-200"><span className="text-slate-500">{k} </span><b className="num text-navy">{v}</b></span>)}
       </div>
-      <a href="#/try?walk=mine" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> Edit my numbers</a>
+      <a href="#/try?walk=mine" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> Edit my plan</a>
     </div>
   );
 }
@@ -42,51 +36,8 @@ function Kicker({ children }: { children: React.ReactNode }) {
   return <div className="text-[12px] font-bold uppercase tracking-wider text-emerald-600">{children}</div>;
 }
 
-/* 1 · Life moments: pick as many as apply */
-function MomentsStep({ selected, toggle, auto }: { selected: MomentId[]; toggle: (m: MomentId) => void; auto: MomentId[] }) {
-  const { profile: p } = useStore();
-  const his = p.name ? `${p.name}'s` : "your";
-  return (
-    <Card className="p-4 sm:p-5">
-      <Kicker>Step 1</Kicker>
-      <h2 className="font-display text-2xl font-semibold">What's happening in {his} life right now?</h2>
-      <div className="mt-2 rounded-2xl bg-sky-soft/70 px-4 py-2.5 ring-1 ring-sky-200">
-        <div className="flex flex-wrap items-center gap-2 text-[13px] font-semibold">
-          <span className="mr-1 text-[14px] text-navy">The moments you pick drive everything:</span>
-          {["Life moments", "Your plan", "Your future"].map((t, i) => (
-            <span key={t} className="flex items-center gap-2">
-              <span className={cx("rounded-full px-2.5 py-0.5", i === 0 ? "bg-sun text-navy" : "bg-white text-navy ring-1 ring-slate-200")}>{t}</span>
-              {i < 2 && <ArrowRight size={15} className="text-slate-400" />}
-            </span>
-          ))}
-        </div>
-        <p className="mt-1 text-[13px] text-slate-600">Pick every moment that applies (some are picked from {his} answers). Next Step builds the plan around them, links each action to the Valley Bank product that fits, and shows your future with and without the plan.</p>
-      </div>
-      <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-        {MOMENTS.map((m) => {
-          const on = selected.includes(m.id);
-          const isAuto = auto.includes(m.id);
-          return (
-            <button key={m.id} onClick={() => toggle(m.id)} aria-pressed={on}
-              className={cx("relative flex items-start gap-2.5 rounded-2xl p-3 text-left ring-2 transition", on ? "bg-emerald-50 ring-emerald-500" : "bg-white ring-slate-200 hover:ring-emerald-300")}>
-              <span className="text-2xl">{m.emoji}</span>
-              <span className="flex-1">
-                <span className="block text-[15px] font-semibold leading-snug">{m.title}</span>
-                <span className="block text-[13px] text-slate-500">{m.sub}</span>
-                {isAuto && <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-200"><Sparkles size={11} /> {whyAuto(p, m.id)}</span>}
-              </span>
-              <span className={cx("grid h-7 w-7 shrink-0 place-items-center rounded-lg ring-2", on ? "bg-emerald-500 text-navy ring-emerald-500" : "bg-white ring-slate-300")}>{on && <Check size={16} />}</span>
-            </button>
-          );
-        })}
-      </div>
-      <p className="mt-2 text-[13px] text-slate-500">{selected.length ? `${selected.length} moment${selected.length === 1 ? "" : "s"} picked. Next Step builds ${his} plan around them.` : "No moments picked: the plan will cover the basics."}</p>
-    </Card>
-  );
-}
-
 /* 2 · The plan, built automatically */
-function PlanStep({ items }: { items: PlanItem[] }) {
+function PlanStep({ items, moments }: { items: PlanItem[]; moments: MomentId[] }) {
   const st = useStore();
   const { profile: p } = st;
   const [openId, setOpenId] = useState<string | null>(null);
@@ -96,8 +47,9 @@ function PlanStep({ items }: { items: PlanItem[] }) {
     <Card className="p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <Kicker>Step 2</Kicker>
-          <h2 className="font-display text-2xl font-semibold">{p.name ? `${p.name}'s` : "Your"} plan: where the money lives and what to do</h2>
+          <Kicker>Your plan</Kicker>
+          <h2 className="font-display text-2xl font-semibold">{p.name ? `${p.name}, this` : "This"} is where your money will live and what to do</h2>
+          {moments.length > 0 && <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[13px] text-slate-500">Built around: {moments.map((id) => { const m = MOMENTS.find((x) => x.id === id); return m ? <span key={id} className="rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">{m.emoji} {m.title}</span> : null; })}</div>}
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[14px] text-slate-500">Saved every month <b className="num text-lg text-navy">{money(total)}</b></span>
@@ -165,22 +117,33 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
   const lbl = (txt: string, color: string, dy = -12) => ({ value: txt, position: "top" as const, fill: color, fontSize: 12, fontWeight: 700, dy });
   return (
     <Card className="p-4 sm:p-5">
-      <Kicker>Step 3 · Your future</Kicker>
-      <h2 className="font-display text-2xl font-semibold">Will {name} have enough money to pay the bills after retiring at {R}?</h2>
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <Kicker>Your future</Kicker>
+          <h2 className="font-display text-2xl font-semibold">Will {name} have enough money to pay the bills after retiring at {R}?</h2>
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5 text-[13px]">
+          <span className="font-semibold text-slate-600">Retire at:</span>
+          {[55, 60, 62, 65, 67, 70, 72].filter((r) => r > p.age).map((r) => (
+            <button key={r} onClick={() => set((s) => ({ assumptions: { ...s.assumptions, retireAge: r } }))} aria-pressed={R === r}
+              className={cx("num rounded-lg px-2.5 py-1 font-semibold", R === r ? "bg-navy text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")}>{r}</button>
+          ))}
+        </div>
+      </div>
       <div className="mt-1 h-56 lg:h-[max(10rem,min(16.5rem,calc(100dvh-36rem)))]">
         <ResponsiveContainer>
-          <LineChart data={data} margin={{ top: 28, right: 24, left: 4, bottom: 4 }}>
+          <LineChart data={data} margin={{ top: 50, right: 24, left: 4, bottom: 4 }}>
             <CartesianGrid stroke="#EEF2F7" vertical={false} />
             <XAxis dataKey="age" tick={{ fontSize: 12, fill: "#64748B" }} tickLine={false} axisLine={false} interval={4} />
             <YAxis tickFormatter={axisMoney} tick={{ fontSize: 12, fill: "#64748B" }} tickLine={false} axisLine={false} width={56} />
             <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => `Age ${l}`} formatter={(v, n) => [money(Number(v)), n === "with" ? "With the plan" : "Without the plan"]} />
-            <ReferenceLine x={R} stroke="#94A3B8" strokeDasharray="4 4" label={w.depletedAge && Math.abs(w.depletedAge - R) < 3 ? undefined : { value: `Retire at ${R}`, position: "insideBottomLeft", fill: "#64748B", fontSize: 12, dy: -18 }} />
+            <ReferenceLine x={R} stroke="#94A3B8" strokeDasharray="4 4" label={{ value: `Retire at ${R}`, position: "top", offset: 30, fill: "#334155", fontSize: 12, fontWeight: 700 }} />
             <Line dataKey="without" stroke="#F97361" strokeWidth={3} dot={false} animationDuration={700} />
             <Line dataKey="with" stroke="#F5C000" strokeWidth={3.5} dot={false} animationDuration={700} />
             <ReferenceDot x={R} y={pAt} r={6} fill="#F5C000" stroke="#fff" strokeWidth={2} label={lbl(`With plan: ${compact(pAt)}`, "#7A5C00")} />
             {wAt > 0 && <ReferenceDot x={R} y={wAt} r={6} fill="#F97361" stroke="#fff" strokeWidth={2} label={lbl(`Without: ${compact(wAt)}`, "#C2410C", 22)} />}
-            {w.depletedAge && <ReferenceDot x={w.depletedAge} y={0} r={6} fill="#F97361" stroke="#fff" strokeWidth={2} label={lbl(`Runs out at ${w.depletedAge}`, "#C2410C")} />}
-            {wp.depletedAge && <ReferenceDot x={wp.depletedAge} y={0} r={6} fill="#F5C000" stroke="#fff" strokeWidth={2} label={lbl(`Runs out at ${wp.depletedAge}`, "#7A5C00", w.depletedAge && Math.abs(wp.depletedAge - w.depletedAge) < 6 ? -44 : -12)} />}
+            {w.depletedAge && <ReferenceDot x={w.depletedAge} y={0} r={6} fill="#F97361" stroke="#fff" strokeWidth={2} label={w.depletedAge - R >= 5 ? lbl(`Runs out at ${w.depletedAge}`, "#C2410C") : undefined} />}
+            {wp.depletedAge && <ReferenceDot x={wp.depletedAge} y={0} r={6} fill="#F5C000" stroke="#fff" strokeWidth={2} label={wp.depletedAge - R >= 5 ? lbl(`Runs out at ${wp.depletedAge}`, "#7A5C00", w.depletedAge && Math.abs(wp.depletedAge - w.depletedAge) < 6 ? -44 : -12) : undefined} />}
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -247,10 +210,8 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
 }
 
 export default function Dashboard() {
-  const { profile: p, assumptions: a, moments: saved, set, setContext } = useStore();
-  const auto = useMemo(() => autoMoments(p), [p]);
-  const selected = (saved as MomentId[] | undefined) ?? auto;
-  const toggle = (m: MomentId) => set({ moments: selected.includes(m) ? selected.filter((x) => x !== m) : [...selected, m] });
+  const { profile: p, assumptions: a, moments: saved, setContext } = useStore();
+  const selected = useMemo(() => ((saved as MomentId[] | undefined) ?? autoMoments(p)), [saved, p]);
   const plan = useMemo(() => buildPlan(p, a, selected), [p, a, selected]);
   const [tab, setTab] = useState(0);
   useEffect(() => {
@@ -263,11 +224,9 @@ export default function Dashboard() {
 
   const body = (n: React.ReactNode) => <Fill center={false}>{n}</Fill>;
   return (
-    <Panels nav="top" top={<ScenarioPanel />} index={tab} onIndex={setTab}
-      nextLabel={(i) => (i === 0 ? "Build my plan" : TABS[i + 1] ? `Next: ${TABS[i + 1].label}` : undefined)}
+    <Panels nav="none" top={<ScenarioPanel />} index={tab} onIndex={setTab}
       tabs={[
-        { id: "moments", label: "Life moments", body: () => body(<MomentsStep selected={selected} toggle={toggle} auto={auto} />) },
-        { id: "plan", label: "Your plan", body: () => body(<PlanStep items={plan.items} />) },
+        { id: "plan", label: "Your plan", body: () => body(<PlanStep items={plan.items} moments={selected} />) },
         { id: "future", label: "Your future", body: () => body(<AnswerStep plan={plan} />) },
       ]} />
   );

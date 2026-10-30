@@ -8,9 +8,10 @@ import { CUSTOM_ASSUMPTIONS } from "../data/dave";
 export function useScenario() {
   const { set, setEntered } = useStore();
   const mine = loadMine();
-  const finish = (final: Profile) => {
-    // editing your numbers keeps your plan choices
-    set({ profile: { ...final, scenario: "custom", onboarded: true }, assumptions: mine ? mine.assumptions : { ...CUSTOM_ASSUMPTIONS }, sims: mine ? mine.sims : {}, stepsDone: mine ? mine.stepsDone : {}, moments: undefined });
+  const finish = (final: Profile, moments?: string[], retireAge?: number) => {
+    // editing your answers keeps your other settings (like the inflation you picked)
+    const base = mine ? mine.assumptions : { ...CUSTOM_ASSUMPTIONS };
+    set({ profile: { ...final, scenario: "custom", onboarded: true }, assumptions: { ...base, retireAge: retireAge ?? base.retireAge }, sims: mine ? mine.sims : {}, stepsDone: {}, moments });
     setEntered(true);
     window.location.hash = "#/try";
   };
@@ -21,7 +22,7 @@ export function useScenario() {
     freshNumbers: () => { clearMine(); window.location.hash = "#/try?walk=mine"; },
     continueMine: () => {
       if (!mine) return;
-      set({ profile: { ...mine.profile, onboarded: true }, assumptions: mine.assumptions, sims: mine.sims, stepsDone: mine.stepsDone, moments: undefined });
+      set({ profile: { ...mine.profile, onboarded: true }, assumptions: mine.assumptions, sims: mine.sims, stepsDone: {}, moments: mine.moments });
       setEntered(true); window.location.hash = "#/try";
     },
   };
@@ -33,7 +34,7 @@ export function ScenarioCards({ compact = false }: { compact?: boolean }) {
   return (
     <div className={"mx-auto max-w-2xl rounded-3xl bg-navy text-left text-white shadow-card " + (compact ? "p-5 sm:p-7" : "p-6 sm:p-8")}>
       <div className="flex items-center gap-4">
-        <span className="grid h-[60px] w-[60px] shrink-0 place-items-center rounded-2xl bg-white/10 text-3xl">🙋</span>
+        <span className="grid h-[60px] w-[60px] shrink-0 place-items-center rounded-2xl bg-white/10 text-3xl">🙂</span>
         <div><div className="text-[12px] font-bold uppercase tracking-wider text-emerald-300">{mine ? "Welcome back" : "About 2 minutes"}</div><div className="font-display text-2xl font-semibold">{mine ? `${mine.profile.name ? mine.profile.name + "'s" : "Your"} numbers` : "Enter your numbers"}</div></div>
       </div>
       <p className="mt-4 text-[16px] leading-relaxed text-slate-300">{mine

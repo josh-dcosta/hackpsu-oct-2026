@@ -31,20 +31,17 @@ Anyone (like a plumber with three kids, or a school custodian with two teens) ca
 Three simple sections: **Try it now · Learn · About** (Learn lists every lesson; nothing is tracked). No AI, no API keys, no bank logins.
 
 - **About:** one swipeable carousel: the app, what's inside, future plans, me, then Try it now.
-- **Try it now:** enter **your own numbers** (about 2 minutes; saved only on your device), then:
-  1. **Life moments:** surprise bill · medical insurance going up · kid heading to college · the market dropped · retiring soon. Pick any; college and retiring soon are picked automatically from the scenario.
-  2. **Your plan:** built automatically: where each month's savings should live, and for each action how to do it, a calendar reminder and the matching Valley Bank product.
-  3. **Your future:** one graph of savings by age without vs. with the plan, then how long the money lasts.
-  Download the whole plan as a PDF at the end, on Your future.
+- **Try it now:** a short questionnaire (name and work, age range and when you'd like to retire, state, kids, income, spending, savings, comfort with money, then **what you'd like to work on**: the life moments), then:
+  1. **Your plan:** where your money will live and what to do, with how-to steps, a reminder and the matching Valley Bank product for each action.
+  2. **Your future:** savings by age without vs. with the plan, how long the money lasts; change the retirement age or inflation right there. Download the plan as a PDF.
+  **Edit my plan** reopens the questionnaire with your answers kept.
 - **Learn:** ten short lessons, each in four parts: the idea · a simulator (sliders left, numbers written on the chart) · what it means · a 3-question check.
 
 ## Demo script
-1. Open the site → **Try it now** → answer the questions (e.g. 50, two teens, $64,000, $3,600 bills, $6,000 saved).
-2. Life moments: college and retiring soon are picked automatically. Add **Medical insurance going up**.
-3. **Build my plan** → see where the money lives.
-4. On a plan card → **How to do it**, a Valley Bank product link, a reminder.
-5. **Your future** → without the plan vs. with it.
-6. **Learn** → the 401(k) lesson simulator.
+1. Open the site → **Try it now** → answer the questions (e.g. Josh, custodian, 45–54, retire at 62, Pennsylvania, $36,840).
+2. **What would you like to work on?** → pick Surprise bill and Medical insurance going up → **Show my plan**.
+3. On a plan card → **How to do it**, a Valley Bank product link, a reminder.
+4. **Your future** → without the plan vs. with it; try retiring at 67 instead; download the PDF.
 
 ## Tech
 React + TypeScript + Vite · Tailwind · Recharts · Framer Motion · Lucide · jsPDF · a tiny Express server that serves the app · localStorage for your numbers. All math lives in `src/lib/calc.ts` and `src/lib/plan.ts`.

@@ -13,7 +13,7 @@ export const SCREEN = "h-[calc(100dvh-184px)] lg:h-[calc(100dvh-4.5rem)]";
  * nav="side" (default): a table of contents on the right (desktop only). nav="top": numbered steps on top. Swipe left/right (touch or trackpad) or use the arrow keys.
  */
 export function Panels({ tabs, start = 0, top, index, onIndex, nextLabel, nav = "side" }: {
-  tabs: Panel[]; start?: number; top?: ReactNode; nav?: "top" | "side";
+  tabs: Panel[]; start?: number; top?: ReactNode; nav?: "top" | "side" | "none";
   index?: number; onIndex?: (i: number) => void; // optional controlled mode
   nextLabel?: (i: number) => string | undefined;
 }) {

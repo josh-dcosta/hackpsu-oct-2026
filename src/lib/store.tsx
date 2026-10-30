@@ -63,7 +63,7 @@ function load(): State {
 
 export type Toast = { id: number; text: string; emoji?: string };
 // The user's own scenario is saved separately so trying the demo never erases it.
-export type Mine = { profile: Profile; assumptions: Assumptions; sims: Record<string, unknown>; stepsDone: Record<string, boolean> };
+export type Mine = { profile: Profile; assumptions: Assumptions; sims: Record<string, unknown>; stepsDone: Record<string, boolean>; moments?: string[] };
 const MINE_KEY = "nextstep-mine-v1";
 export function loadMine(): Mine | null {
   try { const raw = localStorage.getItem(MINE_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
@@ -106,7 +106,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(KEY, JSON.stringify(s));
       if (s.profile.scenario === "custom" && s.profile.onboarded)
-        localStorage.setItem(MINE_KEY, JSON.stringify({ profile: s.profile, assumptions: s.assumptions, sims: s.sims, stepsDone: s.stepsDone }));
+        localStorage.setItem(MINE_KEY, JSON.stringify({ profile: s.profile, assumptions: s.assumptions, sims: s.sims, stepsDone: s.stepsDone, moments: s.moments }));
     } catch { /* ignore */ }
   }, [s]);
   useEffect(() => { document.documentElement.classList.remove("big-text"); }, []);
