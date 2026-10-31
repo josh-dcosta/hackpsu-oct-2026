@@ -338,6 +338,8 @@ export function projectLife(p: Profile, a: Assumptions, ev: LifeEvents = {}) {
         cash += toCash; invested += (surplus - toCash) * (1 + ret / 2);
       } else {
         cash += surplus; if (cash < 0) { invested += cash; cash = 0; }
+        // spending is more than take-home pay: savings can run dry before retirement
+        if (cash + invested <= 0 && depletedAge === null) depletedAge = age;
       }
       salary *= 1 + a.salaryGrowth;
     } else {

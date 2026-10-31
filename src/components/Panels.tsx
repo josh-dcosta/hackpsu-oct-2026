@@ -77,10 +77,10 @@ export function Panels({ tabs, start = 0, top, index, onIndex, nextLabel, nav = 
             </AnimatePresence>
           </div>
           {many && (
-            <div className="mt-3 flex shrink-0 items-center justify-between gap-2">
-              <button onClick={() => set(i - 1)} disabled={i === 0} className="inline-flex min-w-0 items-center gap-1.5 rounded-xl px-2 py-2.5 font-semibold text-slate-500 hover:text-navy disabled:invisible"><ArrowLeft size={17} className="shrink-0" /><span className="hidden truncate sm:inline">{tabs[i - 1]?.label}</span></button>
+            <div className="mt-2 flex shrink-0 items-center justify-between gap-2">
+              <button onClick={() => set(i - 1)} disabled={i === 0} className="inline-flex min-w-0 items-center gap-1.5 rounded-xl px-2 py-1.5 text-[15px] font-semibold text-slate-500 hover:text-navy disabled:invisible"><ArrowLeft size={17} className="shrink-0" /><span className="hidden truncate sm:inline">{tabs[i - 1]?.label}</span></button>
               <div className="flex shrink-0 gap-1.5">{tabs.map((t, n) => <button key={t.id} onClick={() => set(n)} aria-label={t.label} className={cx("h-2.5 rounded-full transition-all", n === i ? "w-7 bg-emerald-500" : "w-2.5 bg-slate-300 hover:bg-slate-400")} />)}</div>
-              <button onClick={() => set(i + 1)} disabled={i === tabs.length - 1} className="inline-flex min-w-0 items-center gap-1.5 rounded-xl bg-sun px-4 py-2.5 font-semibold text-navy hover:bg-sun-600 disabled:invisible"><span className="truncate">{next ?? "Next"}</span> <ArrowRight size={17} className="shrink-0" /></button>
+              <button onClick={() => set(i + 1)} disabled={i === tabs.length - 1} className="inline-flex min-w-0 items-center gap-1.5 rounded-xl bg-sun px-4 py-1.5 text-[15px] font-semibold text-navy hover:bg-sun-600 disabled:invisible"><span className="truncate">{next ?? "Next"}</span> <ArrowRight size={17} className="shrink-0" /></button>
             </div>
           )}
         </div>

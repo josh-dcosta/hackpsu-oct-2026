@@ -15,20 +15,19 @@ import { ALL_JOBS, GROUNDING_SOURCES, HIST_INFLATION, INFLATION_HISTORY, bandFor
 
 function ScenarioPanel() {
   const { profile: p } = useStore();
+  // value + a tiny label, so the whole bar fits on one thin line
   const chips: [string, string][] = [
-    ["Age", p.ageRange || `${p.age}`], ...(p.state ? [["State", p.state] as [string, string]] : []), ["Income", `${money(p.income)}/yr`], ["Bills", `${money(p.expenses)}/mo`], ["Savings", money(p.savings)], ["Retirement", money(p.retirement)],
-    ...((p.kids || []).length ? [["Kids", (p.kids || []).map((k) => `${k.name} ${k.age}`).join(", ")] as [string, string]] : []),
+    [p.ageRange || `${p.age}`, "age"], ...(p.state ? [[p.state, ""] as [string, string]] : []), [`${money(p.income)}`, "/yr"], [`${money(p.expenses)}`, "bills/mo"], [money(p.savings), "saved"], [money(p.retirement), "retirement"],
+    ...((p.kids || []).length ? [[`${(p.kids || []).length}`, (p.kids || []).length === 1 ? "kid" : "kids"] as [string, string]] : []),
   ];
   return (
-    <div className="mb-3 flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl bg-white px-4 py-3 shadow-card ring-1 ring-slate-200">
-      <div className="flex items-center gap-3">
-        <WorkerIcon size={40} className="rounded-xl" />
-        <div className="font-display text-xl font-semibold">{p.name ? `${p.name}'s plan` : "Your plan"}</div>
+    <div className="mb-2 flex shrink-0 items-center gap-3 rounded-2xl bg-white px-3 py-1.5 shadow-card ring-1 ring-slate-200">
+      <WorkerIcon size={30} className="rounded-lg" />
+      <div className="shrink-0 font-display text-lg font-semibold">{p.name ? `${p.name}'s plan` : "Your plan"}</div>
+      <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto">
+        {chips.map(([v, k]) => <span key={k + v} className="shrink-0 whitespace-nowrap rounded-md bg-slate-50 px-1.5 py-0.5 text-[12px] ring-1 ring-slate-200"><b className="num text-navy">{v}</b>{k && <span className="text-[11px] text-slate-400"> {k}</span>}</span>)}
       </div>
-      <div className="flex flex-1 flex-wrap gap-1.5">
-        {chips.map(([k, v]) => <span key={k} className="rounded-lg bg-slate-50 px-2 py-1 text-[13px] ring-1 ring-slate-200"><span className="text-slate-500">{k} </span><b className="num text-navy">{v}</b></span>)}
-      </div>
-      <a href="#/try?walk=mine" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={14} /> Edit my plan</a>
+      <a href="#/try?walk=mine" className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1 text-[13px] font-semibold ring-1 ring-slate-200 hover:bg-slate-50"><Pencil size={13} /> Edit plan</a>
     </div>
   );
 }
@@ -46,52 +45,48 @@ function PlanStep({ items, moments }: { items: PlanItem[]; moments: MomentId[] }
   const total = monthlyItems.reduce((t, i) => t + i.monthly, 0);
   return (
     <Card className="p-4 sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <Kicker>Your plan</Kicker>
-          <h2 className="font-display text-2xl font-semibold">{p.name ? `${p.name}, this` : "This"} is where your money will live and what to do</h2>
-          {moments.length > 0 && <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[13px] text-slate-500">Built around: {moments.map((id) => { const m = MOMENTS.find((x) => x.id === id); return m ? <span key={id} className="rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">{m.emoji} {m.title}</span> : null; })}</div>}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[14px] text-slate-500">Saved every month <b className="num text-lg text-navy">{money(total)}</b></span>
-        </div>
+      <div className="flex items-center justify-between gap-2">
+        <Kicker>Your plan</Kicker>
+        <span className="text-[14px] text-slate-500">Saved every month <b className="num text-lg text-navy">{money(total)}</b></span>
       </div>
-      <div className="mt-2 flex h-8 overflow-hidden rounded-xl text-[12px] font-bold text-white">
+      <h2 className="font-display text-2xl font-semibold leading-tight">{p.name ? `${p.name}, this` : "This"} is where your money will live and what to do</h2>
+      {moments.length > 0 && <div className="mt-1 flex items-center gap-1 overflow-x-auto whitespace-nowrap text-[12px] text-slate-500">Built around: {moments.map((id) => { const m = MOMENTS.find((x) => x.id === id); return m ? <span key={id} className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">{m.emoji} {m.title}</span> : null; })}</div>}
+      <div className="mt-2 flex h-6 overflow-hidden rounded-lg text-[11px] font-bold text-white">
         {monthlyItems.map((i) => (
           <motion.div key={i.id} initial={{ width: 0 }} animate={{ width: `${(i.monthly / total) * 100}%` }} className="flex items-center justify-center overflow-hidden whitespace-nowrap px-1" style={{ background: i.color }} title={`${i.title} ${money(i.monthly)}/mo`}>
             {i.monthly / total > 0.2 ? `${i.title} ${money(i.monthly)}` : i.monthly / total > 0.08 ? money(i.monthly) : ""}
           </motion.div>
         ))}
       </div>
-      <div className="mt-3 grid items-start gap-2.5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-2 grid items-start gap-2 md:grid-cols-2 xl:grid-cols-4">
         {items.map((i) => {
           const m = MOMENTS.find((x) => x.id === i.moment);
           const isOpen = openId === i.id;
           return (
-            <div key={i.id} className="flex flex-col rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-200" style={{ borderLeft: `6px solid ${i.color}` }} title={i.where}>
-              <div className="flex items-start gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-[15px] font-semibold leading-snug">{i.emoji} {i.title}</span>
-                    <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[10px] font-bold uppercase text-slate-500 ring-1 ring-slate-200">{i.when}</span>
-                  </div>
-                  <div className="num mt-1 text-[14px] font-bold text-navy">{i.amount}</div>
+            <div key={i.id} className="flex flex-col rounded-2xl bg-slate-50 px-3 py-2.5 ring-1 ring-slate-200" style={{ borderLeft: `5px solid ${i.color}` }} title={i.why}>
+              <span className="text-[15px] font-semibold leading-snug">{i.emoji} {i.title}</span>
+              <div className="num mt-0.5 text-[13px] font-bold leading-snug text-navy">{i.amount}</div>
+              {isOpen && (
+                <div className="mt-1.5 text-[13px] text-slate-600">
+                  <p className="leading-snug">{m ? `${m.emoji} ` : ""}{i.why}</p>
+                  <ol className="mt-1.5 list-decimal space-y-0.5 pl-5 text-slate-700">{i.how.map((h) => <li key={h}>{h}</li>)}</ol>
                 </div>
-              </div>
-              <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-slate-600" title={i.why}>{m ? `${m.emoji} ` : ""}{i.why}</p>
-              {isOpen && <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-[13px] text-slate-700">{i.how.map((h) => <li key={h}>{h}</li>)}</ol>}
-              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              )}
+              <div className="mt-1.5 flex flex-wrap items-center gap-1">
                 {i.products.map((pr) => (
-                  <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-sun px-2.5 py-1 text-[12px] font-semibold text-navy hover:bg-sun-600">
-                    <span className="rounded bg-navy px-1 text-[9px] font-extrabold text-sun">VALLEY</span>{pr.name.replace("Valley ", "")}<ExternalLink size={12} />
+                  <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-sun px-1.5 py-0.5 text-[11px] font-semibold text-navy hover:bg-sun-600">
+                    <span className="rounded bg-navy px-1 text-[8px] font-extrabold text-sun">VALLEY</span>{pr.name.replace("Valley ", "")}<ExternalLink size={11} />
                   </a>
                 ))}
                 {(i.also || []).map((pr) => (
-                  <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-[12px] font-semibold ring-1 ring-slate-200 hover:bg-slate-50">{pr.name}<ExternalLink size={12} /></a>
+                  <a key={pr.url} href={pr.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-white px-1.5 py-0.5 text-[11px] font-semibold ring-1 ring-slate-200 hover:bg-slate-50">{pr.name}<ExternalLink size={11} /></a>
                 ))}
-                <button onClick={() => setOpenId(isOpen ? null : i.id)} aria-expanded={isOpen} className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[12px] font-semibold text-emerald-700 hover:bg-emerald-50">{isOpen ? "Hide steps" : "How to do it"}<ChevronDown size={13} className={cx("transition", isOpen && "rotate-180")} /></button>
+              </div>
+              <div className="mt-1 flex items-center gap-1 whitespace-nowrap">
+                <span className="rounded-full bg-white px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-500 ring-1 ring-slate-200">{i.when}</span>
+                <button onClick={() => setOpenId(isOpen ? null : i.id)} aria-expanded={isOpen} className="inline-flex items-center gap-0.5 rounded-md px-1 py-0.5 text-[12px] font-semibold text-emerald-700 hover:bg-emerald-50">{isOpen ? "Hide" : "How to"}<ChevronDown size={13} className={cx("transition", isOpen && "rotate-180")} /></button>
                 <button onClick={() => downloadReminder({ id: i.id, title: i.title, why: i.why, how: i.how, source: i.products[0] ? { label: i.products[0].name, url: i.products[0].url } : undefined } as never)}
-                  aria-label={`Add a reminder for ${i.title}`} title="Add a reminder" className="inline-flex items-center rounded-lg px-1.5 py-1 text-slate-500 hover:bg-white hover:text-navy"><CalendarPlus size={15} /></button>
+                  aria-label={`Add a reminder for ${i.title}`} title="Add a reminder" className="ml-auto inline-flex items-center rounded-md p-1 text-slate-500 hover:bg-white hover:text-navy"><CalendarPlus size={15} /></button>
               </div>
             </div>
           );
@@ -131,7 +126,7 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
           ))}
         </div>
       </div>
-      <div className="mt-1 h-56 lg:h-[max(10rem,min(16.5rem,calc(100dvh-36rem)))]">
+      <div className="mt-1 h-56 lg:h-[max(7rem,min(16.5rem,calc(100dvh-38rem)))]">
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 50, right: 24, left: 4, bottom: 4 }}>
             <CartesianGrid stroke="#EEF2F7" vertical={false} />
@@ -151,14 +146,14 @@ function AnswerStep({ plan }: { plan: ReturnType<typeof buildPlan> }) {
       <div className="mt-1 flex flex-wrap gap-4 text-[13px] font-semibold"><span className="flex items-center gap-2 text-orange-700"><i className="h-1 w-6 rounded bg-coral" /> Without the plan</span><span className="flex items-center gap-2 text-emerald-700"><i className="h-1 w-6 rounded bg-emerald-500" /> With the plan</span><span className="text-slate-500">Total savings by age</span></div>
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <div className="rounded-2xl bg-orange-50 p-4 ring-1 ring-orange-200">
+        <div className="rounded-2xl bg-orange-50 p-4 [@media(min-width:640px)_and_(max-height:800px)]:p-3 ring-1 ring-orange-200">
           <div className="text-[13px] font-bold uppercase tracking-wider text-orange-700">Without the plan</div>
-          <div className="mt-1 font-display text-2xl font-semibold text-navy">{w.depletedAge ? `Not enough. Savings run out at ${w.depletedAge}.` : "Savings last past 90."}</div>
-          <p className="mt-1 text-[15px] text-slate-600">About {money(wAt)} saved at {R}.</p>
+          <div className="mt-1 font-display text-2xl [@media(min-width:640px)_and_(max-height:800px)]:text-xl font-semibold leading-tight text-navy">{w.depletedAge ? `Not enough. Savings run out at ${w.depletedAge}${w.depletedAge < R ? ", before retiring" : ""}.` : "Savings last past 90."}</div>
+          <p className="mt-1 text-[15px] text-slate-600">{w.depletedAge && w.depletedAge < R ? `Monthly spending is more than take-home pay (${money(taxes(p.income, p.state, p.filing).takeHome / 12)}/mo).` : `About ${money(wAt)} saved at ${R}.`}</p>
         </div>
-        <div className="rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-300">
+        <div className="rounded-2xl bg-emerald-50 p-4 [@media(min-width:640px)_and_(max-height:800px)]:p-3 ring-1 ring-emerald-300">
           <div className="text-[13px] font-bold uppercase tracking-wider text-emerald-700">With the plan</div>
-          <div className="mt-1 font-display text-2xl font-semibold text-navy">{wp.depletedAge ? `Money lasts until ${wp.depletedAge}${extra > 0 ? `, ${extra} more year${extra === 1 ? "" : "s"}` : ""}.` : "Money lasts past 90."}</div>
+          <div className="mt-1 font-display text-2xl [@media(min-width:640px)_and_(max-height:800px)]:text-xl font-semibold leading-tight text-navy">{wp.depletedAge ? (wp.depletedAge < R ? `Still runs out at ${wp.depletedAge}${extra > 0 ? `, ${extra} year${extra === 1 ? "" : "s"} later` : ""}.` : `Money lasts until ${wp.depletedAge}${extra > 0 ? `, ${extra} more year${extra === 1 ? "" : "s"}` : ""}.`) : "Money lasts past 90."}</div>
           <p className="mt-1 text-[15px] text-slate-600">About {money(pAt)} saved at {R}{pAt > wAt ? `, ${money(pAt - wAt)} more` : ""}.</p>
         </div>
       </div>
